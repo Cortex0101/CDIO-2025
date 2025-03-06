@@ -1,9 +1,16 @@
 import cv2
 import numpy as np
 
-# Initial HSV range values
-h_min, s_min, v_min = 85, 0, 232
-h_max, s_max, v_max = 170, 160, 255
+# Initial HSV range values for white ball
+# These values will be dynamically adjusted from trackbars
+h_min_wb, s_min_wb, v_min_wb = 85, 0, 232
+h_max_wb, s_max_wb, v_max_wb = 170, 160, 255
+
+
+# Initial HSV range values for orange ball
+# These values will be dynamically adjusted from trackbars
+h_min_0b, s_min_ob, v_min_ob = 85, 0, 232
+h_max_ob, s_max_ob, v_max_ob = 170, 160, 255
 
 # Callback function for trackbars (does nothing but needed for trackbars)
 def on_trackbar(val):
@@ -18,16 +25,19 @@ if not cap.isOpened():
     print("Error: Camera not accessible!")
     exit()
 
+
+
 # Create a window for trackbars
 cv2.namedWindow("HSV Trackbars")
 
+
 # Create trackbars to adjust HSV values dynamically
-cv2.createTrackbar("H Min", "HSV Trackbars", h_min, 179, on_trackbar)
-cv2.createTrackbar("H Max", "HSV Trackbars", h_max, 179, on_trackbar)
-cv2.createTrackbar("S Min", "HSV Trackbars", s_min, 255, on_trackbar)
-cv2.createTrackbar("S Max", "HSV Trackbars", s_max, 255, on_trackbar)
-cv2.createTrackbar("V Min", "HSV Trackbars", v_min, 255, on_trackbar)
-cv2.createTrackbar("V Max", "HSV Trackbars", v_max, 255, on_trackbar)
+cv2.createTrackbar("H Min", "HSV Trackbars", h_min_wb, 179, on_trackbar)
+cv2.createTrackbar("H Max", "HSV Trackbars", h_max_wb, 179, on_trackbar)
+cv2.createTrackbar("S Min", "HSV Trackbars", s_min_wb, 255, on_trackbar)
+cv2.createTrackbar("S Max", "HSV Trackbars", s_max_wb, 255, on_trackbar)
+cv2.createTrackbar("V Min", "HSV Trackbars", v_min_wb, 255, on_trackbar)
+cv2.createTrackbar("V Max", "HSV Trackbars", v_max_wb, 255, on_trackbar)
 
 while True:
     ret, frame = cap.read()
@@ -39,15 +49,15 @@ while True:
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Get the dynamically adjusted HSV values from trackbars
-    h_min = cv2.getTrackbarPos("H Min", "HSV Trackbars")
-    h_max = cv2.getTrackbarPos("H Max", "HSV Trackbars")
-    s_min = cv2.getTrackbarPos("S Min", "HSV Trackbars")
-    s_max = cv2.getTrackbarPos("S Max", "HSV Trackbars")
-    v_min = cv2.getTrackbarPos("V Min", "HSV Trackbars")
-    v_max = cv2.getTrackbarPos("V Max", "HSV Trackbars")
+    h_min_wb = cv2.getTrackbarPos("H Min", "HSV Trackbars")
+    h_max_wb = cv2.getTrackbarPos("H Max", "HSV Trackbars")
+    s_min_wb = cv2.getTrackbarPos("S Min", "HSV Trackbars")
+    s_max_wb = cv2.getTrackbarPos("S Max", "HSV Trackbars")
+    v_min_wb = cv2.getTrackbarPos("V Min", "HSV Trackbars")
+    v_max_wb = cv2.getTrackbarPos("V Max", "HSV Trackbars")
 
-    lower_color = np.array([h_min, s_min, v_min])
-    upper_color = np.array([h_max, s_max, v_max])
+    lower_color = np.array([h_min_wb, s_min_wb, v_min_wb])
+    upper_color = np.array([h_max_wb, s_max_wb, v_max_wb])
 
     # Apply threshold to detect the selected color
     mask = cv2.inRange(hsv, lower_color, upper_color)
@@ -88,3 +98,6 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+
+    
