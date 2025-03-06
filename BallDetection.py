@@ -57,7 +57,7 @@ while True:
 
     for contour in contours:
         area = cv2.contourArea(contour)
-        if area > 100:  # Ignore small objects
+        if area > 180 and area < 230:  # Ignore small and big objects
             M = cv2.moments(contour)
             if M["m00"] != 0:  # Prevent division by zero
                 cx = int(M["m10"] / M["m00"])  # X coordinate of center
