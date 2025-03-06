@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 # Initial HSV range values
-h_min, s_min, v_min = 0, 0, 240
-h_max, s_max, v_max = 90, 25, 255
+h_min, s_min, v_min = 85, 0, 232
+h_max, s_max, v_max = 170, 160, 255
 
 # Callback function for trackbars (does nothing but needed for trackbars)
 def on_trackbar(val):
@@ -11,6 +11,9 @@ def on_trackbar(val):
 
 # Open the default camera
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 if not cap.isOpened():
     print("Error: Camera not accessible!")
     exit()
@@ -54,7 +57,7 @@ while True:
 
     for contour in contours:
         area = cv2.contourArea(contour)
-        if area > 500:  # Ignore small objects
+        if area > 100:  # Ignore small objects
             M = cv2.moments(contour)
             if M["m00"] != 0:  # Prevent division by zero
                 cx = int(M["m10"] / M["m00"])  # X coordinate of center
