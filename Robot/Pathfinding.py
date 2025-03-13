@@ -30,19 +30,14 @@ def sort_proximity(robot_position, points):
    
     return sorted_points
 
-def move_robot(robot_position, target_points, wheel_diameter=70, axle_track=165):
-
-    left_motor = LargeMotor(OUTPUT_A)
-    right_motor = LargeMotor(OUTPUT_B)
-
-    robot = MoveSteering(OUTPUT_A, OUTPUT_B)
+def move_robot(robot, target_points, wheel_diameter=70, axle_track=165):
     sound = Sound()
 
-    sorted_points = sort_proximity(robot_position, target_points)
-    current_x, current_y = robot_position
+
+    sorted_points = sort_proximity(robot.getPosition(), target_points)
+    current_x, current_y = robot.getPosition()
     
-    # degrees, 0 = positive x-axis, 90 = positive y-axis
-    current_heading = 0
+    current_heading = robot.getAngle()
     
     print(f"Robot starting at position: ({current_x}, {current_y}), heading: {current_heading}°")
     
@@ -65,27 +60,14 @@ def move_robot(robot_position, target_points, wheel_diameter=70, axle_track=165)
         
         # Turn the robot
         if turn_angle != 0:
-            robot.on_for_degrees(steering=100 if turn_angle > 0 else -100, speed=20, degrees=abs(turn_angle) * 5)
+            # if turn_angle > 0, turn right, else turn left
+            if turn_angle > 0:
+                robot.turn_right(turn_angle)
+            else:
+                robot.turn_left(-turn_angle)
+
         
         # Move forward
-        robot.on_for_degrees(steering=0, speed=50, degrees=distance * 2)
-        
-        current_x, current_y = target_x, target_y
-        current_heading = target_heading
-        
+        robot.move_forward(distance)
         sound.beep()
     print("Navigation completed")
-
-if __name__ == "__main__":
-
-  
-    robot_pos = (0, 0)
-    target_points = [(300, 400), (700, 700), (500, 100), (200, 300)]
-    
-    print(f"Starting position: {robot_pos}")
-    print(f"Target points: {target_points}")
-    
-    sorted_points = sort_proximity(robot_pos, target_points)
-    print(f"Sorted points: {sorted_points}")
-
-    move_robot(robot_pos, target_points)
