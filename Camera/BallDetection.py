@@ -44,7 +44,7 @@ if not cap.isOpened():
     exit()
 
 # Create a window for trackbars
-cv2.namedWindow("HSV Trackbars")
+cv2.namedWindow("HSV Trackbars for White Ball")
 
 # Create trackbars to adjust HSV values dynamically
 cv2.createTrackbar("H Min", "HSV Trackbars", h_min_wb, 179, on_trackbar)
