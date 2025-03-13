@@ -2,8 +2,6 @@
 from ev3dev2.motor import LargeMotor, MoveSteering, OUTPUT_A, OUTPUT_B
 from ev3dev2.sound import Sound
 import math
-from BallDetection import white_balls, orange_balls
-
 
 def calculate_distance(point1, point2):
     return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
@@ -31,43 +29,36 @@ def sort_proximity(robot_position, points):
     return sorted_points
 
 def move_robot(robot, target_points, wheel_diameter=70, axle_track=165):
-    sound = Sound()
+    sorted_points = sort_proximity(robot.get_position(), target_points)
+    current_x, current_y = robot.get_position()
+    current_heading = robot.get_angle()
 
-
-    sorted_points = sort_proximity(robot.getPosition(), target_points)
-    current_x, current_y = robot.getPosition()
-    
-    current_heading = robot.getAngle()
-    
-    print(f"Robot starting at position: ({current_x}, {current_y}), heading: {current_heading}°")
-    
-    # Visit each point in order
     for target_x, target_y in sorted_points:
         dx = target_x - current_x
         dy = target_y - current_y
         distance = calculate_distance((current_x, current_y), (target_x, target_y))
+        
+        # Correct calculation of target heading
         target_heading = math.degrees(math.atan2(dy, dx))
-        turn_angle = target_heading - current_heading
         
-        if turn_angle > 180:
-            turn_angle -= 360
-        elif turn_angle < -180:
-            turn_angle += 360
-        
-        print(f"Moving to ({target_x}, {target_y})")
-        print(f"  - Turn angle: {turn_angle}°")
-        print(f"  - Distance: {distance} mm")
-        
-        # Turn the robot
-        if turn_angle != 0:
-            # if turn_angle > 0, turn right, else turn left
-            if turn_angle > 0:
-                robot.turn_right(turn_angle)
-            else:
-                robot.turn_left(-turn_angle)
+        # Calculate the shortest turn direction
+        turn_angle = (target_heading - current_heading + 180) % 360 - 180
 
-        
+        print("From Pathfinding, move_robot()")
+        print("Moving to: " + str(target_x) + ", " + str(target_y) +
+              ", Turn angle: " + str(turn_angle) + ", Distance: " + str(distance))
+
+        # Perform turn (correcting left/right logic)
+        if turn_angle > 0:
+            robot.turn_left(turn_angle)  # Left turn if positive
+        elif turn_angle < 0:
+            robot.turn_right(-turn_angle)  # Right turn if negative
+
         # Move forward
         robot.move_forward(distance)
-        sound.beep()
+
+        # Update current position and heading
+        current_x, current_y = target_x, target_y
+        current_heading = (current_heading + turn_angle) % 360
+
     print("Navigation completed")

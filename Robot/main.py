@@ -48,19 +48,20 @@ def turn_right(angle, speed=30):
 # =====================
 # TEST DRIVE PATH
 # =====================
-def test_drive():
+def test_drive1():
     robot = Robot()
 
     # Robot should move straight, turn right, move straight, then turn around and move back
-    target_points = [(1000, 0), (1100, 1100), (-1500, -1500)]
+    target_points = [(0, 40), (40, 40), (80, 80)]
     
-    print(f"Starting position: {robot.getPosition()}")
-    print(f"Target points: {target_points}")
+    #print("Starting position: x=" + robot.get_position(
+    #print("Target points: " + target_points)
     
-    sorted_points = sort_proximity(robot.getPosition(), target_points)
-    print(f"Sorted points: {sorted_points}")
+    sorted_points = sort_proximity(robot.get_position(), target_points)
+    print("Sorted points: ")
+    print(str(sorted_points))
 
-    move_robot(robot.getPosition(), target_points)
+    move_robot(robot, target_points)
 
 # Run the test drive
-test_drive()
+test_drive1()
