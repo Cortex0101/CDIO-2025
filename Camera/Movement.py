@@ -1,6 +1,10 @@
 
-from ev3dev2.motor import LargeMotor, MoveSteering, OUTPUT_A, OUTPUT_B
-from ev3dev2.sound import Sound
+
+from pybricks.hubs import EV3Brick
+from pybricks.ev3devices import Motor, UltrasonicSensor, ColorSensor
+from pybricks.parameters import Port, Direction
+from pybricks.tools import wait
+from pybricks.robotics import DriveBase
 import math
 from BallDetection import white_balls, orange_balls
 
@@ -32,13 +36,18 @@ def sort_proximity(robot_position, points):
 
 def move_robot(robot_position, target_points, wheel_diameter=70, axle_track=165):
 
-    left_motor = LargeMotor(OUTPUT_A)
-    right_motor = LargeMotor(OUTPUT_B)
+    ev3 = EV3Brick()
+    
+    left_motor = Motor(Port.A)
+    right_motor = Motor(Port.B)
 
-    robot = MoveSteering(OUTPUT_A, OUTPUT_B)
-    sound = Sound()
+    # drivebase for correct speed calcs, axle track = distance between middle of wheels in mm
+    robot = DriveBase(left_motor, right_motor, wheel_diameter, axle_track)
+    
+    robot.settings(drive_speed=100, turn_rate=60)
 
     sorted_points = sort_proximity(robot_position, target_points)
+
     current_x, current_y = robot_position
     
     # degrees, 0 = positive x-axis, 90 = positive y-axis
@@ -48,12 +57,21 @@ def move_robot(robot_position, target_points, wheel_diameter=70, axle_track=165)
     
     # Visit each point in order
     for target_x, target_y in sorted_points:
+        # Calculate displacement vector
         dx = target_x - current_x
         dy = target_y - current_y
+        
+        # Calculate distance to target
         distance = calculate_distance((current_x, current_y), (target_x, target_y))
+
+        # Calculate target heading (in degrees)
+        # atan2 returns angle in radians, convert to degrees
         target_heading = math.degrees(math.atan2(dy, dx))
+        
+        # Calculate how much the robot needs to turn
         turn_angle = target_heading - current_heading
         
+        # Normalize the turn angle to be between -180 and 180 degrees
         if turn_angle > 180:
             turn_angle -= 360
         elif turn_angle < -180:
@@ -63,17 +81,18 @@ def move_robot(robot_position, target_points, wheel_diameter=70, axle_track=165)
         print(f"  - Turn angle: {turn_angle}°")
         print(f"  - Distance: {distance} mm")
         
-        # Turn the robot
-        if turn_angle != 0:
-            robot.on_for_degrees(steering=100 if turn_angle > 0 else -100, speed=20, degrees=abs(turn_angle) * 5)
+        # Execute the turn
+        robot.turn(turn_angle)
         
-        # Move forward
-        robot.on_for_degrees(steering=0, speed=50, degrees=distance * 2)
+        # Execute the straight movement
+        robot.straight(distance)
         
+        # Update current position and heading
         current_x, current_y = target_x, target_y
         current_heading = target_heading
         
-        sound.beep()
+        # Optional: Add a small delay between movements
+        ev3.speaker.beep()  # Beep to indicate reached target
     
     print("Navigation completed")
 
@@ -88,5 +107,3 @@ if __name__ == "__main__":
     
     sorted_points = sort_proximity(robot_pos, target_points)
     print(f"Sorted points: {sorted_points}")
-
-    move_robot(robot_pos, target_points)
