@@ -2,6 +2,8 @@
 
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, MoveTank
 from time import sleep
+from Robot import Robot
+from Pathfinding import sort_proximity, move_robot
 
 # Initialize motors
 left_motor = LargeMotor(OUTPUT_A)
@@ -47,29 +49,18 @@ def turn_right(angle, speed=30):
 # TEST DRIVE PATH
 # =====================
 def test_drive():
-    """
-    Perform a test drive: move forward, turn, move back.
-    """
-    print("Starting test drive...")
+    robot = Robot()
 
-    while True:
+    # Robot should move straight, turn right, move straight, then turn around and move back
+    target_points = [(1000, 0), (1100, 1100), (-1500, -1500)]
+    
+    print(f"Starting position: {robot.getPosition()}")
+    print(f"Target points: {target_points}")
+    
+    sorted_points = sort_proximity(robot.getPosition(), target_points)
+    print(f"Sorted points: {sorted_points}")
 
-        move_forward(20, speed=50)  # Move forward 20 cm
-        sleep(1)
-
-        turn_right(90, speed=30)  # Turn right 90 degrees
-        sleep(1)
-
-        move_forward(10, speed=50)  # Move forward 10 cm
-        sleep(1)
-
-        turn_left(45, speed=30)  # Turn left 45 degrees
-        sleep(1)
-
-        move_backward(15, speed=50)  # Move backward 15 cm
-        sleep(1)
-
-    print("Test drive complete.")
+    move_robot(robot.getPosition(), target_points)
 
 # Run the test drive
 test_drive()
