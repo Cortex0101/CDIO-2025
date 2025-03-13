@@ -1,11 +1,13 @@
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, MoveTank
+# beep
+from ev3dev2.sound import Sound
 from time import sleep
 import math
 
 class Robot:
-    WHEEL_DIAMETER = 4.2  # cm
+    WHEEL_DIAMETER = 7  # cm
     WHEEL_CIRCUMFERENCE = math.pi * WHEEL_DIAMETER  # cm per full wheel rotation
-    AXLE_TRACK = 12  # cm (distance between left and right wheels)
+    AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
     
     def __init__(self):
         self.left_motor = LargeMotor(OUTPUT_A)
@@ -25,6 +27,10 @@ class Robot:
         rad_angle = math.radians(self.angle)
         self.x += distance_cm * math.cos(rad_angle)
         self.y += distance_cm * math.sin(rad_angle)
+
+        #print (self.x, self.y) and self.angle and rad_angle and distance_cm
+        print("From Robot, move_forward()")
+        print("pos " + str(self.x) + ", " + str(self.y) + ", angle " + str(self.angle) + ", rad_angle " + str(rad_angle) + ", distance_cm " + str(distance_cm))
         
     def move_backward(self, distance_cm, speed=50):
         rotations = distance_cm / self.WHEEL_CIRCUMFERENCE
@@ -42,6 +48,9 @@ class Robot:
         
         # Update orientation
         self.angle = (self.angle + angle) % 360
+
+        print("From Robot, turn_left()")
+        print("angle " + str(self.angle) + ", turn_distance " + str(turn_distance) + ", rotations " + str(rotations))
     
     def turn_right(self, angle, speed=30):
         turn_distance = (angle / 360) * (math.pi * self.AXLE_TRACK)
@@ -51,8 +60,11 @@ class Robot:
         # Update orientation
         self.angle = (self.angle - angle) % 360
 
+        print("From Robot, turn_right()")
+        print("angle " + str(self.angle) + ", turn_distance " + str(turn_distance) + ", rotations " + str(rotations))
+
     def get_position(self):
-        return self.x, self.y, self.angle
+        return self.x, self.y
     
     def get_angle(self):
         return self.angle
