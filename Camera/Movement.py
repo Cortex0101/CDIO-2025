@@ -6,6 +6,7 @@ from pybricks.parameters import Port, Direction
 from pybricks.tools import wait
 from pybricks.robotics import DriveBase
 import math
+from BallDetection import white_balls, orange_balls
 
 
 def calculate_distance(point1, point2):
@@ -33,7 +34,7 @@ def sort_proximity(robot_position, points):
    
     return sorted_points
 
-def move_robot(robot_position, target_points, wheel_diameter=55, axle_track=99):
+def move_robot(robot_position, target_points, wheel_diameter=70, axle_track=165):
 
     ev3 = EV3Brick()
     
@@ -61,8 +62,8 @@ def move_robot(robot_position, target_points, wheel_diameter=55, axle_track=99):
         dy = target_y - current_y
         
         # Calculate distance to target
-        distance = math.sqrt(dx**2 + dy**2)
-        
+        distance = calculate_distance((current_x, current_y), (target_x, target_y))
+
         # Calculate target heading (in degrees)
         # atan2 returns angle in radians, convert to degrees
         target_heading = math.degrees(math.atan2(dy, dx))
@@ -94,9 +95,9 @@ def move_robot(robot_position, target_points, wheel_diameter=55, axle_track=99):
         ev3.speaker.beep()  # Beep to indicate reached target
     
     print("Navigation completed")
-    return current_x, current_y
 
 if __name__ == "__main__":
+
   
     robot_pos = (0, 0)
     target_points = [(300, 400), (700, 700), (500, 100), (200, 300)]
@@ -106,6 +107,3 @@ if __name__ == "__main__":
     
     sorted_points = sort_proximity(robot_pos, target_points)
     print(f"Sorted points: {sorted_points}")
-    
-    final_x, final_y = move_robot(robot_pos, target_points)
-    print(f"Robot final position: ({final_x}, {final_y})")
