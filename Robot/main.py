@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, MoveTank
 from time import sleep
 from Robot import Robot
 from Pathfinding import sort_proximity, move_robot
