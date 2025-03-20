@@ -89,17 +89,29 @@ while True:
                 print ( "mean_val: \n", mean_val)
                 
                 if mean_val[1] < 140:
-                    color = "White"
+                    color = "\nWhite"
                 elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
-                    color = "Orange"
+                    color = "\nOrange"
                 else:
                     continue
 
                 cv2.circle(frame, center, int(radius), (0, 255, 0), 2)
                 cv2.putText(frame, f"{color} Circle", (int(x - radius), int(y - radius)),
                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                
+                # Display coordinates on the frame
+                text = f"X: {x} Y: {y}"
+                cv2.putText(frame, text, (x + 10, y - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
                 cv2.imshow("Mask", mask)
                 cv2.imshow("Masked HSV", masked_hsv)
+
+                if not doesBallExistInList(white_balls, x, y) and mean_val[1] < 140:
+                    white_balls.append((x, y))
+                if not doesBallExistInList(orange_balls, x, y) and (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
+                    orange_balls.append((x, y))
+
 
     cv2.imshow("Detected circle", frame)
     cv2.imshow("Edges", edges)
