@@ -29,6 +29,9 @@ if not cap.isOpened():
     print("Error: Camera not accessible!")
     exit()
 
+white_balls.clear()
+orange_balls.clear()
+obstacle.clear()
 
 while True:
     ret, frame = cap.read()
@@ -36,8 +39,11 @@ while True:
         print("Error: Empty frame!")
         break
 
+    
+
     # Convert frame to HSV color space
    # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+   
 
 
     # Press 'Esc' to exit
@@ -60,6 +66,7 @@ while True:
     for contour in contours:
         # Tilnærm polygonens omkreds
         perimeter = cv2.arcLength(contour, True)
+        #For tetecting balls
         approx = cv2.approxPolyDP(contour, 0.04 * perimeter, True)
         #print ( "approx: \n", approx)
         
@@ -71,7 +78,7 @@ while True:
            # print ( "radius: \n", radius)
             
             # Undgå at overveje meget små former
-            if radius > 5:
+            if radius > 5 and radius < 10:
                 mask = np.zeros_like(hsv)
                 #print ( "mask: \n", mask)
                 cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
@@ -86,12 +93,12 @@ while True:
 
 
                 mean_val = cv2.mean(hsv, mask[:,:,0])
-                print ( "mean_val: \n", mean_val)
+                #print ( "mean_val: \n", mean_val)
                 
                 if mean_val[1] < 140:
-                    color = "\nWhite"
+                    color = "White"
                 elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
-                    color = "\nOrange"
+                    color = "Orange"
                 else:
                     continue
 
@@ -104,17 +111,39 @@ while True:
                 cv2.putText(frame, text, (x + 10, y - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-                cv2.imshow("Mask", mask)
-                cv2.imshow("Masked HSV", masked_hsv)
+                #cv2.imshow("Mask", mask)
+                #cv2.imshow("Masked HSV", masked_hsv)
 
                 if not doesBallExistInList(white_balls, x, y) and mean_val[1] < 140:
                     white_balls.append((x, y))
                 if not doesBallExistInList(orange_balls, x, y) and (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
                     orange_balls.append((x, y))
+   #For detecting obstacles
+  # for contour in contours:
+         # Approximér hver kontur
+   #     perimeter = cv2.arcLength(contour, True)
+    #    approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+        # Kontroller for rektangulært formet objekt
+     #   if len(approx) >= 12:  # Antag at det kræver mange linjer i det detaljerede kors
+            #print ( "len(approx): \n", len(approx))
+            # Først tjek størrelsen, så små elementer udelukkes
+    #        area = cv2.contourArea(contour)
+     #      print ( "area: \n", area)
+     #       if area > 100:  # Kan justeres afhængig af det forventede kors' størrelse
+                # Brug boundingRect for yderligere inspektion
+    #            x, y, w, h = cv2.boundingRect(approx)
+      #          aspectRatio = float(w) / h
+      #          print ( "aspectRatio: \n", aspectRatio)
+      #          if 0.8 <= aspectRatio <= 1.2:  # Tjek for aspektsforhold tæt på en firkant
+      #              cv2.drawContours(frame, [approx], -1, (0, 255, 0), 2)
+      #              cv2.putText(frame, "Cross Detected", (x, y - 10),
+      #                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+       #             cv2.imshow("Frame with Cross Detection", frame)
 
 
     cv2.imshow("Detected circle", frame)
-    cv2.imshow("Edges", edges)
+  #  cv2.imshow("Edges", edges)
  #   cv2.imshow("Blurred", blurred)
  #   cv2.imshow("Gray", gray)
  #   cv2.imshow("HSV", hsv)
