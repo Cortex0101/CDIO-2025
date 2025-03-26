@@ -50,73 +50,82 @@ while True:
     if cv2.waitKey(30) == 27:
         break
  
-    # Forbehandling: konvertere frame til gråtoner og HSV
+    #  konvert frame to Gray tones and HSV
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-    # Reducer støj
+    
+    # Reduce noise
     blurred = cv2.GaussianBlur(gray, (11, 11), 0)
+    #blurred = cv2.GaussianBlur(gray, (11, 11), 2)
 
-    # Udfør Canny kantdetektion
+    # Do Canny edgedetektion
     edges = cv2.Canny(blurred, 30, 150)
+    #edges = cv2.Canny(blurred, 50, 220)
 
-    # Find konturer
+    # Find contours
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
         # Tilnærm polygonens omkreds
         perimeter = cv2.arcLength(contour, True)
-        #For tetecting balls
+        #For detecting balls
         approx = cv2.approxPolyDP(contour, 0.04 * perimeter, True)
         #print ( "approx: \n", approx)
         
-        # Kontroller om konturen er en cirkel
-        if len(approx) > 5:  # En tilnærmelse for en cirkel
+        # Check if the kocontour is circle
+        if len(approx) > 5:  # approximation of a circle
             ((x, y), radius) = cv2.minEnclosingCircle(approx)
             center = (int(x), int(y))
            # print ( "center: \n", center)
-           # print ( "radius: \n", radius)
+            #print ( "radius: \n", radius)
             
-            # Undgå at overveje meget små former
-            if radius > 5 and radius < 10:
+            # avoid small detections
+            if radius > 7 and radius < 20:
                 mask = np.zeros_like(hsv)
                 #print ( "mask: \n", mask)
                 cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
                 masked_hsv = cv2.bitwise_and(hsv, mask)
                 #print ( "masked_hsv: \n", masked_hsv)
-                cv2.circle(frame, center, 5, (0, 0, 255), -1)
+                #cv2.circle(frame, center, 5, (0, 0, 255), -1)
                 
                 # Draw bounding box
-                bounding_box = cv2.boundingRect(contour)
-                x, y, w, h = bounding_box
-                cv2.rectangle(frame, center, (x + w, y + h), (0, 255, 0), 2)
+                #bounding_box = cv2.boundingRect(contour)
+                #x, y, w, h = bounding_box
+                #cv2.rectangle(frame, center, (x + w, y + h), (0, 255, 0), 2)
 
 
                 mean_val = cv2.mean(hsv, mask[:,:,0])
                 #print ( "mean_val: \n", mean_val)
                 
-                if mean_val[1] < 140:
+                #if mean_val[1] < 140:
+                if mean_val[1] < 1:
                     color = "White"
-                elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
+                #elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
+                elif (20 < mean_val[0] < 30) and (50 < mean_val[1] < 100):
                     color = "Orange"
+                    #print ( "mean_val: \n", mean_val)
                 else:
                     continue
 
-                cv2.circle(frame, center, int(radius), (0, 255, 0), 2)
-                cv2.putText(frame, f"{color} Circle", (int(x - radius), int(y - radius)),
+                if color == "White" or color == "Orange":
+                  # Draw bounding box
+                  bounding_box = cv2.boundingRect(contour)
+                  x, y, w, h = bounding_box
+                  start_rect = (int(x - 50), int(y - 25))
+                  cv2.rectangle(frame, start_rect, (x + 100, y + 50), (0, 255, 0), 2)
+                  cv2.circle(frame, center, int(2 * radius), (0, 255, 0), 2)
+                  cv2.putText(frame, f"{color} Ball", (int(x - 35), int(y + 40)),
                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                 
-                # Display coordinates on the frame
-                text = f"X: {x} Y: {y}"
-                cv2.putText(frame, text, (x + 10, y - 10),
+                  # Display coordinates on the frame
+                  text = f"X: {x} Y: {y}"
+                  cv2.putText(frame, text, (x - 30, y - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-                #cv2.imshow("Mask", mask)
-                #cv2.imshow("Masked HSV", masked_hsv)
-
-                if not doesBallExistInList(white_balls, x, y) and mean_val[1] < 140:
+                
+                  if not doesBallExistInList(white_balls, x, y) and color == "White":
                     white_balls.append((x, y))
-                if not doesBallExistInList(orange_balls, x, y) and (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
+                  if not doesBallExistInList(orange_balls, x, y) and color == "Orange":
                     orange_balls.append((x, y))
    #For detecting obstacles
   # for contour in contours:
@@ -143,7 +152,7 @@ while True:
 
 
     cv2.imshow("Detected circle", frame)
-  #  cv2.imshow("Edges", edges)
+    cv2.imshow("Edges", edges)
  #   cv2.imshow("Blurred", blurred)
  #   cv2.imshow("Gray", gray)
  #   cv2.imshow("HSV", hsv)
