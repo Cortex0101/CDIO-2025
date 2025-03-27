@@ -1,7 +1,11 @@
 
 from ev3dev2.motor import LargeMotor, MoveSteering, OUTPUT_A, OUTPUT_B
 from ev3dev2.sound import Sound
+from ev3dev2.sensor.lego import UltrasonicSensor
+from ev3dev2.sensor import INPUT_1
 import math
+
+ultrasonic = UltrasonicSensor(INPUT_1)
 
 def calculate_distance(point1, point2):
     return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
@@ -53,6 +57,11 @@ def move_robot(robot, target_points, wheel_diameter=70, axle_track=165):
             robot.turn_left(turn_angle)  # Left turn if positive
         elif turn_angle < 0:
             robot.turn_right(-turn_angle)  # Right turn if negative
+
+        while ultrasonic.distance_centimeters < 5:
+            # move backwards or stop -> logic
+            robot.move_backward(5)
+            
 
         # Move forward
         robot.move_forward(distance)
