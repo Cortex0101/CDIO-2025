@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 
 
 # Lists to store detected balls
@@ -11,7 +12,30 @@ obstacle_x, obstacle_y = 0, 0
 obstacle = []
 
 egg = []
+def detect_direction(frame, color1_hsv, color2_hsv):
 
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    # makes masks[color]
+    masks = {color: cv2.inRange(hsv, *hsv_range) for color, hsv_range in zip(('color1', 'color2'), (color1_hsv, color2_hsv))}
+    centers = {}
+    
+    angle = None
+    
+    for color, mask in masks.items():
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if contours:
+            largest = max(contours, key=cv2.contourArea)
+            # area size to catch, currently: 10 pixels
+            if cv2.contourArea(largest) > 10:
+                M = cv2.moments(largest)
+                centers[color] = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
+    
+    if 'color1' in centers and 'color2' in centers:
+        dx, dy = np.subtract(centers['color1'], centers['color2'])
+        # change dy, dx if e.g. 90 degrees is now up instead of right etc.
+        angle = (math.degrees(math.atan2(dy, dx)) + 360) % 360
+    
+    return angle
 def doesBallExistInList(ballList, x, y):
     for ball in ballList:
         if abs (ball[0] - x) < 15 and abs (ball[1] - y) < 15:
@@ -31,10 +55,17 @@ if not cap.isOpened():
     print("Error: Camera not accessible!")
     exit()
 
+
 white_balls.clear()
 orange_balls.clear()
 obstacle.clear()
 egg.clear()
+
+# choose colors for detection of front/rear
+# green range
+color1_hsv = (np.array([70, 100, 50]), np.array([95, 255, 200]))
+# yellow range
+color2_hsv = (np.array([20, 100, 100]), np.array([35, 255, 255]))
 
 while True:
     ret, frame = cap.read()
@@ -45,9 +76,13 @@ while True:
     
 
     # Convert frame to HSV color space
-   # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
    
+    # detection shit down here
+    angle = detect_direction(frame, color1_hsv, color2_hsv)
 
+    if angle is not None:
+        print(f"Direction: {angle:.0f}")
 
     # Press 'Esc' to exit
     if cv2.waitKey(30) == 27:
