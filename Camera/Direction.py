@@ -22,7 +22,7 @@ def detect_direction(cap, color1_hsv, color2_hsv):
             if contours:
                 largest = max(contours, key=cv.contourArea)
                 # area size to catch, currently: 100 pixels
-                if cv.contourArea(largest) > 100:
+                if cv.contourArea(largest) > 10:
                     M = cv.moments(largest)
                     centers[color] = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
         
