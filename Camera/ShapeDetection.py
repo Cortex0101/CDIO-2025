@@ -10,9 +10,11 @@ orange_balls = []
 obstacle_x, obstacle_y = 0, 0
 obstacle = []
 
+egg = []
+
 def doesBallExistInList(ballList, x, y):
     for ball in ballList:
-        if abs (ball[0] - x) < 10 and abs (ball[1] - y) < 10:
+        if abs (ball[0] - x) < 15 and abs (ball[1] - y) < 15:
             return True
     return False
 
@@ -32,6 +34,7 @@ if not cap.isOpened():
 white_balls.clear()
 orange_balls.clear()
 obstacle.clear()
+egg.clear()
 
 while True:
     ret, frame = cap.read()
@@ -73,14 +76,14 @@ while True:
         #print ( "approx: \n", approx)
         
         # Check if the kocontour is circle
-        if len(approx) > 5:  # approximation of a circle
+        if len(approx) > 5 and len(approx) < 8 :  # approximation of a circle
             ((x, y), radius) = cv2.minEnclosingCircle(approx)
             center = (int(x), int(y))
            # print ( "center: \n", center)
             #print ( "radius: \n", radius)
             
             # avoid small detections
-            if radius > 7 and radius < 20:
+            if radius > 8 and radius < 12:
                 mask = np.zeros_like(hsv)
                 #print ( "mask: \n", mask)
                 cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
@@ -98,13 +101,16 @@ while True:
                 #print ( "mean_val: \n", mean_val)
                 
                 #if mean_val[1] < 140:
-                if mean_val[1] < 1:
+                if mean_val[1] < 120:
+                #if  mean_val[0] > 210  and mean_val[1] < 150 :
                     color = "White"
+                    #print ( "White mean_val: \n", mean_val)
                 #elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
-                elif (20 < mean_val[0] < 30) and (50 < mean_val[1] < 100):
+                elif (10 < mean_val[0] < 50) and (50 < mean_val[1] < 210):
                     color = "Orange"
                     #print ( "mean_val: \n", mean_val)
                 else:
+                    print ( "undefined mean_val: \n", mean_val)
                     continue
 
                 if color == "White" or color == "Orange":
@@ -127,28 +133,56 @@ while True:
                     white_balls.append((x, y))
                   if not doesBallExistInList(orange_balls, x, y) and color == "Orange":
                     orange_balls.append((x, y))
+             # Detect egg
+            if radius > 20 and radius < 25:
+                #print ( "Egg detected. \n")
+                mask = np.zeros_like(hsv)
+                #print ( "mask: \n", mask)
+                cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
+                #masked_hsv = cv2.bitwise_and(hsv, mask)
+                #mean_val = cv2.mean(hsv, mask[:,:,0])
+                bounding_box = cv2.boundingRect(contour)
+                x, y, w, h = bounding_box
+                start_rect = (int(x - 50), int(y - 25))
+                cv2.rectangle(frame, start_rect, (x + 100, y + 50), (0, 255, 0), 2)
+                cv2.circle(frame, center, int(2 * radius), (0, 255, 0), 2)
+                cv2.putText(frame, f"Egg", (int(x - 35), int(y + 40)),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                
+                # Display coordinates on the frame
+                text = f"X: {x} Y: {y}"
+                cv2.putText(frame, text, (x - 30, y - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                if not doesBallExistInList(egg, x, y): egg.append((x, y))
+
+
    #For detecting obstacles
-  # for contour in contours:
+  
          # Approximér hver kontur
-   #     perimeter = cv2.arcLength(contour, True)
-    #    approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
-        # Kontroller for rektangulært formet objekt
-     #   if len(approx) >= 12:  # Antag at det kræver mange linjer i det detaljerede kors
+        perimeter = cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+         #Kontroller for rektangulært formet objekt
+        if len(approx) >= 12:  # Antag at det kræver mange linjer i det detaljerede kors
             #print ( "len(approx): \n", len(approx))
             # Først tjek størrelsen, så små elementer udelukkes
-    #        area = cv2.contourArea(contour)
-     #      print ( "area: \n", area)
-     #       if area > 100:  # Kan justeres afhængig af det forventede kors' størrelse
+            area = cv2.contourArea(contour)
+            #print ( "area: \n", area)
+            if area > 100:  # Kan justeres afhængig af det forventede kors' størrelse
                 # Brug boundingRect for yderligere inspektion
-    #            x, y, w, h = cv2.boundingRect(approx)
-      #          aspectRatio = float(w) / h
-      #          print ( "aspectRatio: \n", aspectRatio)
-      #          if 0.8 <= aspectRatio <= 1.2:  # Tjek for aspektsforhold tæt på en firkant
-      #              cv2.drawContours(frame, [approx], -1, (0, 255, 0), 2)
-      #              cv2.putText(frame, "Cross Detected", (x, y - 10),
-      #                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                x, y, w, h = cv2.boundingRect(approx)
+                aspectRatio = float(w) / h
+                #print ( "aspectRatio: \n", aspectRatio)
+                if 0.8 <= aspectRatio <= 1.2:  # Tjek for aspektsforhold tæt på en firkant
+                    cv2.drawContours(frame, [approx], -1, (0, 255, 0), 2)
+                    cv2.putText(frame, "Obstacle Detected", (x- 30, y - 30),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-       #             cv2.imshow("Frame with Cross Detection", frame)
+                    cv2.imshow("Frame with Cross Detection", frame)
+                    if not doesBallExistInList(obstacle, x, y): obstacle.append((x, y))
+                    # Display coordinates on the frame
+                    text = f"X: {x} Y: {y}"
+                    cv2.putText(frame, text, (x - 30, y - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
 
     cv2.imshow("Detected circle", frame)
@@ -176,5 +210,9 @@ for x,y in orange_balls:
 
 
 for x,y in obstacle:
-    print(f"Obstacle Center: ({x}, {y})")      
+    print(f"Obstacle Center: ({x}, {y})")   
+
+    
+for x,y in egg:
+    print(f"Egg Center: ({x}, {y})")     
 
