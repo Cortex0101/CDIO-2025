@@ -78,7 +78,7 @@ def avoid_obstacles(startpoint, endpoint, obstacles, obstacle_radius=10):
     waypoints = []
 
     for obstacle in obstacles:
-        if line_intersects_obstacle(startpoint, endpoint, obstacle, obstacle_radius)
+        if line_intersects_obstacle(startpoint, endpoint, obstacle, obstacle_radius):
 
             dx = endpoint[0] - obstacle[0]
             dy = endpoint[1] - obstacle[1]
@@ -128,8 +128,6 @@ def avoid_obstacles(startpoint, endpoint, obstacles, obstacle_radius=10):
         (startpoint[1] + endpoint[1]) / 2 + obstacle_radius * 2
     )
     return [safe_waypoint, endpoint]
-
-
 
 def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_track=165):
 
