@@ -131,7 +131,7 @@ def avoid_obstacles(startpoint, endpoint, obstacles, obstacle_radius=10):
 
 
 
-def move_robot(robot, target_points, obstacles = None, wheel_diameter=70, axle_track=165):
+def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_track=165):
 
     if obstacles is None:
         obstacles = []
@@ -164,8 +164,6 @@ def move_robot(robot, target_points, obstacles = None, wheel_diameter=70, axle_t
             
             turn_angle = (target_heading - current_heading + 180) % 360 - 180
             
-            print(f"Moving to waypoint: {waypoint_x}, {waypoint_y}")
-            print(f"Turn angle: {turn_angle}, Distance: {distance}")
             
             if turn_angle > 0:
                 robot.turn_left(turn_angle)
