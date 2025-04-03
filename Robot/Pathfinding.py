@@ -5,7 +5,7 @@ from ev3dev2.sensor.lego import UltrasonicSensor
 from ev3dev2.sensor import INPUT_1
 import math
 
-ultrasonic = UltrasonicSensor(INPUT_1)
+#ultrasonic = UltrasonicSensor(INPUT_1)
 
 def calculate_distance(point1, point2):
     return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
@@ -31,43 +31,156 @@ def sort_proximity(robot_position, points):
         current_position = closest_point
    
     return sorted_points
+def line_intersects_obstacle(start, end, obstacle, obstacle_radius):
 
-def move_robot(robot, target_points, wheel_diameter=70, axle_track=165):
+    dx = obstacle[0] - start[0]
+    dy = obstacle[1] - start[1]
+        
+    line_dx = end[0] - start[0]
+    line_dy = end[1] - start[1]
+
+    line_length = calculate_distance(start, end)
+
+    # normalize
+    if line_length > 0:
+        line_dx /= line_length
+        line_dy /= line_length
+    else:
+        return calculate_distance(start, obstacle) <= obstacle_radius
+    
+    # closest point on line to object
+    t = dx * line_dx + dy * line_dy
+    
+    # Closest point is beyond line segment
+    if t < 0:
+        closest_point = start
+    elif t > line_length:
+        closest_point = end
+    else:
+        closest_point = (start[0] + t * line_dx, start[1] + t * line_dy)
+    
+    # Check if closest point is within obstacle
+    return calculate_distance(closest_point, obstacle) <= obstacle_radius
+
+
+def avoid_obstacles(startpoint, endpoint, obstacles, obstacle_radius=10):
+
+    path_clear = True
+    for obstacle in obstacles:
+        if line_intersects_obstacle(startpoint, endpoint, obstacle, obstacle_radius):
+            path_clear = False
+            break
+
+    if path_clear:
+        return [endpoint]
+
+    # if path is not clear...
+    waypoints = []
+
+    for obstacle in obstacles:
+        if line_intersects_obstacle(startpoint, endpoint, obstacle, obstacle_radius)
+
+            dx = endpoint[0] - obstacle[0]
+            dy = endpoint[1] - obstacle[1]
+
+            # Normalize and scale to create waypoints at a safe distance
+            safe_distance = obstacle_radius * 1.5
+            norm = calculate_distance((0, 0), (dx, dy))
+            if norm > 0:
+                dx = dx / norm * safe_distance
+                dy = dy / norm * safe_distance
+            
+            # Create two potential waypoints on either side of the obstacle
+            waypoint1 = (obstacle[0] + dy, obstacle[1] - dx)
+            waypoint2 = (obstacle[0] - dy, obstacle[1] + dx)
+            
+            # Choose the waypoint closer to the end point
+            if calculate_distance(waypoint1, endpoint) < calculate_distance(waypoint2, endpoint):
+                waypoints.append(waypoint1)
+            else:
+                waypoints.append(waypoint2)
+
+    best_waypoint = None
+    best_distance = float('inf')
+
+    for waypoint in waypoints:
+        # Check if path to waypoint is clear
+        waypoint_path_clear = True
+        for obstacle in obstacles:
+            if line_intersects_obstacle(startpoint, waypoint, obstacle, obstacle_radius):
+                waypoint_path_clear = False
+                break
+        
+        if waypoint_path_clear:
+            dist = calculate_distance(waypoint, endpoint)
+            if dist < best_distance:
+                best_distance = dist
+                best_waypoint = waypoint
+    
+    if best_waypoint:
+        # Recursively find path from waypoint to end
+        remaining_path = avoid_obstacles(best_waypoint, endpoint, obstacles, obstacle_radius)
+        return [best_waypoint] + remaining_path
+    
+    # failsafe waypoint, greater distance than best_waypoint
+    safe_waypoint = (
+        (startpoint[0] + endpoint[0]) / 2 + obstacle_radius * 2,
+        (startpoint[1] + endpoint[1]) / 2 + obstacle_radius * 2
+    )
+    return [safe_waypoint, endpoint]
+
+
+
+def move_robot(robot, target_points, obstacles = None, wheel_diameter=70, axle_track=165):
+
+    if obstacles is None:
+        obstacles = []
+
     sorted_points = sort_proximity(robot.get_position(), target_points)
     current_x, current_y = robot.get_position()
     current_heading = robot.get_angle()
 
     for target_x, target_y in sorted_points:
-        dx = target_x - current_x
-        dy = target_y - current_y
-        distance = calculate_distance((current_x, current_y), (target_x, target_y))
+        #dx = target_x - current_x
+        #dy = target_y - current_y
+        #distance = calculate_distance((current_x, current_y), (target_x, target_y))
+
+        current_position = (current_x, current_y)
+        target_position = (target_x, target_y)
         
-        # Correct calculation of target heading
-        target_heading = math.degrees(math.atan2(dy, dx))
-        
-        # Calculate the shortest turn direction
-        turn_angle = (target_heading - current_heading + 180) % 360 - 180
+        # Get waypoints for obstacle avoidance
+        waypoints = avoid_obstacles(current_position, target_position, obstacles)
+        waypoints.insert(0, current_position)
 
-        print("From Pathfinding, move_robot()")
-        print("Moving to: " + str(target_x) + ", " + str(target_y) +
-              ", Turn angle: " + str(turn_angle) + ", Distance: " + str(distance))
 
-        # Perform turn (correcting left/right logic)
-        if turn_angle > 0:
-            robot.turn_left(turn_angle)  # Left turn if positive
-        elif turn_angle < 0:
-            robot.turn_right(-turn_angle)  # Right turn if negative
-
-        while ultrasonic.distance_centimeters < 5:
-            # move backwards or stop -> logic
-            robot.move_backward(5)
+        for i in range(1, len(waypoints)):
+            waypoint_x, waypoint_y = waypoints[i]
             
-
-        # Move forward
-        robot.move_forward(distance)
-
-        # Update current position and heading
-        current_x, current_y = target_x, target_y
-        current_heading = (current_heading + turn_angle) % 360
+            dx = waypoint_x - current_x
+            dy = waypoint_y - current_y
+            distance = calculate_distance((current_x, current_y), (waypoint_x, waypoint_y))
+            
+            target_heading = math.degrees(math.atan2(dy, dx))
+            
+            turn_angle = (target_heading - current_heading + 180) % 360 - 180
+            
+            print(f"Moving to waypoint: {waypoint_x}, {waypoint_y}")
+            print(f"Turn angle: {turn_angle}, Distance: {distance}")
+            
+            if turn_angle > 0:
+                robot.turn_left(turn_angle)
+            elif turn_angle < 0:
+                robot.turn_right(-turn_angle)
+            
+            '''if ultrasonic.distance_centimeters < 5:
+                robot.move_backward(10)
+                break'''
+            
+            # Move forward
+            robot.move_forward(distance)
+            
+            # Update current position and heading
+            current_x, current_y = waypoint_x, waypoint_y
+            current_heading = (current_heading + turn_angle) % 360
 
     print("Navigation completed")
