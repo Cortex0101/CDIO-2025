@@ -10,14 +10,9 @@ from Pathfinding import sort_proximity, move_robot
 def test_drive1():
     robot = Robot()
 
-    target_points = [(110, 100), (20, 25)]
+    target_points = [(100, 100)]
     obstacles = [(50, 50)]
     
-    
-    sorted_points = sort_proximity(robot.get_position(), target_points)
-    print("Sorted points: ")
-    print(str(sorted_points))
-
     move_robot(robot, target_points, obstacles)
 
 # Run the test drive

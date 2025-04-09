@@ -138,6 +138,7 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
     current_x, current_y = robot.get_position()
     current_heading = robot.get_angle()
 
+
     for target_x, target_y in sorted_points:
         #dx = target_x - current_x
         #dy = target_y - current_y
@@ -145,10 +146,16 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
 
         current_position = (current_x, current_y)
         target_position = (target_x, target_y)
+
+        # prints for debugging avoidance code
+        print("Positions after get_position call and before object avoidance.")
+        print("Current position: " + current_position)
+        print("Target positon: " + target_position)
         
         # Get waypoints for obstacle avoidance
         waypoints = avoid_obstacles(current_position, target_position, obstacles)
         waypoints.insert(0, current_position)
+
 
 
         for i in range(1, len(waypoints)):
@@ -161,6 +168,12 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
             target_heading = math.degrees(math.atan2(dy, dx))
             
             turn_angle = (target_heading - current_heading + 180) % 360 - 180
+
+            # prints for debugging avoidance code
+            print("Positions after object avoidance.")
+            print("Current position: " + current_position)
+            print("Target positon: " + waypoint_x + ", " + waypoint_y)
+            print("Turning: " + turn_angle)
             
             
             if turn_angle > 0:
@@ -178,5 +191,11 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
             # Update current position and heading
             current_x, current_y = waypoint_x, waypoint_y
             current_heading = (current_heading + turn_angle) % 360
+
+            # prints for debugging avoidance code
+            print("Positions after movement but before get() functions.")
+            print("Current position: " + current_x + ", " + current_y)
+            print("Target positon: " + waypoint_x + ", " + waypoint_y)
+            print("Heading after moving: " + current_heading)
 
     print("Navigation completed")
