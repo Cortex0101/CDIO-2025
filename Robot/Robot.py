@@ -15,8 +15,8 @@ class Robot:
         self.tank_drive = MoveTank(OUTPUT_C, OUTPUT_D)
         
         # Position and orientation tracking
-        self.x = 0.0
-        self.y = 0.0
+        self.x = 20.0
+        self.y = 20.0
         self.angle = 0.0  # Angle in degrees, 0 means facing forward
 
     def move_forward(self, distance_cm, speed=50):

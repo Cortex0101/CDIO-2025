@@ -205,9 +205,10 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
             # Move forward
             robot.move_forward(distance)
             
+
             # Update current position and heading
-            current_x, current_y = waypoint_x, waypoint_y
-            current_heading = (current_heading + turn_angle) % 360
+            current_x, current_y = robot.get_position()
+            current_heading = robot.get_angle()
 
             # prints for debugging avoidance code
             print("Positions after movement but before get() functions.")

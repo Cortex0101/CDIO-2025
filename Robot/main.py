@@ -7,13 +7,19 @@ from Pathfinding import sort_proximity, move_robot
 # =====================
 # TEST DRIVE PATH
 # =====================
-def test_drive1():
-    robot = Robot()
+robot = Robot()
 
-    target_points = [(100, 100)]
-    obstacles = [(50, 50)]
+def test_drive1():
+
+    target_points = [(160,100)]
+    obstacles = [(90,60)]
     
     move_robot(robot, target_points, obstacles)
 
 # Run the test drive
 test_drive1()
+
+sleep(10)
+
+target_points = [(20,100)]
+move_robot(robot, target_points)
