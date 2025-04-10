@@ -53,7 +53,7 @@ def angle_between_points(p1, p2, p3):
     
     ab = a - b
     cb = c - b
-    #cb = b - c
+    
 
     print("Vektorer: ", ab, cb, "\n")
     # Beregn vinklen mellem vektorerne ab og cb
@@ -63,7 +63,7 @@ def angle_between_points(p1, p2, p3):
         cosine_angle = -1
     if cosine_angle > 1 :
         cosine_angle = 1
-    #cosine_angle = ab/cb
+    
     angle = np.arccos(cosine_angle)
     print("Cosine angle: ", cosine_angle, "\n")
     return np.degrees(angle)
@@ -89,111 +89,7 @@ def ideal_angle_between_points(p):
         return 360
     else:   
         return p
-    
-def corner_detection(angels):
-    inner_corner = 0
-    outer_corner = 0
-    for i in range(len(angels)):
-        if angels[i] > 130 and angels[i] < 140 or angels[i] < -130 and angels[i] > -140:
-            inner_corner += 1
-        elif angels[i] > 80 and angels[i] < 100 or angels[i] < -80 and angels[i] > -100:
-            outer_corner += 1
-    return inner_corner, outer_corner
-
-
-def find_cross_points(contour):
-    min_x = min_y = float('inf')
-    max_x = max_y = float('-inf')
-    
-    for point in contour:
-        x, y = point[0]
-        if x < min_x:
-            min_x = x
-        if y < min_y:
-            min_y = y
-        if x > max_x:
-            max_x = x
-        if y > max_y:
-            max_y = y
-    
-    return (np.int32 (min_x), np.int32 (min_y)), (np.int32 (max_x), np.int32 (min_y)), (np.int32 (min_x), np.int32 (max_y)), (np.int32 (max_x), np.int32 (max_y))
-
-# Funktion til at udglatte ved hjælp af glidende gennemsnit
-def moving_average(data, window_size):
-    # Beregn glidende gennemsnit
-    cumsum = np.cumsum(data)
-    cumsum[window_size:] = cumsum[window_size:] - cumsum[:-window_size]
-    return cumsum[window_size - 1:] / window_size
-
-#def calculate_angle(a, b, c):
-#    # Beregner vinklen ABC (i grader)
-#    ab = a - b
-#    cb = c - b
-#    cosine_angle = np.dot(ab, cb) / (np.linalg.norm(ab) * np.linalg.norm(cb))
-#    print("Cosine angle: ", cosine_angle, "\n")
-#    # Sørg for at cosine_angle er inden for [-1, 1] intervallet
-#    angle = np.arccos(cosine_angle)
-#    return np.degrees(angle)
-
-#def find_cross_angles(contour):
-#    angles_and_points = []
-#    contour = contour.reshape(-1, 2)
-    
-    # Iterér over konturens punkter
-#    for i in range(len(contour)):
-#        p1 = contour[i - 1]  # Point før
-#        p2 = contour[i]      # Nuværende point
-#        p3 = contour[(i + 1) % len(contour)]  # Punkt efter
-#        
-#        angle = calculate_angle(p1, p2, p3)
-#        
-#        # Analyser væsentlige vinkler
-#        if 40 < angle < 50:  # Justér, hvis anledning kræver det
-#            angles_and_points.append((angle, tuple(p2)))
-    
-#    return angles_and_points
-
-
-def find_cross_corners(contour):
-    contour = contour.reshape(-1, 2)
-    
-    # Find centroiden af konturen
-    M = cv2.moments(contour)
-    if M["m00"] != 0:  # For at undgå division med nul
-        cX = int(M["m10"] / M["m00"])
-        cY = int(M["m01"] / M["m00"])
-    else:
-        return []
-
-    # Find hjørne punkter ved at analysere afstanden til centroiden
-    distances = np.linalg.norm(contour - np.array([cX, cY]), axis=1)
-    far_points = contour[np.argsort(distances)[-4:]]  # Fjerneste punkter fra centrum
-
-    # Sortér punkterne (aktuel rækkefølge kan variere)
-    far_points = sorted(far_points, key=lambda x: (np.arctan2(x[1] - cY, x[0] - cX)))
-
-    return far_points
-
-def rotate_image(image, angle, center=None):
-    # Find center for rotation
-    if center is None:
-        center = (image.shape[1] // 2, image.shape[0] // 2)
-
-    # Rotate the image
-    M = cv.getRotationMatrix2D(center, angle, 1.0)
-    rotated = cv.warpAffine(image, M, (image.shape[1], image.shape[0]))
-
-    return rotated
-
-def find_angle(points):
-    # Beregn vinklen til at dreje korset til at flugte med akserne
-    # Antager, at de to yderste punkter i korset er (x1, y1) og (x2, y2)
-    (x1, y1), (x2, y2) = points
-
-    if x2 - x1 == 0:  # Undgå division med nul
-        return 90  # lodret linje
-    angle = np.arctan2(y2 - y1, x2 - x1) * (180.0 / np.pi)
-    return angle
+ 
 
 
 
@@ -388,8 +284,7 @@ while True:
          # Approximér hver kontur
         perimeter = cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
-        #approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
-         #Kontroller for rektangulært formet objekt
+        
         n = len(approx)
         #n = len(contour)
         #print ( "approx: \n", approx)
@@ -406,8 +301,8 @@ while True:
                 x, y, w, h = cv2.boundingRect(approx)
                 x = int(x + w / 2)
                 y = int(y + h / 2)  
-                top_left, top_right, bottom_left, bottom_right = find_cross_points(approx)
-                print(f"Top Left: {top_left}, Top Right: {top_right}, Bottom Left: {bottom_left}, Bottom Right: {bottom_right}")
+         
+         
                 cross_detected = True
                 angles = []
 
@@ -426,15 +321,7 @@ while True:
                         f.write(f"{p1}   {p2}   {p3}   \n")
                
                 
-               # Antager de to punkter ligger i modsatte ender af korset
-               # angle = find_angle(contour)
-                
-               # Rotér billedet
-                #rotated_image = rotate_image(contour, angle)  # hvor original_image er dit billede
-          
-               # Find hjørne punkter ved at analysere afstanden til centroiden
-                #distances = np.linalg.norm(approx - np.array([x, y]), axis=1)
-               # far_points = contour[np.argsort(distances)[-8:]]  # Fjerneste punkter fra centrum
+               
                 end_obst.clear()
                 for i in range (len(approx) ):
                     p1 = tuple(approx[i])
@@ -446,10 +333,7 @@ while True:
 
                 print ( "end_obst: \n", end_obst)
                 
-               # Sortér punkterne (aktuel rækkefølge kan variere)
-                #far_points = sorted(far_points, key=lambda z: (np.arctan2(z[1] - y, z[0] - x)))
-
-                #print ( "far_points: \n", far_points)
+               
     
                 p2 = tuple ([x,y])
                 
@@ -462,8 +346,7 @@ while True:
                     
                     angles.append(angle)
                     
-                    smooth_angles = moving_average (angles, 5)
-                    inner_corner, outer_corner = corner_detection(angles)
+                
                     
                 if len(end_obst) > 2:
                   angle = ideal_angle_between_points (angle_between_points(end_obst[i + 1], p2, end_obst[0]))
