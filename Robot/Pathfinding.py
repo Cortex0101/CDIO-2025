@@ -166,8 +166,8 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
 
         # prints for debugging avoidance code
         print("Positions after get_position call and before object avoidance.")
-        printf("Current position: {current_position}")
-        printf("Target positon: {target_position}")
+        print("Current position: " + str(current_position))
+        print("Target positon: " + str(target_position))
         
         # Get waypoints for obstacle avoidance
         waypoints = avoid_obstacles(current_position, target_position, obstacles)
@@ -188,9 +188,9 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
 
             # prints for debugging avoidance code
             print("Positions after object avoidance.")
-            printf("Current position: {current_position}")
-            print("Target positon: " + waypoint_x + ", " + waypoint_y)
-            printf("Turning: {turn_angle}")
+            print("Current position: " + str(current_position))
+            print("Target positon: " + str(waypoint_x) + ", " + str(waypoint_y))
+            print("Turning: " + str(turn_angle))
             
             
             if turn_angle > 0:
@@ -211,8 +211,8 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
 
             # prints for debugging avoidance code
             print("Positions after movement but before get() functions.")
-            print("Current position: " + current_x + ", " + current_y)
-            print("Target positon: " + waypoint_x + ", " + waypoint_y)
-            printf("Heading after moving: {current_heading}")
+            print("Current position: " + str(current_x) + ", " + str(current_y))
+            print("Target positon: " + str(waypoint_x) + ", " + str(waypoint_y))
+            print("Heading after moving: " + str(current_heading))
 
     print("Navigation completed")
