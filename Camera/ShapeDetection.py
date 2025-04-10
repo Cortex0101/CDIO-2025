@@ -49,13 +49,13 @@ def angle_between_points(p1, p2, p3):
     b = np.array(p2)
     c = np.array(p3)
 
-    print("Punkter: ", a, b, c, "\n")
+    #print("Punkter: ", a, b, c, "\n")
     
     ab = a - b
     cb = c - b
     
 
-    print("Vektorer: ", ab, cb, "\n")
+    #print("Vektorer: ", ab, cb, "\n")
     # Beregn vinklen mellem vektorerne ab og cb
     
     cosine_angle = np.dot(ab, cb) / (np.linalg.norm(ab) * np.linalg.norm(cb))
@@ -65,7 +65,7 @@ def angle_between_points(p1, p2, p3):
         cosine_angle = 1
     
     angle = np.arccos(cosine_angle)
-    print("Cosine angle: ", cosine_angle, "\n")
+    #print("Cosine angle: ", cosine_angle, "\n")
     return np.degrees(angle)
 
 def ideal_angle_between_points(p):
@@ -189,7 +189,7 @@ while True:
           #print ( "Len approx: \n", len(approx))
         
           # Check if the kocontour is circle
-          if len(approx) > 5 and len(approx) < 8 :  # approximation of a circle
+          if len(approx) > 4 and len(approx) < 8 :  # approximation of a circle
             ((x, y), radius) = cv2.minEnclosingCircle(approx)
             center = (int(x), int(y))
             # print ( "center: \n", center)
@@ -206,7 +206,7 @@ while True:
             # Omkreds og enkod cirkel
                ((x, y), radius) = cv2.minEnclosingCircle(contour)
               # avoid small detections
-               if radius > 8 and radius < 12:
+               if radius > 6 and radius < 12:
                 mask = np.zeros_like(hsv)
                 #print ( "mask: \n", mask)
                 cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
@@ -308,17 +308,17 @@ while True:
 
                 #print ( "len approx: \n", len (approx))
                 
-                with open("contour.txt", "w") as f:
-                    for i in range(n):
-                        f.write(f"{approx[i][0]}\n")
+             #   with open("contour.txt", "w") as f:
+             #       for i in range(n):
+             #           f.write(f"{approx[i][0]}\n")
                
-                with open("p.txt", "w") as f:
-                    f.write(f"Contour points: {n}\n")
-                    for i in range(n - 4):
-                        p1 = tuple(approx[i][0])
-                        p2 = tuple(approx[(i+1) % n][0])
-                        p3 = tuple(approx[(i+2) % n][0])
-                        f.write(f"{p1}   {p2}   {p3}   \n")
+              #  with open("p.txt", "w") as f:
+              #      f.write(f"Contour points: {n}\n")
+              #      for i in range(n - 4):
+              #          p1 = tuple(approx[i][0])
+              #          p2 = tuple(approx[(i+1) % n][0])
+              #          p3 = tuple(approx[(i+2) % n][0])
+              #          f.write(f"{p1}   {p2}   {p3}   \n")
                
                 
                
@@ -327,22 +327,25 @@ while True:
                     p1 = tuple(approx[i])
                     #p2 = tuple ([x,y])
                     distp = np.linalg.norm(p1 - np.array([x, y]))
-                    print ( "distp: \n", distp)
+                 #   print ( "distp: \n", distp)
                     if distp > 15:
                        if not doesEndObstExistInList(end_obst, approx[i].flatten()[0],approx[i].flatten()[1]): end_obst.append(approx[i].flatten())
 
-                print ( "end_obst: \n", end_obst)
+               # print ( "end_obst: \n", end_obst)
                 
                
     
                 p2 = tuple ([x,y])
-                
+                ninety_degree = 4
+
                 for i in range (len(end_obst) - 1):
                    
-                    print ( "i: \n", i)
+                  #  print ( "i: \n", i)
                                         
                     angle = ideal_angle_between_points (angle_between_points(end_obst[i], p2, end_obst[i + 1]))
-                
+                          
+                    if angle != 90:
+                      ninety_degree -= 1
                     
                     angles.append(angle)
                     
@@ -353,13 +356,13 @@ while True:
                   angles.append(angle)
                 else:
                   cross_detected = False
-                ninety_degree = 4
-                with open("angles.txt", "w") as f:
-                    f.write(f"Angles: {n}\n")
-                    for angle in angles:
-                        if angle != 90:
-                            ninety_degree -= 1
-                        f.write(f"{angle}\n")  
+                
+             #   with open("angles.txt", "w") as f:
+             #       f.write(f"Angles: {n}\n")
+             #       for angle in angles:
+                        
+                            
+             #           f.write(f"{angle}\n")  
                  
                 if ninety_degree < 4:
                     cross_detected = False
