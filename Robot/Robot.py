@@ -1,4 +1,4 @@
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, MoveTank
+from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, MoveTank
 # beep
 from ev3dev2.sound import Sound
 from time import sleep
@@ -10,9 +10,9 @@ class Robot:
     AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
     
     def __init__(self):
-        self.left_motor = LargeMotor(OUTPUT_A)
-        self.right_motor = LargeMotor(OUTPUT_B)
-        self.tank_drive = MoveTank(OUTPUT_A, OUTPUT_B)
+        self.left_motor = LargeMotor(OUTPUT_C)
+        self.right_motor = LargeMotor(OUTPUT_D)
+        self.tank_drive = MoveTank(OUTPUT_C, OUTPUT_D)
         
         # Position and orientation tracking
         self.x = 0.0
