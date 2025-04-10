@@ -129,6 +129,23 @@ def avoid_obstacles(startpoint, endpoint, obstacles, obstacle_radius=10):
     )
     return [safe_waypoint, endpoint]
 
+# calibrate real angle based on what the camera angle is
+def calibrate_angle(current_angle, camera_input):
+
+    angle_fix = 0.0
+
+    if current_angle != camera_input:
+
+        if current_angle > camera_input:
+            angle_fix = current_angle - camera_input
+
+        elif camera_input > current_angle:
+            angle_fix = camera_input - current_angle
+
+
+
+    return angle_fix
+
 def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_track=165):
 
     if obstacles is None:
@@ -149,8 +166,8 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
 
         # prints for debugging avoidance code
         print("Positions after get_position call and before object avoidance.")
-        print("Current position: " + current_position)
-        print("Target positon: " + target_position)
+        printf("Current position: {current_position}")
+        printf("Target positon: {target_position}")
         
         # Get waypoints for obstacle avoidance
         waypoints = avoid_obstacles(current_position, target_position, obstacles)
@@ -171,9 +188,9 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
 
             # prints for debugging avoidance code
             print("Positions after object avoidance.")
-            print("Current position: " + current_position)
+            printf("Current position: {current_position}")
             print("Target positon: " + waypoint_x + ", " + waypoint_y)
-            print("Turning: " + turn_angle)
+            printf("Turning: {turn_angle}")
             
             
             if turn_angle > 0:
@@ -196,6 +213,6 @@ def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_tra
             print("Positions after movement but before get() functions.")
             print("Current position: " + current_x + ", " + current_y)
             print("Target positon: " + waypoint_x + ", " + waypoint_y)
-            print("Heading after moving: " + current_heading)
+            printf("Heading after moving: {current_heading}")
 
     print("Navigation completed")
