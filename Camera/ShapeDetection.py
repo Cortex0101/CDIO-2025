@@ -15,6 +15,29 @@ end_obst = []
 
 egg = []
 
+
+# Callback function for trackbars (does nothing but needed for trackbars)
+def on_trackbar(val):
+    pass
+
+# Create a window for trackbars
+#cv2.namedWindow("HSV Trackbars for White Ball")
+cv2.namedWindow("Canny Trackbars")
+Canny_threshold1 = 50
+Canny_threshold2 = 150
+
+# Create trackbars to adjust HSV values dynamically
+cv2.createTrackbar("Canny_thr1", "Canny Trackbars", Canny_threshold1, 200, on_trackbar)
+cv2.createTrackbar("Canny_thr2", "Canny Trackbars", Canny_threshold2, 300, on_trackbar)
+
+Gaussian_blur_size_x = 11
+Gaussian_blur_size_y = 11
+Gaussian_blur_sigma = 0
+
+cv2.createTrackbar("Gaussian_blur_size_x", "Canny Trackbars", Gaussian_blur_size_x, 50, on_trackbar)
+cv2.createTrackbar("Gaussian_blur_size_y", "Canny Trackbars", Gaussian_blur_size_y, 50, on_trackbar)    
+cv2.createTrackbar("Gaussian_blur_sigma", "Canny Trackbars", Gaussian_blur_sigma, 50, on_trackbar)
+
 def doesBallExistInList(ballList, x, y):
     for ball in ballList:
         if abs (ball[0] - x) < 15 and abs (ball[1] - y) < 15:
@@ -118,7 +141,7 @@ while True:
     
 
     # Convert frame to HSV color space
-   # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
    
 
 
@@ -126,16 +149,17 @@ while True:
     if cv2.waitKey(30) == 27:
         break
  
-    #  konvert frame to Gray tones and HSV
+    #  konvert frame to Gray tones
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
    
     # Detecting goals
     # Konverter til gråtoner og slør for at reducere støj
  #   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
- #   blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    blurred = cv2.GaussianBlur(gray, (Gaussian_blur_size_x, Gaussian_blur_size_y), Gaussian_blur_sigma)
 
     # Brug Canny-kantdetektering
  #   edges = cv2.Canny(blurred, 50, 150)
+    edges = cv2.Canny(blurred, Canny_threshold1, Canny_threshold2)
 
     # Find konturer i kanten
  #   contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -163,15 +187,15 @@ while True:
    
     # Detecting balls, obstacles and eggs
    
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+   # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     
     # Reduce noise
-    blurred = cv2.GaussianBlur(gray, (11, 11), 0)
-    #blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    #blurred = cv2.GaussianBlur(gray, (11, 11), 0)
+    
 
     # Do Canny edgedetektion
     #edges = cv2.Canny(blurred, 30, 150)
-    edges = cv2.Canny(blurred, 50, 100)
+    #edges = cv2.Canny(blurred, Canny_threshold1, Canny_threshold2)
 
     # Find contours   .CHAIN_APPROX_SIMPLE -> .CHAIN_APPROX_NONE uses more memory
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -208,6 +232,7 @@ while True:
               # avoid small detections
                if radius > 6 and radius < 12:
                 mask = np.zeros_like(hsv)
+                #mask = np.zeros_like(gray)
                 #print ( "mask: \n", mask)
                 cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
                 masked_hsv = cv2.bitwise_and(hsv, mask)
@@ -223,17 +248,18 @@ while True:
                 mean_val = cv2.mean(hsv, mask[:,:,0])
                 #print ( "mean_val: \n", mean_val)
                 
-                if mean_val[1] < 140:
+                #if mean_val[1] < 140:
                 #if mean_val[1] < 120:
                 #if  mean_val[0] > 210  and mean_val[1] < 150 :
+                if  70 < mean_val[0] < 140  and 50 < mean_val[1] < 100 :
                     color = "White"
-                    #print ( "White mean_val: \n", mean_val)
-                elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
-                #elif (10 < mean_val[0] < 50) and (50 < mean_val[1] < 210):
+                 #   print ( "White mean_val: \n", mean_val)
+                #elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
+                elif (10 < mean_val[0] < 50) and (50 < mean_val[1] < 150):
                     color = "Orange"
-                    #print ( "mean_val: \n", mean_val)
+                 #   print ( "Orange mean_val: \n", mean_val)
                 else:
-                   # print ( "undefined mean_val: \n", mean_val)
+                    print ( "undefined mean_val: \n", mean_val)
                     continue
 
                 if color == "White" or color == "Orange":
@@ -368,7 +394,7 @@ while True:
                     cross_detected = False
                
                 if cross_detected :
-                    print ( "Cross detected. \n")
+              #      print ( "Cross detected. \n")
                     cv2.drawContours(frame, [approx], -1, (0, 255, 0), 2)
                     cv2.putText(frame, "Obstacle Detected", (x- 30, y - 30),
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -384,7 +410,7 @@ while True:
     cv2.imshow("Detected circle", frame)
     cv2.imshow("Edges", edges)
  #   cv2.imshow("Blurred", blurred)
- #   cv2.imshow("Gray", gray)
+    cv2.imshow("Gray", gray)
  #   cv2.imshow("HSV", hsv)
  #   cv2.imshow("Mask", mask)
 #    cv2.imshow("Masked HSV", masked_hsv)
