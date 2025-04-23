@@ -21,19 +21,19 @@ def on_trackbar(val):
     pass
 
 # Create a window for trackbars
-#cv2.namedWindow("HSV Trackbars for White Ball")
 cv2.namedWindow("Canny Trackbars")
 Canny_threshold1 = 50
 Canny_threshold2 = 150
 
-# Create trackbars to adjust HSV values dynamically
-cv2.createTrackbar("Canny_thr1", "Canny Trackbars", Canny_threshold1, 200, on_trackbar)
-cv2.createTrackbar("Canny_thr2", "Canny Trackbars", Canny_threshold2, 300, on_trackbar)
+
 
 Gaussian_blur_size_x = 11
 Gaussian_blur_size_y = 11
 Gaussian_blur_sigma = 0
 
+# Create trackbars to adjust Blur and Canny values dynamically
+cv2.createTrackbar("Canny_thr1", "Canny Trackbars", Canny_threshold1, 200, on_trackbar)
+cv2.createTrackbar("Canny_thr2", "Canny Trackbars", Canny_threshold2, 300, on_trackbar)
 cv2.createTrackbar("Gaussian_blur_size_x", "Canny Trackbars", Gaussian_blur_size_x, 50, on_trackbar)
 cv2.createTrackbar("Gaussian_blur_size_y", "Canny Trackbars", Gaussian_blur_size_y, 50, on_trackbar)    
 cv2.createTrackbar("Gaussian_blur_sigma", "Canny Trackbars", Gaussian_blur_sigma, 50, on_trackbar)
@@ -158,7 +158,6 @@ while True:
     blurred = cv2.GaussianBlur(gray, (Gaussian_blur_size_x, Gaussian_blur_size_y), Gaussian_blur_sigma)
 
     # Brug Canny-kantdetektering
- #   edges = cv2.Canny(blurred, 50, 150)
     edges = cv2.Canny(blurred, Canny_threshold1, Canny_threshold2)
 
     # Find konturer i kanten
@@ -187,15 +186,7 @@ while True:
    
     # Detecting balls, obstacles and eggs
    
-   # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    
-    # Reduce noise
-    #blurred = cv2.GaussianBlur(gray, (11, 11), 0)
-    
-
-    # Do Canny edgedetektion
-    #edges = cv2.Canny(blurred, 30, 150)
-    #edges = cv2.Canny(blurred, Canny_threshold1, Canny_threshold2)
+  
 
     # Find contours   .CHAIN_APPROX_SIMPLE -> .CHAIN_APPROX_NONE uses more memory
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -315,8 +306,7 @@ while True:
         #n = len(contour)
         #print ( "approx: \n", approx)
         #print ( "len(contour): \n", n)
-        if 8 <= n  < 4000 :
-       # if 350 <= n  < 700 :  # Antag at det kræver mange linjer i det detaljerede kors
+        if 8 <= n  < 15 :
             #print ( "len(approx): \n", len(approx))
             #print ( "contour: \n", contour)
             # Først tjek størrelsen, så små elementer udelukkes
@@ -334,18 +324,7 @@ while True:
 
                 #print ( "len approx: \n", len (approx))
                 
-             #   with open("contour.txt", "w") as f:
-             #       for i in range(n):
-             #           f.write(f"{approx[i][0]}\n")
-               
-              #  with open("p.txt", "w") as f:
-              #      f.write(f"Contour points: {n}\n")
-              #      for i in range(n - 4):
-              #          p1 = tuple(approx[i][0])
-              #          p2 = tuple(approx[(i+1) % n][0])
-              #          p3 = tuple(approx[(i+2) % n][0])
-              #          f.write(f"{p1}   {p2}   {p3}   \n")
-               
+                    
                 
                
                 end_obst.clear()
@@ -410,7 +389,7 @@ while True:
     cv2.imshow("Detected circle", frame)
     cv2.imshow("Edges", edges)
  #   cv2.imshow("Blurred", blurred)
-    cv2.imshow("Gray", gray)
+   #  cv2.imshow("Gray", gray)
  #   cv2.imshow("HSV", hsv)
  #   cv2.imshow("Mask", mask)
 #    cv2.imshow("Masked HSV", masked_hsv)
