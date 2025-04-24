@@ -1,8 +1,8 @@
 import socket
 import json
 
-HOST = '0.0.0.0'
-PORT = 12345
+HOST = '192.168.120.245'
+PORT = 12346
 
 print(f"[SERVER] Waiting for EV3 to connect on {HOST}:{PORT}...")
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

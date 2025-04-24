@@ -1,10 +1,10 @@
 import socket
 import json
-from robot import Robot  # Make sure your Robot class is in robot.py
+from Robot import Robot  # Make sure your Robot class is in robot.py
 from ev3dev2.sound import Sound
 
-HOST = '10.209.128.1'  # Replace with actual IP of camera server
-PORT = 12345
+HOST = '192.168.120.245'  # Replace with actual IP of camera server
+PORT = 12346
 
 robot = Robot()
 sound = Sound()
@@ -24,7 +24,7 @@ def execute_instruction(instr):
         elif angle < 0:
             robot.turn_left(abs(angle))
     else:
-        print(f"[CLIENT] Unknown command: {cmd}")
+        print("[CLIENT] Unknown command: " + cmd)
         return False
     return True
 
@@ -43,7 +43,7 @@ def main():
 
             try:
                 instruction = json.loads(data.decode())
-                print(f"[CLIENT] Received instruction: {instruction}")
+                print("[CLIENT] Received instruction: " + str(instruction))
             except json.JSONDecodeError:
                 print("[CLIENT] Failed to decode instruction.")
                 break

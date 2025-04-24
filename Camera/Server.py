@@ -2,10 +2,10 @@ import socket
 import json
 import time
 import math
-from Pathfinding import sort_proximity, calculate_distance, avoid_obstacles
+from Pathfinding import sort_proximity, calculate_distance
 
 # ======== PLACEHOLDER CAMERA FUNCTIONS (to be replaced) ========
-def get_ball_positions():
+def get_ball_positions_mock():
     # Replace with actual vision code
     return [(0, 150), (150, 150)]
 
@@ -65,7 +65,7 @@ def position_close_enough(actual, expected, threshold=10):
 # ===============================================================
 
 HOST = '0.0.0.0'
-PORT = 12345
+PORT = 12346
 
 print("[SERVER] Starting camera server...")
 
