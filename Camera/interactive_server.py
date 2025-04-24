@@ -1,6 +1,8 @@
 import socket
 import json
 
+from GetBalls import get_ball_positions, cap
+
 HOST = '192.168.120.245'
 PORT = 12346
 
@@ -23,6 +25,8 @@ def send_instruction(instruction):
 def main():
     print("[SERVER] Ready to send commands. Type `exit` to quit.")
     while True:
+
+
         raw = input("Command (e.g. move 100 or turn -90): ").strip()
         if raw.lower() == "exit":
             break
