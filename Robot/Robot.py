@@ -4,7 +4,7 @@ from time import sleep
 import math
 
 class Robot:
-    WHEEL_DIAMETER = 7  # cm
+    WHEEL_DIAMETER = 5.5 # cm
     WHEEL_CIRCUMFERENCE = math.pi * WHEEL_DIAMETER  # cm per full wheel rotation
     AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
     
