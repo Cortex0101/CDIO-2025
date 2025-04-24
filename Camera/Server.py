@@ -2,8 +2,10 @@ import socket
 import json
 import time
 import math
-from Pathfinding import sort_proximity, calculate_distance
+from Pathfinding import sort_proximity, calculate_distance, avoid_obstacles
 from GetBalls import get_ball_positions, cap
+
+global_mock_angle = 0
 
 # ======== PLACEHOLDER CAMERA FUNCTIONS (to be replaced) ========
 def get_ball_positions_mock():
@@ -15,8 +17,11 @@ def get_robot_position():
     return {"x": 0, "y": 0, "theta": 0}
 
 def get_robot_angle():
+
+    #mock shit, remove later
+    global global_mock_angle
     # Replace with actual camera tracking code
-    return 0
+    return global_mock_angle
 
 def choose_next_ball(balls, current_position):
     # Replace with actual logic to choose the next ball based on proximity
@@ -33,25 +38,29 @@ def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radi
     if obstacles == None:
         obstacles = []
 
-    
-
-    distance = calculate_distance(start_position, ball)
 
     ballX, ballY = ball
-    startX, startY = start_position
-    start_pos = (startx, startY)
+    start_position
+    avoidance_route = avoid_obstacles(start_position, ball, obstacles)
 
-    dx = ballX - startX 
-    dy = ballY - startY
+    current_angle = get_robot_angle
 
-    # mock angle variable
-    mock_angle = 0
-    #current_angle = get_robot_angle
-    current_angle = mock_angle
+    avoidance_route.insert(0, start_position)
 
-    target_angle = math.degrees(math.atan2(dy, dx))
-    turn_angle = (target_angle - current_angle + 180) % 360 - 180
+    for i in range(1, len(avoidance_route)):
+        
+        current_route = avoidance_route[i]
 
+        routeX, routeY = current_route
+        startX, startY = start_position
+        dx = routeX - startX
+        dy = routeY - startY
+
+
+        target_angle = math.degrees(math.atan2(dy, dx))
+        turn_angle = (target_angle - current_angle + 180) % 360 - 180
+
+        distance = calculate_distance(start_position, current_route)
 
     return [
         {"cmd": "turn", "angle": turn_angle},
