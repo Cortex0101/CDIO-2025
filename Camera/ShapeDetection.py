@@ -15,6 +15,8 @@ end_obst = []
 
 egg = []
 
+border_corners = []
+
 
 # Callback function for trackbars (does nothing but needed for trackbars)
 def on_trackbar(val):
@@ -22,8 +24,8 @@ def on_trackbar(val):
 
 # Create a window for trackbars
 cv2.namedWindow("Canny Trackbars")
-Canny_threshold1 = 50
-Canny_threshold2 = 150
+Canny_threshold1 = 39
+Canny_threshold2 = 100
 
 
 
@@ -33,9 +35,7 @@ Gaussian_blur_sigma = 0
 
 # Create trackbars to adjust Blur and Canny values dynamically
 cv2.createTrackbar("Canny_thr1", "Canny Trackbars", Canny_threshold1, 200, on_trackbar)
-cv2.createTrackbar("Canny_thr2", "Canny Trackbars", Canny_threshold2, 300, on_trackbar)
-cv2.createTrackbar("Gaussian_blur_size_x", "Canny Trackbars", Gaussian_blur_size_x, 50, on_trackbar)
-cv2.createTrackbar("Gaussian_blur_size_y", "Canny Trackbars", Gaussian_blur_size_y, 50, on_trackbar)    
+cv2.createTrackbar("Canny_thr2", "Canny Trackbars", Canny_threshold2, 300, on_trackbar)   
 cv2.createTrackbar("Gaussian_blur_sigma", "Canny Trackbars", Gaussian_blur_sigma, 50, on_trackbar)
 
 def doesBallExistInList(ballList, x, y):
@@ -139,6 +139,10 @@ while True:
         break
 
     
+    # Get the dynamically adjusted HSV values from trackbars
+    Canny_threshold1 = cv2.getTrackbarPos("Canny_thr1", "Canny Trackbars")
+    Canny_threshold2 = cv2.getTrackbarPos("Canny_thr2", "Canny Trackbars")  
+    Gaussian_blur_sigma = cv2.getTrackbarPos("Gaussian_blur_sigma", "Canny Trackbars")
 
     # Convert frame to HSV color space
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -184,18 +188,58 @@ while True:
  #       cv2.imshow("Goal Detection", frame)
    
    
-    # Detecting balls, obstacles and eggs
+  
    
   
 
     # Find contours   .CHAIN_APPROX_SIMPLE -> .CHAIN_APPROX_NONE uses more memory
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
+     
+     
+     
+     
+      
+
     for contour in contours:
+
         # Tilnærm polygonens omkreds
         perimeter = cv2.arcLength(contour, True)
         area = cv2.contourArea(contour)
         #print ( "perimeter: \n", perimeter)
+        
+        
+        # Detecting field borders
+        border_corners.clear()
+
+        if perimeter > 3000 :
+            #print ( "perimeter: \n", perimeter)
+            #print ( "area: \n", area)
+            #print ( "contour: \n", contour)
+            #print ( "len(contour): \n", len(contour))
+         
+            approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+
+            x, y, w, h = cv2.boundingRect(approx)
+            x = int(x + w / 2)
+            y = int(y + h / 2) 
+            
+          #  print ( "approx: \n", approx)
+            cv2.drawContours(frame, [approx], -1, (0, 255, 0), 2)
+            cv2.putText(frame, "Borders Detected", (x- 30, y - 30),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+            cv2.imshow("Frame with Cross Detection", frame)
+           # if not doesObstacleExistInList(obstacle, x, y): obstacle.append((x, y))
+                    # Display coordinates on the frame
+       #     text = f"X: {x} Y: {y}"
+       #     cv2.putText(frame, text, (x - 30, y - 10),
+       #     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        
+        
+        # Detecting balls, obstacles and eggs
+
+        
         if perimeter > 10 and perimeter < 500  :
           #print ( "perimeter: \n", perimeter)
           #For detecting balls
@@ -242,7 +286,7 @@ while True:
                 #if mean_val[1] < 140:
                 #if mean_val[1] < 120:
                 #if  mean_val[0] > 210  and mean_val[1] < 150 :
-                if  70 < mean_val[0] < 140  and 50 < mean_val[1] < 100 :
+                if  70 < mean_val[0] < 140  and 5 < mean_val[1] < 100 :
                     color = "White"
                  #   print ( "White mean_val: \n", mean_val)
                 #elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
@@ -274,7 +318,7 @@ while True:
                   if not doesBallExistInList(orange_balls, x, y) and color == "Orange":
                     orange_balls.append((x, y))
              # Detect egg
-            if radius > 20 and radius < 25 and 0.8 < circularity < 0.9:
+            if radius > 15 and radius < 25 and 0.8 < circularity < 0.9:
                 #print ( "Egg detected. \n")
                 mask = np.zeros_like(hsv)
                 #print ( "mask: \n", mask)
