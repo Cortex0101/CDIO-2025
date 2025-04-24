@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
@@ -94,7 +95,7 @@ def get_ball_positions():
         "eggs": egg
     }
 
-''' 
+
 def get_robot_direction():
     angle = None
 
@@ -103,33 +104,26 @@ def get_robot_direction():
         print("Error: Unable to read frame from camera.")
         return None
         
-    hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # makes masks[color]
-    masks = {color: cv.inRange(hsv, *hsv_range) for color, hsv_range in zip(('color1', 'color2'), (color1_hsv, color2_hsv))}
+    masks = {color: cv2.inRange(hsv, *hsv_range) for color, hsv_range in zip(('color1', 'color2'), (color1_hsv, color2_hsv))}
     centers = {}
     
     for color, mask in masks.items():
-        contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours:
-            largest = max(contours, key=cv.contourArea)
+            largest = max(contours, key=cv2.contourArea)
             # area size to catch, currently: 100 pixels
-            if cv.contourArea(largest) > 10:
-                M = cv.moments(largest)
+            if cv2.contourArea(largest) > 1:
+                M = cv2.moments(largest)
                 centers[color] = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
     
     result = np.zeros_like(frame)
     if 'color1' in centers and 'color2' in centers:
-        cv.line(result, centers['color2'], centers['color1'], (255, 255, 255), 2)
+
         dx, dy = np.subtract(centers['color1'], centers['color2'])
         # change dy, dx if e.g. 90 degrees is now up instead of right etc.
         angle = (math.degrees(math.atan2(dy, dx)) + 360) % 360
-        cv.putText(result, f"{angle:.1f}°", centers['color1'], cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-        print(f"Direction: {angle:.1f}°")
-    
-    cv.imshow('Direction', result)
-    if cv.waitKey(1) & 0xFF == ord('q'): break
-    
-    cap.release()
-    cv.destroyAllWindows()
+
+
     return angle
-''' 

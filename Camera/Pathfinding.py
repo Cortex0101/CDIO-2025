@@ -125,23 +125,6 @@ def avoid_obstacles(startpoint, endpoint, obstacles, obstacle_radius=10):
     )
     return [safe_waypoint, endpoint]
 
-# calibrate real angle based on what the camera angle is
-def calibrate_angle(current_angle, camera_input):
-
-    angle_fix = 0.0
-
-    if current_angle != camera_input:
-
-        if current_angle > camera_input:
-            angle_fix = current_angle - camera_input
-
-        elif camera_input > current_angle:
-            angle_fix = camera_input - current_angle
-
-
-
-    return angle_fix
-
 def move_robot(robot, target_points, obstacles=None, wheel_diameter=70, axle_track=165):
 
     if obstacles is None:
