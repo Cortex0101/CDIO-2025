@@ -34,7 +34,7 @@ def position_close_enough(actual, expected, threshold=10):
 # ===============================================================
 
 HOST = '0.0.0.0'
-PORT = 12345
+PORT = 12346
 
 print("[SERVER] Starting camera server...")
 
