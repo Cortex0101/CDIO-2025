@@ -47,5 +47,12 @@ def get_status():
         "angle": robot.get_angle()
     })
 
+@app.route('/get_position', methods=['GET'])
+def get_position():
+    return jsonify({
+        "position": # robot.get_position()
+        robot.get_position()
+    })
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
