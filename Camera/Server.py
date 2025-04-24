@@ -2,7 +2,7 @@ import socket
 import json
 import time
 import math
-from Pathfinding import sort_proximity, calculate_distance
+from Pathfinding import sort_proximity, calculate_distance, avoid_obstacles
 
 # ======== PLACEHOLDER CAMERA FUNCTIONS (to be replaced) ========
 def get_ball_positions():
@@ -19,18 +19,26 @@ def get_robot_angle():
 
 def choose_next_ball(balls, current_position):
     # Replace with actual logic to choose the next ball based on proximity
+    if not balls:
+        return None
 
     distances = [(calculate_distance(current_position, point), point) for point in balls]
     closest_distance, closest_point = min(distances)
 
     return closest_point if balls else None
 
-def get_instructions_to_ball(start_position, ball):
+def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radius=10):
     # Replace with actual pathfinding logic
+    if obstacles == None:
+        obstacles = []
+
+    
+
     distance = calculate_distance(start_position, ball)
 
     ballX, ballY = ball
     startX, startY = start_position
+    start_pos = (startx, startY)
 
     dx = ballX - startX 
     dy = ballY - startY
