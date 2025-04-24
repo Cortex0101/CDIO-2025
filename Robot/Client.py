@@ -3,7 +3,7 @@ import json
 from robot import Robot  # Make sure your Robot class is in robot.py
 from ev3dev2.sound import Sound
 
-HOST = 'CAMERA_SERVER_IP'  # Replace with actual IP of camera server
+HOST = '10.209.128.1'  # Replace with actual IP of camera server
 PORT = 12345
 
 robot = Robot()
