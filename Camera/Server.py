@@ -3,6 +3,7 @@ import json
 import time
 import math
 from Pathfinding import sort_proximity, calculate_distance
+from GetBalls import get_ball_positions, cap
 
 # ======== PLACEHOLDER CAMERA FUNCTIONS (to be replaced) ========
 def get_ball_positions_mock():
