@@ -1,6 +1,7 @@
 import socket
 import json
 import time
+import math
 from Pathfinding import sort_proximity, calculate_distance
 
 # ======== PLACEHOLDER CAMERA FUNCTIONS (to be replaced) ========
@@ -28,10 +29,24 @@ def get_instructions_to_ball(start_position, ball):
     # Replace with actual pathfinding logic
     distance = calculate_distance(start_position, ball)
 
+    ballX, ballY = ball
+    startX, startY = start_position
+
+    dx = ballX - startX 
+    dy = ballY - startY
+
+    # mock angle variable
+    mock_angle = 0
+    #current_angle = get_robot_angle
+    current_angle = mock_angle
+
+    target_angle = math.degrees(math.atan2(dy, dx))
+    turn_angle = (target_angle - current_angle + 180) % 360 - 180
+
 
     return [
-        {"cmd": "turn", "angle": 90},
-        {"cmd": "move", "distance": 150},
+        {"cmd": "turn", "angle": turn_angle},
+        {"cmd": "move", "distance": distance},
     ]
 
 def position_close_enough(actual, expected, threshold=10):
