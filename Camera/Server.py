@@ -5,7 +5,11 @@ import math
 from Pathfinding import sort_proximity, calculate_distance, avoid_obstacles
 from GetBalls import get_ball_positions, cap
 
+global_robot_size = (15, 15) # bad practice robot size
+
+# used for mocking in get_robot_angle, remove later
 global_mock_angle = 0
+
 
 # ======== PLACEHOLDER CAMERA FUNCTIONS (to be replaced) ========
 def get_ball_positions_mock():
@@ -41,21 +45,24 @@ def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radi
 
     ballX, ballY = ball
     start_position
-    avoidance_route = avoid_obstacles(start_position, ball, obstacles)
+    startX, startY = start_position
+    startpos = (startX, startY)
 
     current_angle = get_robot_angle
 
-    avoidance_route.insert(0, start_position)
+    avoidance_route = avoid_obstacles(startpos, ball, obstacles)
+
+    avoidance_route.insert(0, startpos)
 
     for i in range(1, len(avoidance_route)):
         
         current_route = avoidance_route[i]
 
         routeX, routeY = current_route
-        startX, startY = start_position
+        startX, startY = startpos
+
         dx = routeX - startX
         dy = routeY - startY
-
 
         target_angle = math.degrees(math.atan2(dy, dx))
         turn_angle = (target_angle - current_angle + 180) % 360 - 180
