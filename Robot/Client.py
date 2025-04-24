@@ -1,32 +1,66 @@
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, MoveTank
+import socket
+import json
+from robot import Robot  # Make sure your Robot class is in robot.py
 from ev3dev2.sound import Sound
-from time import sleep
-import math
 
-class Robot:
-    WHEEL_DIAMETER = 7  # cm
-    WHEEL_CIRCUMFERENCE = math.pi * WHEEL_DIAMETER  # cm per full wheel rotation
-    AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
-    
-    def __init__(self):
-        self.left_motor = LargeMotor(OUTPUT_C)
-        self.right_motor = LargeMotor(OUTPUT_D)
-        self.tank_drive = MoveTank(OUTPUT_C, OUTPUT_D)
+HOST = 'CAMERA_SERVER_IP'  # Replace with actual IP of camera server
+PORT = 12345
 
-    def move_forward(self, distance_cm, speed=50):
-        rotations = distance_cm / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(speed, speed, rotations)
-        
-    def move_backward(self, distance_cm, speed=50):
-        rotations = distance_cm / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(-speed, -speed, rotations)
+robot = Robot()
+sound = Sound()
 
-    def turn_left(self, angle, speed=30):
-        turn_distance = (angle / 360) * (math.pi * self.AXLE_TRACK)
-        rotations = turn_distance / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(-speed, speed, rotations)
+def execute_instruction(instr):
+    cmd = instr.get("cmd")
+    if cmd == "move":
+        distance = instr.get("distance", 0)
+        if distance >= 0:
+            robot.move_forward(distance)
+        else:
+            robot.move_backward(abs(distance))
+    elif cmd == "turn":
+        angle = instr.get("angle", 0)
+        if angle > 0:
+            robot.turn_right(angle)
+        elif angle < 0:
+            robot.turn_left(abs(angle))
+    else:
+        print(f"[CLIENT] Unknown command: {cmd}")
+        return False
+    return True
 
-    def turn_right(self, angle, speed=30):
-        turn_distance = (angle / 360) * (math.pi * self.AXLE_TRACK)
-        rotations = turn_distance / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(speed, -speed, rotations)
+def main():
+    print("[CLIENT] Connecting to camera server...")
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect((HOST, PORT))
+    print("[CLIENT] Connected to server.")
+
+    try:
+        while True:
+            data = client.recv(1024)
+            if not data:
+                print("[CLIENT] No data received. Exiting.")
+                break
+
+            try:
+                instruction = json.loads(data.decode())
+                print(f"[CLIENT] Received instruction: {instruction}")
+            except json.JSONDecodeError:
+                print("[CLIENT] Failed to decode instruction.")
+                break
+
+            if execute_instruction(instruction):
+                print("[CLIENT] Instruction executed.")
+                sound.beep()
+                client.sendall(json.dumps({"status": "done"}).encode())
+            else:
+                client.sendall(json.dumps({"status": "error", "msg": "invalid command"}).encode())
+
+    except KeyboardInterrupt:
+        print("[CLIENT] Interrupted.")
+
+    finally:
+        client.close()
+        print("[CLIENT] Connection closed.")
+
+if __name__ == '__main__':
+    main()
