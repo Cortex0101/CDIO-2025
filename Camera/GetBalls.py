@@ -158,7 +158,6 @@ def get_ball_positions():
               area = cv2.contourArea(contour)
               #print ( "area: \n", area)
               if 5500 > area > 1000:  # Kan justeres afhængig af det forventede kors' størrelse
-               #if 250 > area > 200:
                 x, y, w, h = cv2.boundingRect(approx)
                 x = int(x + w / 2)
                 y = int(y + h / 2)  
