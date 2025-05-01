@@ -101,8 +101,8 @@ def get_robot_direction():
 
     cap = cv2.VideoCapture(1)
 
-    # red range
-    color1_hsv = (np.array([170, 100, 50]), np.array([180, 255, 200]))
+    # green range
+    color1_hsv = (np.array([70, 100, 50]), np.array([95, 255, 200]))
     # yellow range
     color2_hsv = (np.array([20, 100, 100]), np.array([35, 255, 255]))
 
@@ -124,7 +124,7 @@ def get_robot_direction():
         if contours:
             largest = max(contours, key=cv2.contourArea)
             # area size to catch, currently: 100 pixels
-            if cv2.contourArea(largest) > 5:
+            if cv2.contourArea(largest) > 1:
                 M = cv2.moments(largest)
                 centers[color] = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
 
