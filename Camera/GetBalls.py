@@ -99,6 +99,8 @@ def get_ball_positions():
 def get_robot_direction():
     angle = None
 
+    cap = cv2.VideoCapture(1)
+
     # red range
     color1_hsv = (np.array([170, 100, 50]), np.array([180, 255, 200]))
     # yellow range
@@ -108,6 +110,9 @@ def get_robot_direction():
     if not ret:
         print("Error: Unable to read frame from camera.")
         return None
+        
+    display_frame = frame.copy()  # Create a copy for visualization
+    
         
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # makes masks[color]
@@ -119,16 +124,35 @@ def get_robot_direction():
         if contours:
             largest = max(contours, key=cv2.contourArea)
             # area size to catch, currently: 100 pixels
-            if cv2.contourArea(largest) > 1:
+            if cv2.contourArea(largest) > 5:
                 M = cv2.moments(largest)
                 centers[color] = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
+
+                    # Draw the contour and center for each color
+                color_bgr = (0, 0, 255) if color == 'color1' else (0, 255, 255)  # Red for color1, Yellow for color2
+                cv2.drawContours(display_frame, [largest], -1, color_bgr, 2)
+                cv2.circle(display_frame, centers[color], 5, color_bgr, -1)
     
     result = np.zeros_like(frame)
+
+
     if 'color1' in centers and 'color2' in centers:
 
+        # Draw line between the two color centers
+        cv2.line(display_frame, centers['color1'], centers['color2'], (255, 255, 255), 2)
+        
+        # Calculate angle
         dx, dy = np.subtract(centers['color1'], centers['color2'])
-        # change dy, dx if e.g. 90 degrees is now up instead of right etc.
         angle = (math.degrees(math.atan2(dy, dx)) + 360) % 360
-
+        
+        # Add text showing the angle
+        text_pos = ((centers['color1'][0] + centers['color2'][0]) // 2, 
+                   (centers['color1'][1] + centers['color2'][1]) // 2 - 20)
+        cv2.putText(display_frame, f"Angle: {angle:.1f}°", text_pos, 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+    
+    # Display the frame
+    cv2.imshow("Robot Direction", display_frame)
+    cv2.waitKey(1)  # Small delay to allow display to update
 
     return angle
