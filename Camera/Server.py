@@ -14,10 +14,16 @@ global_mock_angle = 0
 
 def choose_next_ball(balls, current_position):
     # Replace with actual logic to choose the next ball based on proximity
-    if not balls:
+
+    white_balls = balls.get("white_balls", [])
+    orange_balls = balls.get("orange_balls", [])
+
+    all_balls = white_balls + orange_balls
+
+    if not all_balls:
         return None
 
-    distances = [(calculate_distance(current_position, point), point) for point in balls]
+    distances = [(calculate_distance(current_position, point), point) for point in all_balls]
     closest_distance, closest_point = min(distances)
 
     return closest_point if balls else None
