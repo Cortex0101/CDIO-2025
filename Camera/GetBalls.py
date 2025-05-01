@@ -12,7 +12,7 @@ if not cap.isOpened():
     print("Error: Could not open camera")
     exit()
 
-def get_ball_positions():
+def get_objects():
     ret, frame = cap.read()
 
     if not ret:
@@ -27,8 +27,8 @@ def get_ball_positions():
     # Parameters
     Gaussian_blur_size = (11, 11)
     Gaussian_blur_sigma = 0
-    canny_threshold1 = 39
-    canny_threshold2 = 100
+    canny_threshold1 = 90
+    canny_threshold2 = 57
 
     # Convert to grayscale and blur
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
