@@ -5,22 +5,23 @@ import time
 import math
 from Pathfinding import sort_proximity, calculate_distance, avoid_obstacles
 if __name__ == "__main__":
-    from GetBalls import get_ball_positions, cap, get_robot_position, get_robot_angle
+    from GetBalls import get_objects, cap, get_robot_position, get_robot_angle
 
 global_robot_size = (15, 15) # bad practice robot size
 
 # used for mocking in get_robot_angle, remove later
 global_mock_angle = 0
 
-def choose_next_ball(balls, current_position):
+def choose_next_ball(white_balls, orange_balls, current_position):
     # Replace with actual logic to choose the next ball based on proximity
-    if not balls:
+    if not white_balls and not orange_balls:
         return None
 
-    distances = [(calculate_distance(current_position, point), point) for point in balls]
+    # TODO Include orange balls in the logic
+    distances = [(calculate_distance(current_position, point), point) for point in white_balls]
     closest_distance, closest_point = min(distances)
 
-    return closest_point if balls else None
+    return closest_point if white_balls else None
 
 def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radius=10):
     # Replace with actual pathfinding logic
@@ -60,8 +61,8 @@ def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radi
     ]
 
 def position_close_enough(actual, expected, threshold=10):
-    dx = abs(actual["x"] - expected["x"])
-    dy = abs(actual["y"] - expected["y"])
+    dx = abs(actual[0] - expected[0])
+    dy = abs(actual[1] - expected[1])
     return dx <= threshold and dy <= threshold
 
 # Server code wrapped inside the `if __name__ == "__main__":` block
@@ -84,11 +85,12 @@ if __name__ == "__main__":
 
     while not done:
         # Get the ball positions from the camera
-        balls = get_ball_positions()
-        print(f"[SERVER] Detected balls: {balls}")
+        objects = get_objects()
+        print(f"[SERVER] Detected balls: {objects["white_balls"] + objects["orange_balls"]}")
 
         # Choose the next ball to move towards
-        next_ball = choose_next_ball(balls, get_robot_position())
+        rbt_pos = get_robot_position()
+        next_ball = choose_next_ball(objects["white_balls"], objects["orange_balls"], rbt_pos)
         if next_ball:
             print(f"[SERVER] Next ball to move towards: {next_ball}")
 
@@ -96,24 +98,34 @@ if __name__ == "__main__":
             instructions = get_instructions_to_ball(get_robot_position(), next_ball)
 
             # Send instructions to EV3 robot
-            conn.sendall(json.dumps(instructions).encode('utf-8'))
+            cmds = json.dumps(instructions).encode('utf-8')
+            
+            #{"cmd": "turn", "angle": turn_angle},
+            #{"cmd": "move", "distance": distance},
+            
+            # send the instruction one at a time
+            for cmd in instructions:
+                print(f"[SERVER] Sending command: {cmd}")
+                json_cmd = json.dumps(cmd).encode('utf-8')
+                conn.sendall(json_cmd)
 
-            # wait for status "done" from EV3
-            while True:
-                data = conn.recv(1024).decode('utf-8')
-                if data:
-                    status = json.loads(data)
-                    print(f"[SERVER] EV3 status: {status}")
-                    if status.get("status") == "done":
-                        break
-                else:
-                    print("[SERVER] No response from EV3. Retrying...")
-                    time.sleep(1)
+                 # wait for status "done" from EV3
+                while True:
+                    data = conn.recv(1024).decode('utf-8')
+                    if data:
+                        status = json.loads(data)
+                        print(f"[SERVER] EV3 status: {status}")
+                        if status.get("status") == "done":
+                            break
+                    else:
+                        print("[SERVER] No response from EV3. Retrying...")
+                        time.sleep(1)
 
-            # Check if the robot is close enough to the ball
+                # Check if the robot is close enough to the ball
+            print(f"[SERVER] Checking if robot is close enough to the ball...")
+            print(f"Robot position: {get_robot_position()}, Next ball position: {next_ball}, Robot angle: {get_robot_angle()}")
             if position_close_enough(get_robot_position(), next_ball):
                 print(f"[SERVER] Reached ball at {next_ball}.")
-                balls.remove(next_ball) # will no longer be seen by camera
 
         else:
             done = True

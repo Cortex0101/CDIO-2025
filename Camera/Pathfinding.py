@@ -4,7 +4,9 @@ import math
 #ultrasonic = UltrasonicSensor(INPUT_1)
 
 def calculate_distance(point1, point2):
-    return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
+    dist_mm = ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
+    dist_cm = dist_mm / 10.0
+    return dist_cm
 
 def sort_proximity(robot_position, points):
     if not points:
