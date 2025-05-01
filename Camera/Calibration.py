@@ -69,9 +69,9 @@ while True:
 
     
     # Get the dynamically adjusted HSV values from trackbars
-    Canny_threshold1 = cv2.getTrackbarPos("Canny_thr1", "Canny Trackbars")
-    Canny_threshold2 = cv2.getTrackbarPos("Canny_thr2", "Canny Trackbars")  
-    Gaussian_blur_sigma = cv2.getTrackbarPos("Gaussian_blur_sigma", "Canny Trackbars")
+    canny_threshold1 = cv2.getTrackbarPos("Canny_thr1", "Canny Trackbars")
+    canny_threshold2 = cv2.getTrackbarPos("Canny_thr2", "Canny Trackbars")  
+    gaussian_blur_sigma = cv2.getTrackbarPos("Gaussian_blur_sigma", "Canny Trackbars")
 
     # Convert frame to HSV color space
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)

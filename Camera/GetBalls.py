@@ -150,7 +150,7 @@ def get_ball_positions():
             n = len(approx)
             #n = len(contour)
             #print ( "approx: \n", approx)
-           #print ( "len(contour): \n", n)
+            print ( "len(contour): \n", n)
             if 8 <= n  < 15 :
               #print ( "len(approx): \n", len(approx))
               #print ( "contour: \n", contour)
