@@ -6,6 +6,8 @@ cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 
+DEBUG = False
+
 if not cap.isOpened():
     print("Error: Could not open camera")
     exit()
@@ -96,17 +98,16 @@ def get_ball_positions():
     }
 
 
-def get_robot_direction():
+def get_robot_angle():
     angle = None
 
-    cap = cv2.VideoCapture(1)
+    ret, frame = cap.read()
 
     # green range
     color1_hsv = (np.array([70, 100, 50]), np.array([95, 255, 200]))
     # yellow range
     color2_hsv = (np.array([20, 100, 100]), np.array([35, 255, 255]))
 
-    ret, frame = cap.read()
     if not ret:
         print("Error: Unable to read frame from camera.")
         return None
@@ -152,7 +153,30 @@ def get_robot_direction():
                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
     
     # Display the frame
-    cv2.imshow("Robot Direction", display_frame)
-    cv2.waitKey(1)  # Small delay to allow display to update
+    if DEBUG:
+        cv2.imshow("Robot Direction", display_frame)
+        cv2.waitKey(1)  # Small delay to allow display to update
 
     return angle
+
+def get_robot_position():
+    ret, frame = cap.read()
+    if not ret:
+        print("Error: Unable to read frame from camera.")
+        return None
+
+    # Green color range
+    green_hsv = (np.array([70, 100, 50]), np.array([95, 255, 200]))
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, *green_hsv)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        largest = max(contours, key=cv2.contourArea)
+        if cv2.contourArea(largest) > 1:
+            M = cv2.moments(largest)
+            center = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
+            return center
+
+    return None
