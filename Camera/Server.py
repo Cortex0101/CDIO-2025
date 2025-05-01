@@ -3,31 +3,14 @@ import socket
 import json
 import time
 import math
-from Camera.Pathfinding import sort_proximity, calculate_distance, avoid_obstacles
+from Pathfinding import sort_proximity, calculate_distance, avoid_obstacles
 if __name__ == "__main__":
-    from Camera.GetBalls import get_ball_positions, cap
+    from GetBalls import get_ball_positions, cap, get_robot_position, get_robot_angle
 
 global_robot_size = (15, 15) # bad practice robot size
 
 # used for mocking in get_robot_angle, remove later
 global_mock_angle = 0
-
-
-# ======== PLACEHOLDER CAMERA FUNCTIONS (to be replaced) ========
-def get_ball_positions_mock():
-    # Replace with actual vision code
-    return [(0, 150), (150, 150)]
-
-def get_robot_position():
-    # Replace with actual camera tracking code
-    return {"x": 0, "y": 0, "theta": 0}
-
-def get_robot_angle():
-
-    #mock shit, remove later
-    global global_mock_angle
-    # Replace with actual camera tracking code
-    return global_mock_angle
 
 def choose_next_ball(balls, current_position):
     # Replace with actual logic to choose the next ball based on proximity
@@ -50,7 +33,7 @@ def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radi
     startX, startY = start_position
     startpos = (startX, startY)
 
-    current_angle = get_robot_angle
+    current_angle = get_robot_angle()
 
     avoidance_route = avoid_obstacles(startpos, ball, obstacles)
 
