@@ -24,6 +24,16 @@ def get_objects():
     obstacle = []
     egg = []
 
+    # rgb t6l hvid
+    # normalser 
+    # kontrast, max lys, det
+    # hukommelse
+    # falske positiver (bold bliver frame by frame)
+
+    # Træk vinklen den afv6ger fra hastighed af andet hjul
+    # pid controller
+    # 
+
     # Parameters
     Gaussian_blur_size = (11, 11)
     Gaussian_blur_sigma = 0
@@ -160,39 +170,23 @@ def get_robot_angle():
     return angle
 
 def get_robot_position():
-
     ret, frame = cap.read()
     if not ret:
         print("Error: Unable to read frame from camera.")
         return None
-        
-    # Green color range (same as in get_robot_angle)
-    green_hsv = (np.array([70, 100, 50]), np.array([95, 255, 200]))
-    
-    # Convert to HSV color space
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    
-    # Create mask for green color
-    mask = cv2.inRange(hsv, *green_hsv)
-    
-    # Find contours
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    if contours:
-        # Find the largest contour (assuming it's the robot marker)
-        largest = max(contours, key=cv2.contourArea)
-        
-        if cv2.contourArea(largest) > 1:
-            # Calculate the center using moments
-            M = cv2.moments(largest)
-            
-            # Prevent division by zero
-            if M['m00'] != 0:
-                # Calculate center coordinates
-                center_x = int(M['m10'] / M['m00'])
-                center_y = int(M['m01'] / M['m00'])
-                
-                # Create position tuple (x, y) - same format as in get_objects
-                position = (center_x, center_y)
 
-                return position
+    # Green color range
+    green_hsv = (np.array([70, 100, 50]), np.array([95, 255, 200]))
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, *green_hsv)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        largest = max(contours, key=cv2.contourArea)
+        if cv2.contourArea(largest) > 1:
+            M = cv2.moments(largest)
+            center = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
+            return center
+
+    return None
