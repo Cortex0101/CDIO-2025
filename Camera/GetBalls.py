@@ -99,6 +99,11 @@ def get_ball_positions():
 def get_robot_direction():
     angle = None
 
+    # red range
+    color1_hsv = (np.array([170, 100, 50]), np.array([180, 255, 200]))
+    # yellow range
+    color2_hsv = (np.array([20, 100, 100]), np.array([35, 255, 255]))
+
     ret, frame = cap.read()
     if not ret:
         print("Error: Unable to read frame from camera.")
