@@ -7,9 +7,9 @@ if __name__ == "__main__":
 
     while True:
         # get frame from jpg at D:\CDIO25\CDIO-2025\ressources\img\48912632-2c4a-48e8-93d1-3ca11843cd76.jpg
-        frame = cv2.imread(r"D:\\CDIO25\\CDIO-2025\\ressources\\img\\48912632-2c4a-48e8-93d1-3ca11843cd76.jpg")
+        frame = cv2.imread(r"D:\\CDIO25\\CDIO-2025\\ressources\\img\\0.jpg")
 
-        ball_positions = detect_balls(frame, DEBUGGING=True)
+        ball_positions = detect_balls(frame, color='white', debug=True)
         print("Detected balls:", ball_positions)
 
         if ball_positions is None:
