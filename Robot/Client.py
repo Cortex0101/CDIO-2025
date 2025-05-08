@@ -23,6 +23,15 @@ def execute_instruction(instr):
             robot.turn_right(angle)
         elif angle < 0:
             robot.turn_left(abs(angle))
+    elif cmd == "claw":
+        action = instr.get("action")
+        if action == "open":
+            robot.open_claw()
+        elif action == "close":
+            robot.close_claw()
+        else:
+            print("[CLIENT] Unknown claw action: " + str(action))
+            return False
     else:
         print("[CLIENT] Unknown command: " + cmd)
         return False
