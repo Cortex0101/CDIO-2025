@@ -18,6 +18,8 @@ class Robot:
         self.claw_motor = MediumMotor(OUTPUT_B)
         self.tank_drive = MoveTank(OUTPUT_C, OUTPUT_D)
 
+        self.claw_motor.position = self.CLAW_OPEN_POS  # Initialize claw position to open
+
     def move_forward(self, distance_cm, speed=50):
         rotations = distance_cm / self.WHEEL_CIRCUMFERENCE
         self.tank_drive.on_for_rotations(speed, speed, rotations)
