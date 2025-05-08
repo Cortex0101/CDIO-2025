@@ -1,126 +1,207 @@
 import cv2
 import numpy as np
+import math
 
-DEBUGGING = True  # Set to False to disable debugging visuals
+DEBUGGING = True  # Set False to disable the debug view
 
-def adjust_gamma(frame, gamma=1.0):
-    invGamma = 1.0 / gamma
-    table = np.array([(i / 255.0) ** invGamma * 255
-                      for i in np.arange(256)]).astype("uint8")
-    return cv2.LUT(frame, table)
+# size‐filter ratios (relative to the reference ball radius)
+SIZE_RATIO_LOW  = 0.7
+SIZE_RATIO_HIGH = 1.4
+
+def adjust_gamma(image, gamma=1.5):
+    inv = 1.0 / gamma
+    table = np.array([(i / 255.0) ** inv * 255
+                      for i in range(256)], dtype="uint8")
+    return cv2.LUT(image, table)
 
 def preprocess_frame(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    equalized = clahe.apply(gray)
-    gamma_corrected = adjust_gamma(equalized, gamma=1.5)
-    blurred = cv2.GaussianBlur(gamma_corrected, (9, 9), 0)
-    return blurred
+    eq = clahe.apply(gray)
+    g = adjust_gamma(eq, gamma=1.5)
+    return cv2.GaussianBlur(g, (9, 9), 0)
 
-def dynamic_brightness_calibration(frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    _, maxVal, _, _ = cv2.minMaxLoc(gray)
-    scaling_factor = 255.0 / maxVal
-    calibrated = cv2.convertScaleAbs(frame, alpha=scaling_factor, beta=0)
-    return calibrated
-
-def generate_mask(frame):
+def generate_mask_otsu(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    v, s = hsv[:,:,2], hsv[:,:,1]
 
-    # Dynamic HSV threshold based on brightness
-    _, maxVal, _, _ = cv2.minMaxLoc(hsv[:, :, 2])
-    lower_white_hsv = np.array([0, 0, max(0, maxVal - 50)], dtype=np.uint8)
-    upper_white_hsv = np.array([180, 50, 255], dtype=np.uint8)
-    mask_hsv = cv2.inRange(hsv, lower_white_hsv, upper_white_hsv)
+    _, v_m = cv2.threshold(v, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, s_m = cv2.threshold(s, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    m = cv2.bitwise_and(v_m, s_m)
 
-    lower_rgb_white = np.array([200, 200, 200])
-    upper_rgb_white = np.array([255, 255, 255])
-    mask_rgb = cv2.inRange(rgb, lower_rgb_white, upper_rgb_white)
+    k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN,  k, iterations=2)
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, k, iterations=2)
+    return m
 
-    combined_mask = cv2.bitwise_and(mask_hsv, mask_rgb)
+def find_circle_candidates(mask):
+    """
+    Finds all bright low‐sat contours, fits each to a min‐enclosing circle,
+    computes (arc_ratio, area_ratio), clusters into 2 groups, and returns
+    candidates from the cluster closest to (1,1) in ratio‐space.
+    """
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    feats, candidates = [], []
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
-    mask_open = cv2.morphologyEx(combined_mask, cv2.MORPH_OPEN, kernel, iterations=2)
-    mask_closed = cv2.morphologyEx(mask_open, cv2.MORPH_CLOSE, kernel, iterations=2)
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area < 30:                   # skip tiny specks
+            continue
 
-    return mask_closed
+        (x, y), r = cv2.minEnclosingCircle(cnt)
+        if r < 5:
+            continue
 
-def detect_circles(mask):
-    circles = cv2.HoughCircles(
-        mask, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30,
-        param1=50, param2=15,
-        minRadius=5, maxRadius=50
+        perim     = cv2.arcLength(cnt, False)
+        full_circ = 2 * math.pi * r
+        arc_ratio = perim / full_circ
+
+        circ_area  = math.pi * r * r
+        area_ratio = area / circ_area
+
+        feats.append([arc_ratio, area_ratio])
+        candidates.append((int(x), int(y), int(r)))
+
+    if not feats:
+        return []
+
+    data = np.array(feats, dtype=np.float32)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    _, labels, centers = cv2.kmeans(
+        data, 2, None, criteria, 10, cv2.KMEANS_PP_CENTERS
     )
+    # pick the cluster whose center is closest to perfect circle (1,1)
+    d0 = np.linalg.norm(centers[0] - np.array([1.0, 1.0]))
+    d1 = np.linalg.norm(centers[1] - np.array([1.0, 1.0]))
+    best = 0 if d0 < d1 else 1
 
-    ball_coords = []
-    if circles is not None:
-        circles = np.uint16(np.around(circles))
-        for circle in circles[0, :]:
-            ball_coords.append((int(circle[0]), int(circle[1])))
+    return [candidates[i] for i in range(len(candidates)) if labels[i][0] == best]
 
-    return ball_coords, circles
+################
+COLOR_RANGES = {
+    "orange": {
+        # tune these H/S/V ranges if your orange balls look different
+        "lower": np.array([5, 100, 100], dtype=np.uint8),
+        "upper": np.array([25, 255, 255], dtype=np.uint8),
+    },
+    # you can add e.g. "red", "green" here later...
+}
 
-def detect_balls(frame, DEBUGGING=False):
-    calibrated_frame = dynamic_brightness_calibration(frame)
-    preprocessed = preprocess_frame(calibrated_frame)
-    mask = generate_mask(calibrated_frame)
-    ball_coords, circles = detect_circles(mask)
+def generate_mask(frame, color="white"):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    if DEBUGGING:
-        debug_frame = calibrated_frame.copy()
-        if circles is not None:
-            for circle in circles[0, :]:
-                cv2.circle(debug_frame, (circle[0], circle[1]), circle[2], (0, 255, 0), 2)
-                cv2.circle(debug_frame, (circle[0], circle[1]), 2, (0, 0, 255), 3)
+    if color == "white":
+        # exactly our Otsu + invert-Otsu on S approach
+        v, s = hsv[:,:,2], hsv[:,:,1]
+        _, v_m = cv2.threshold(v, 0, 255,
+                              cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        _, s_m = cv2.threshold(s, 0, 255,
+                              cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        mask = cv2.bitwise_and(v_m, s_m)
 
-        frames = [
-            ("Original Frame", frame),
-            ("Calibrated Frame", calibrated_frame),
-            ("Preprocessed Frame", preprocessed),
-            ("Mask", cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)),  # Convert mask to color for text
-            ("Detected Balls", debug_frame)
+    elif color in COLOR_RANGES:
+        lower = COLOR_RANGES[color]["lower"]
+        upper = COLOR_RANGES[color]["upper"]
+        mask = cv2.inRange(hsv, lower, upper)
+
+    else:
+        raise ValueError(f"Unsupported color ‘{color}’")
+
+    # clean-up
+    k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  k, iterations=2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, k, iterations=2)
+    return mask
+
+# … keep preprocess_frame(), adjust_gamma() exactly as before …
+
+def find_circle_candidates(mask):
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    feats, cands = [], []
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area < 30: continue
+        (x,y), r = cv2.minEnclosingCircle(cnt)
+        if r < 5: continue
+
+        perim     = cv2.arcLength(cnt, False)
+        arc_ratio = perim / (2*math.pi*r)
+        area_ratio= area / (math.pi*r*r)
+
+        feats.append([arc_ratio, area_ratio])
+        cands.append((int(x),int(y),int(r)))
+
+    if not feats:
+        return []
+
+    data = np.array(feats, dtype=np.float32)
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    _, labels, centers = cv2.kmeans(data, 2, None, crit, 10, cv2.KMEANS_PP_CENTERS)
+    d0 = np.linalg.norm(centers[0] - np.array([1.0,1.0]))
+    d1 = np.linalg.norm(centers[1] - np.array([1.0,1.0]))
+    best = 0 if d0 < d1 else 1
+
+    return [cands[i] for i in range(len(cands)) if labels[i][0] == best]
+
+def detect_balls(frame, color="white", debug=False):
+    pre  = preprocess_frame(frame)
+    mask = generate_mask(frame, color=color)
+    cands= find_circle_candidates(mask)
+
+    # size‐consistency filter against largest
+    if cands:
+        ref_r = max(cands, key=lambda c: c[2])[2]
+        low, high = ref_r*SIZE_RATIO_LOW, ref_r*SIZE_RATIO_HIGH
+        cands = [(x,y,r) for x,y,r in cands if low <= r <= high]
+
+    centers = [(x,y) for x,y,_ in cands]
+
+    if debug:
+        views = [
+            ("Original",     frame),
+            ("Preprocessed", cv2.cvtColor(pre,  cv2.COLOR_GRAY2BGR)),
+            ("Mask",         cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)),
+            ("Detected",     frame.copy())
         ]
+        for x,y,r in cands:
+            cv2.circle(views[3][1], (x,y), r,   (0,255,0), 2)
+            cv2.circle(views[3][1], (x,y),   2, (0,0,255), 3)
 
-        current_frame = 0
+        idx = 0
         while True:
-            window_name, frame_to_show = frames[current_frame]
-            frame_with_label = frame_to_show.copy()
+            title, img = views[idx]
+            disp = img.copy()
+            (w,h), _ = cv2.getTextSize(title,
+                                      cv2.FONT_HERSHEY_SIMPLEX,0.7,2)
+            cv2.rectangle(disp,
+                          (disp.shape[1]-w-20,10),
+                          (disp.shape[1]-10,h+20),
+                          (0,0,0),-1)
+            cv2.putText(disp, title,
+                        (disp.shape[1]-w-15,h+15),
+                        cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),2)
 
-            # Add label text to the top-right corner
-            label = window_name
-            (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
-            cv2.rectangle(frame_with_label, (frame_with_label.shape[1] - w - 20, 10),
-                          (frame_with_label.shape[1] - 10, h + 20), (0, 0, 0), -1)
-            cv2.putText(frame_with_label, label, (frame_with_label.shape[1] - w - 15, h + 15),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-
-            cv2.imshow("Debug View", frame_with_label)
-
+            cv2.imshow("Debug View", disp)
             key = cv2.waitKey(0) & 0xFF
+            if   key == ord('d'): idx = (idx+1) % 4
+            elif key == ord('a'): idx = (idx-1) % 4
+            elif key == ord('q'): break
 
-            if key == ord('d'):
-                current_frame = (current_frame + 1) % len(frames)
-            elif key == ord('a'):
-                current_frame = (current_frame - 1) % len(frames)
-            elif key == ord('q'):
-                cv2.destroyAllWindows()
-                return None
+        cv2.destroyAllWindows()
 
-    return ball_coords
+    return centers
 
-
-
-# Example usage
 if __name__ == "__main__":
-    cap = cv2.VideoCapture(0)  # Change as needed
-
+    cap = cv2.VideoCapture(0)
     while True:
-        ball_positions = detect_balls(cap)
-        print("Detected balls:", ball_positions)
+        ret, frame = cap.read()
+        if not ret: break
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # switch to "orange" if you want orange‐ball detection
+        balls = detect_balls(frame, color="orange", debug=DEBUGGING)
+        print("Detected:", balls)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'): break
 
     cap.release()
     cv2.destroyAllWindows()
