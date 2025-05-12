@@ -1,0 +1,166 @@
+import cv2
+import numpy as np
+
+
+def select_corners(img):
+    clicked_points = []
+    magnifier_size = 100  # region to magnify (square of this size)
+    zoom_factor = 4       # how much to zoom in
+
+    clone = img.copy()
+    display = clone.copy()
+
+    def click_event(event, x, y, flags, param):
+        nonlocal display
+        if event == cv2.EVENT_LBUTTONDOWN and len(clicked_points) < 4:
+            clicked_points.append((x, y))
+            print(f"Point {len(clicked_points)}: ({x}, {y})")
+            # Draw a small circle where clicked
+            cv2.circle(display, (x, y), 5, (0, 255, 0), -1)
+
+            if len(clicked_points) == 4:
+                print("\nAll 4 points clicked:")
+                for i, point in enumerate(clicked_points):
+                    print(f"  Corner {i+1}: {point}")
+                cv2.destroyAllWindows()
+
+        elif event == cv2.EVENT_MOUSEMOVE:
+            # Redraw original display image
+            display = clone.copy()
+
+            # Draw magnifier view
+            half = magnifier_size // 2
+            xmin = max(x - half, 0)
+            xmax = min(x + half, img.shape[1])
+            ymin = max(y - half, 0)
+            ymax = min(y + half, img.shape[0])
+
+            roi = img[ymin:ymax, xmin:xmax]
+            if roi.size > 0:
+                zoomed = cv2.resize(roi, (magnifier_size * zoom_factor, magnifier_size * zoom_factor), interpolation=cv2.INTER_NEAREST)
+                # Draw a crosshair on zoomed image
+                cv2.line(zoomed, (zoomed.shape[1]//2, 0), (zoomed.shape[1]//2, zoomed.shape[0]), (0, 0, 255), 1)
+                cv2.line(zoomed, (0, zoomed.shape[0]//2), (zoomed.shape[1], zoomed.shape[0]//2), (0, 0, 255), 1)
+
+                # Place magnifier in corner of display
+                display[0:zoomed.shape[0], 0:zoomed.shape[1]] = zoomed
+
+        cv2.imshow("Click 4 Corners (Zoom shown top-left)", display)
+
+    if img is None:
+        raise FileNotFoundError("Could not load image")
+
+    cv2.imshow("Click 4 Corners (Zoom shown top-left)", display)
+    cv2.setMouseCallback("Click 4 Corners (Zoom shown top-left)", click_event)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    return clicked_points
+
+def warp_image(img, corners):
+    # Define real-world dimensions in cm (or any consistent unit)
+    real_width = 180  # cm
+    real_height = 120  # cm
+
+    # Calculate the aspect ratio of the original image
+    original_aspect_ratio = img.shape[1] / img.shape[0]
+
+    # Define pixels per cm (scale the output size as desired)
+    scale = 4  # e.g., 10 pixels per cm → 1800x1200 final image
+    output_width = int(real_width * scale)
+    output_height = int(real_height * scale)
+
+    # Adjust the output dimensions to maintain the original aspect ratio
+    if original_aspect_ratio > 1:
+        output_height = int(output_width / original_aspect_ratio)
+    else:
+        output_width = int(output_height * original_aspect_ratio)
+
+    # Destination points as a perfect rectangle
+    dst_points = np.array([
+        [0, 0],
+        [output_width - 1, 0],
+        [output_width - 1, output_height - 1],
+        [0, output_height - 1]
+    ], dtype='float32')
+
+    # Convert corners to float32
+    src_points = np.array(corners, dtype='float32')
+
+    # Compute the perspective transform matrix
+    M = cv2.getPerspectiveTransform(src_points, dst_points)
+
+    # Perform the warp
+    warped = cv2.warpPerspective(img, M, (output_width, output_height))
+
+    return warped
+
+def denoise_image(img): # cv.fastNlMeansDenoisingColored()
+    return cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
+
+def detect_corners(img, threshold=0.01, blockSize=2, ksize=3, k=0.04):
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Use Harris corner detection
+    corners = cv2.cornerHarris(gray, blockSize=blockSize, ksize=ksize, k=k)
+
+    # Dilate to mark the corners
+    corners = cv2.dilate(corners, None)
+
+    # Threshold to get the best corners
+    img[corners > threshold * corners.max()] = [0, 0, 255]
+
+    return img
+
+def detect_circles(gray, minRadius=0, maxRadius=0, param1=200, param2=100):
+    # Apply Hough Circle Transform
+    rows = gray.shape[0]
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, dp=1, minDist=rows / 8,
+                               param1=param1, param2=param2,
+                               minRadius=minRadius, maxRadius=maxRadius)
+
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+            # Draw the outer circle
+            cv2.circle(gray, (i[0], i[1]), i[2], (0, 255, 0), 2)
+            # Draw the center of the circle
+            cv2.circle(gray, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+    return gray
+
+# Load the image
+imgPath = 'D:\\CDIO25\\CDIO-2025\\ressources\\img\\positives\\2.jpg'
+
+img = cv2.imread(imgPath)
+if img is None:
+    raise FileNotFoundError(f"Could not load image from {imgPath}") 
+
+# gray 
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+cv2.morphologyEx(gray, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), gray)
+
+# Detect circles
+cv2.namedWindow('gray')
+cv2.createTrackbar('minRadius', 'gray', 1, 100, lambda x: None)
+cv2.createTrackbar('maxRadius', 'gray', 10, 100, lambda x: None) 
+cv2.createTrackbar('param1', 'gray', 200, 300, lambda x: None)
+cv2.createTrackbar('param2', 'gray', 100, 300, lambda x: None)
+
+while True:
+    minRadius = cv2.getTrackbarPos('minRadius', 'gray')
+    maxRadius = cv2.getTrackbarPos('maxRadius', 'gray')
+    param1 = cv2.getTrackbarPos('param1', 'gray')
+    param2 = cv2.getTrackbarPos('param2', 'gray')
+
+    # Detect circles
+    new = detect_circles(gray.copy(), minRadius, maxRadius, param1, param2)
+
+    # Show the image
+    cv2.imshow('gray', new)
+    if cv2.waitKey(1) & 0xFF == 27:  # ESC key to exit
+        break
+
+cv2.destroyAllWindows()
