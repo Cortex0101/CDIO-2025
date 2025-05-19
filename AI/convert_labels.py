@@ -3,7 +3,8 @@ import glob
 import cv2
 
 # ───────── CONFIG ─────────────────────────────────────────────────────────
-DATASET_DIR   = os.path.join("AI", "datasets")
+version = "V2"
+DATASET_DIR   = os.path.join("AI", "datasets", version)
 IMG_DIR       = os.path.join(DATASET_DIR, "images")
 SRC_LABEL_DIR = os.path.join(DATASET_DIR, "labels")       # your original polygon labels
 DST_LABEL_DIR = os.path.join(DATASET_DIR, "labels_yolo")  # where converted labels go
