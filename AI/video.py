@@ -3,7 +3,7 @@ from ultralytics import YOLO
 import cv2
 
 # Load your trained model
-model = YOLO("ball_detect/yolov8_balls5/weights/best.pt")
+model = YOLO("ball_detect/v3_balls3/weights/best.pt")
 
 # video capture
 cap = cv2.VideoCapture(0)  # 0 for default camera, or provide a video file path
@@ -14,7 +14,7 @@ while True:
         break
 
     # Predict on the current frame
-    results = model.predict(source=frame, conf=0.25)
+    results = model.predict(source=frame, conf=0.01)
 
     # Visualize the results
     out = results[0].plot()  # NumPy array with boxes drawn
