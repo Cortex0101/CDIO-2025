@@ -3,7 +3,7 @@ from ultralytics import YOLO
 import cv2
 
 # Load your trained model
-model = YOLO("ball_detect/v3_balls3/weights/best.pt")
+model = YOLO("ball_detect/v3_balls_s_night_run/weights/best.pt")
 
 # video capture
 cap = cv2.VideoCapture(0)  # 0 for default camera, or provide a video file path
