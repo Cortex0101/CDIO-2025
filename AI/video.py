@@ -14,7 +14,7 @@ while True:
         break
 
     # Predict on the current frame
-    results = model.predict(source=frame, conf=0.01)
+    results = model.predict(source=frame, conf=0.3, iou =0.5)
 
     # Visualize the results
     out = results[0].plot()  # NumPy array with boxes drawn
