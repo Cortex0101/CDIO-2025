@@ -85,15 +85,19 @@ while True:
     #  konvert frame to Gray tones
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
    
+        # Anvend histogramudligning
+    equalized = cv2.equalizeHist(gray)
+
     # Detecting goals
     # Konverter til gråtoner og slør for at reducere støj
  #   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (gaussian_blur_size_x, gaussian_blur_size_y), gaussian_blur_sigma)
+    blurred = cv2.GaussianBlur(equalized, (gaussian_blur_size_x, gaussian_blur_size_y), gaussian_blur_sigma)
 
     # Brug Canny-kantdetektering
     edges = cv2.Canny(blurred, canny_threshold1, canny_threshold2)
 
     cv2.imshow("Edges", edges)
+    cv2.imshow("Original", frame)
 
     with open("Calibration.txt", "w") as f:
         

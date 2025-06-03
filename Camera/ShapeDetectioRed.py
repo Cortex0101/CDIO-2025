@@ -15,7 +15,14 @@ end_obst = []
 
 egg = []
 
-border_corners = []
+
+upper_left_corner = []
+lower_left_corner = []
+upper_right_corner = []
+lower_right_corner = []
+
+small_goal = []
+big_goal = []
 
 
 # Callback function for trackbars (does nothing but needed for trackbars)
@@ -72,7 +79,7 @@ def doesEndObstExistInList(obstList, x, y):
   #  print ( "obstList: \n", obstList)
   #  print ( "x: ", x, "y: \n", y)   
     for ball in obstList:
-        if abs (ball[0] - x) < 15 and abs (ball[1] - y) < 15:
+        if abs (ball[0] - x) < 150 and abs (ball[1] - y) < 150:
             return True
     return False
 
@@ -151,6 +158,22 @@ white_balls_success = 0
 obstacle_success = 0;
 number_of_frames = 0;
 
+
+# Afgrænsningsværdier for rød farve i HSV
+lower_red_1 = np.array([0, 70, 50])
+upper_red_1 = np.array([10, 255, 255])  # Rød nederste område
+
+lower_red_2 = np.array([170, 70, 50])
+upper_red_2 = np.array([180, 255, 255])  # Rød øverste område
+
+# Afgrænsningsværdier for hvid farve i HSV
+lower_white = np.array([0, 0, 200])
+upper_white = np.array([180, 30, 255])
+
+
+small_goal.clear()
+big_goal.clear()
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -165,7 +188,19 @@ while True:
 
     # Convert frame to HSV color space
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-   
+
+    # Skab masken for røde farver i to intervaller hjulpet af lys
+    #mask1 = cv2.inRange(hsv, lower_red_1, upper_red_1)
+    #mask2 = cv2.inRange(hsv, lower_red_2, upper_red_2)
+    
+    #mask_red = cv2.add(mask1, mask2)
+
+    #mask_white = cv2.inRange(hsv, lower_white, upper_white)
+
+    # Definer hvid maske
+    lower_white = np.array([0, 0, 80])
+    upper_white = np.array([200, 50, 255])
+    mask_white = cv2.inRange(hsv, lower_white, upper_white)
 
 
     # Press 'Esc' to exit
@@ -173,42 +208,25 @@ while True:
         break
  
     #  konvert frame to Gray tones
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     
     # Anvend histogramudligning
-    equalized = cv2.equalizeHist(gray)
+    #equalized = cv2.equalizeHist(gray)
    
     # Detecting goals
     # Konverter til gråtoner og slør for at reducere støj
     #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(equalized, (gaussian_blur_size_x, gaussian_blur_size_y), gaussian_blur_sigma)
+    #blurred = cv2.GaussianBlur(equalized, (gaussian_blur_size_x, gaussian_blur_size_y), gaussian_blur_sigma)
 
+    
+    # Anvend GaussianBlur for at reducere støj
+    #blurred = cv2.GaussianBlur(mask_red, (5, 5), 0)
+    blurred = cv2.GaussianBlur(mask_white, (5, 5), 0)
     # Brug Canny-kantdetektering
-    edges = cv2.Canny(blurred, canny_threshold1, canny_threshold2)
-
-    # Find konturer i kanten
- #   contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
- #   for contour in contours:
-        # Approximér hver kontur
- #       perimeter = cv2.arcLength(contour, True)
- #       approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
-
-        # Kontroller for rektangulært formet objekt
-  #      if len(approx) >= 12:  # Antag at det kræver mange linjer i det detaljerede kors
-            # Først tjek størrelsen, så små elementer udelukkes
-  #          area = cv2.contourArea(contour)
- #           if area > 100:  # Kan justeres afhængig af det forventede kors' størrelse
-                # Brug boundingRect for yderligere inspektion
- #               x, y, w, h = cv2.boundingRect(approx)
- #               aspectRatio = float(w) / h
- #               if 0.8 <= aspectRatio <= 1.2:  # Tjek for aspektsforhold tæt på en firkant
- #                   cv2.drawContours(frame, [approx], -1, (0, 255, 0), 2)
- #                   cv2.putText(frame, "Cross Detected", (x, y - 10),
- #                              cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-   
- #       cv2.imshow("Goal Detection", frame)
+    #edges = cv2.Canny(blurred, canny_threshold1, canny_threshold2)
+    edges = cv2.Canny(mask_white, 100, 200)
+ 
    
    
   
@@ -220,7 +238,7 @@ while True:
 
      
      
-     
+ 
      
       
 
@@ -233,7 +251,7 @@ while True:
         
         
         # Detecting field borders
-        border_corners.clear()
+       
 
         if perimeter > 3000 :
             #print ( "perimeter: \n", perimeter)
@@ -247,7 +265,7 @@ while True:
             x = int(x + w / 2)
             y = int(y + h / 2) 
             
-          #  print ( "approx: \n", approx)
+           # print ( "approx: \n", approx)
             cv2.drawContours(frame, [approx], -1, (0, 255, 0), 2)
             cv2.putText(frame, "Borders Detected", (x- 30, y - 30),
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -257,149 +275,52 @@ while True:
             for i in range (len(approx) ):
                     
                     p1 = tuple(approx[i].flatten())
-                    if p1[0] < 100 and p1[1] < 100:       
-                     if not doesEndObstExistInList(border_corners, approx[i].flatten()[0],approx[i].flatten()[1]): border_corners.append(approx[i].flatten())
-            for i in range (len(approx) ):
-                    p1 = tuple(approx[i].flatten())
-                    if p1[0] > 500 and p1[1] < 100:
-                        if not doesEndObstExistInList(border_corners, approx[i].flatten()[0],approx[i].flatten()[1]): border_corners.append(approx[i].flatten())
-            for i in range (len(approx) ):
-                    p1 = tuple(approx[i].flatten())
+                    if p1[0] < 200 and p1[1] < 200:       
+                     if not doesEndObstExistInList(upper_left_corner, approx[i].flatten()[0],approx[i].flatten()[1]): upper_left_corner.append(approx[i].flatten())
+          
+                    if p1[0] > 500 and p1[1] < 200:
+                        if not doesEndObstExistInList(upper_right_corner, approx[i].flatten()[0],approx[i].flatten()[1]): upper_right_corner.append(approx[i].flatten())
 
                     if p1[0] > 500 and p1[1] > 500:
-                        if not doesEndObstExistInList(border_corners, approx[i].flatten()[0],approx[i].flatten()[1]): border_corners.append(approx[i].flatten())
-            for i in range (len(approx) ):
-                    p1 = tuple(approx[i].flatten())
-                    if p1[0] < 100 and p1[1] < 100:
-                        if not doesEndObstExistInList(border_corners, approx[i].flatten()[0],approx[i].flatten()[1]): border_corners.append(approx[i].flatten())
+                        if not doesEndObstExistInList(lower_right_corner, approx[i].flatten()[0],approx[i].flatten()[1]): lower_right_corner.append(approx[i].flatten())
+           
+                    if p1[0] < 200 and p1[1] > 500:
+                        if not doesEndObstExistInList(lower_left_corner, approx[i].flatten()[0],approx[i].flatten()[1]): lower_left_corner.append(approx[i].flatten())
 
-            if len(border_corners) == 4:            
+            if len(upper_left_corner) > 0 and len(upper_right_corner) > 0 and len(lower_left_corner) > 0 and len(lower_right_corner) > 0:  
+                        
                     # Display coordinates on the frame
-              print ( "border_corners: \n", border_corners)
-              small_goal = border_corners[2] - border_corners[1]
-              print ( "small_goal: \n", small_goal)
-              small_goal = border_corners[2][0] - border_corners[0][0]
+            #  print ( "border_corners: \n", border_corners)
+              print ( "upper_left_corner: \n", upper_left_corner)
+              print ( "upper_right_corner: \n", upper_right_corner) 
+              
+              print ( "lower_right_corner: \n", lower_right_corner)
+              print ( "lower_left_corner: \n", lower_left_corner)
+              
+             # small_goal = (lower_right_corner[0] - upper_right_corner[0])/2
+              small_goal = upper_left_corner[0][0] , (upper_left_corner[0][1] + lower_left_corner[0][1]) / 2
+                # Convert small_goal to a tuple of integers
+              small_goal = tuple(map(int, small_goal))
+              print("small_goal after conversion:", small_goal)
               text = f"Small goal: {small_goal}" 
        
-              x = small_goal[0]
-              y = small_goal[1]
               
-              cv2.putText(frame, text, (x, y),
+              cv2.putText(frame, text, (small_goal[0] - 30, small_goal[1] - 30),
+              cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+              #big_goal = (lower_left_corner[0] - upper_left_corner[0])/2
+              big_goal = upper_right_corner[0][0], (upper_right_corner[0][1] + lower_right_corner[0][1]) / 2
+              big_goal = tuple(map(int, big_goal))
+              print("big_goal after conversion:", big_goal)
+              text = f"Big goal: {big_goal}"
+              cv2.putText(frame, text, (big_goal[0] + 30, big_goal[1] + 30),
               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         
       
 
    
         
-        if perimeter > 10 and perimeter < 500  :
-          #print ( "perimeter: \n", perimeter)
-          #For detecting balls
-          approx = cv2.approxPolyDP(contour, 0.04 * perimeter, True)
-          #print ( "approx: \n", approx)
-          #print ( "Len approx: \n", len(approx))
         
-          # Check if the kocontour is circle
-          if len(approx) > 4 and len(approx) < 8 :  # approximation of a circle
-            ((x, y), radius) = cv2.minEnclosingCircle(approx)
-            center = (int(x), int(y))
-            # print ( "center: \n", center)
-            #print ( "radius: \n", radius)
-            
-            # check if the circle is really a ball
-            
-              # Beregn cirkularitet
-            if perimeter == 0: continue  # Undgå division med nul
-            circularity = 4 * np.pi * (area / (perimeter * perimeter))
-
-            # Hvis cirkularitet er tæt på 1, betragtes det som en cirkel
-            if 0.8 < circularity < 1.0:  # Juster grænser til præference og præcision
-            # Omkreds og enkod cirkel
-               ((x, y), radius) = cv2.minEnclosingCircle(contour)
-              # avoid small detections
-               if radius > 6 and radius < 12:
-                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-                equ_hsv = hsv.copy()
-                equ_hsv[:,:,2] = clahe.apply(hsv[:,:,2])  # Anvend kun på value-kanalen
-
-
-
-                #mask = np.zeros_like(hsv)
-                mask = np.zeros_like(hsv)
-                #mask = np.zeros_like(gray)
-                #print ( "mask: \n", mask)
-                cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
-                masked_hsv = cv2.bitwise_and(hsv, mask)
-                #print ( "masked_hsv: \n", masked_hsv)
-                #cv2.circle(frame, center, 5, (0, 0, 255), -1)
-                
-                # Draw bounding box
-                #bounding_box = cv2.boundingRect(contour)
-                #x, y, w, h = bounding_box
-                #cv2.rectangle(frame, center, (x + w, y + h), (0, 255, 0), 2)
-
-
-                mean_val = cv2.mean(hsv, mask[:,:,0])
-                #print ( "mean_val: \n", mean_val)
-                
-                #if mean_val[1] < 140:
-                #if mean_val[1] < 120:
-                #if  mean_val[0] > 210  and mean_val[1] < 150 :
-                if  10 < mean_val[0] < 140  and 5 < mean_val[1] < 100 :
-                    color = "White"
-                    white_balls_success = white_balls_success + 1
-                 #   print ( "White mean_val: \n", mean_val)
-                #elif (5 < mean_val[0] < 40) and (150 < mean_val[1] < 255):
-                elif (10 < mean_val[0] < 50) and (50 < mean_val[1] < 255):
-                    color = "Orange"
-                 #   print ( "Orange mean_val: \n", mean_val)
-                else:
-                    print ( "undefined mean_val: \n", mean_val)
-                    continue
-
-                if color == "White" or color == "Orange":
-                  # Draw bounding box
-                  bounding_box = cv2.boundingRect(contour)
-                  
-                  x, y, w, h = bounding_box
-                  start_rect = (int(x - 50), int(y - 25))
-                  cv2.rectangle(frame, start_rect, (x + 100, y + 50), (0, 255, 0), 2)
-                  cv2.circle(frame, center, int(2 * radius), (0, 255, 0), 2)
-                  cv2.putText(frame, f"{color} Ball", (int(x - 35), int(y + 40)),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                
-                  # Display coordinates on the frame
-                  text = f"X: {x} Y: {y}"
-                  cv2.putText(frame, text, (x - 30, y - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-                
-                  if not doesBallExistInList(white_balls, x, y) and color == "White":
-                    white_balls.append((x, y))
-                  if not doesBallExistInList(orange_balls, x, y) and color == "Orange":
-                    orange_balls.append((x, y))
-             # Detect egg
-            if radius > 15 and radius < 25 and 0.8 < circularity < 0.9:
-                #print ( "Egg detected. \n")
-                mask = np.zeros_like(hsv)
-                #print ( "mask: \n", mask)
-                cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
-                #masked_hsv = cv2.bitwise_and(hsv, mask)
-                #mean_val = cv2.mean(hsv, mask[:,:,0])
-                bounding_box = cv2.boundingRect(contour)
-                x, y, w, h = bounding_box
-                start_rect = (int(x - 50), int(y - 25))
-                cv2.rectangle(frame, start_rect, (x + 100, y + 50), (0, 255, 0), 2)
-                cv2.circle(frame, center, int(2 * radius), (0, 255, 0), 2)
-                cv2.putText(frame, f"Egg", (int(x - 35), int(y + 40)),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                
-                # Display coordinates on the frame
-                text = f"X: {x} Y: {y}"
-                cv2.putText(frame, text, (x - 30, y - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                if not doesBallExistInList(egg, x, y): egg.append((x, y))
-                
-
 
    #For detecting obstacles
   
@@ -500,6 +421,22 @@ while True:
  #   cv2.imshow("HSV", hsv)
  #   cv2.imshow("Mask", mask)
 #    cv2.imshow("Masked HSV", masked_hsv)
+upper_left_corner = tuple(map(int, upper_left_corner[0]))
+upper_right_corner = tuple(map(int, upper_right_corner[0]))
+lower_left_corner = tuple(map(int, lower_left_corner[0]))
+lower_right_corner = tuple(map(int, lower_right_corner[0]))
+
+
+with open("Position2.txt", "w") as f:
+        
+   f.write(f"Upper_left_corner: {upper_left_corner}\n")
+   f.write(f"Upper_right_corner: {upper_right_corner}\n")   
+   f.write(f"Lower_left_corner: {lower_left_corner}\n")    
+   f.write(f"Lower_right_corner: {lower_right_corner}\n")
+   f.write(f"Small_goal: {small_goal}\n")
+   f.write(f"Big_goal: {big_goal}\n")
+   f.write(f"Obstacle: {obstacle}\n")
+    
     
 
 
@@ -509,20 +446,14 @@ cv2.destroyAllWindows()
 
 
 
+print ( "small_goal: \n", small_goal)
+print ( "big_goal: \n", big_goal)
 
-for x,y in white_balls:
-    print(f"White Ball Center: ({x}, {y})")
-print ("number_of_frames: ", number_of_frames, "number of white balls detected: ", white_balls_success, "Succes rate: ", 100* white_balls_success/number_of_frames, " pct")
-
-for x,y in orange_balls:
-    print(f"Orange Ball Center: ({x}, {y})") 
 
 
 for x,y in obstacle:
     print(f"Obstacle Center: ({x}, {y})")
 print ("number_of_frames: ", number_of_frames, "number of obstacles detected: ", obstacle_success, "Succes rate: ", 100* obstacle_success/number_of_frames, " pct")   
 
-    
-for x,y in egg:
-    print(f"Egg Center: ({x}, {y})")     
+
 

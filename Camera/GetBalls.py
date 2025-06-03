@@ -39,7 +39,11 @@ def get_ball_positions():
 
     # Convert to grayscale and blur
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, gaussian_blur_size, gaussian_blur_sigma)
+    
+    # Anvend histogramudligning
+    equalized = cv2.equalizeHist(gray)
+
+    blurred = cv2.GaussianBlur(equalized, gaussian_blur_size, gaussian_blur_sigma)
 
     # Edge detection
     edges = cv2.Canny(blurred, canny_threshold1, canny_threshold2)
@@ -121,10 +125,15 @@ def get_ball_positions():
             ((x, y), radius) = cv2.minEnclosingCircle(approx)
             center = (int(x), int(y))
             circ = circularity(area, perimeter)
-
+            
+            #print ( "circ: \n", circ, "radius: \n", radius, "area: \n", area, "len(approx): \n", len(approx))
             # Detect Balls
-            if 0.8 < circ < 1.0 and 6 < radius < 12 and len(approx) > 4 and len(approx) < 8:
-                mask = np.zeros_like(hsv)
+            if 0.8 < circ < 1.0 and 6 < radius < 12 and len(approx) > 4 and len(approx) < 12:
+                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+                equ_hsv = hsv.copy()
+                equ_hsv[:,:,2] = clahe.apply(hsv[:,:,2])  # Anvend kun på value-kanalen
+                #mask = np.zeros_like(hsv)
+                mask = np.zeros_like(equ_hsv)
                 cv2.circle(mask, center, int(radius), (255, 255, 255), -1)
                 mean_val = cv2.mean(hsv, mask[:,:,0])
 
@@ -134,6 +143,9 @@ def get_ball_positions():
                 elif 10 < mean_val[0] < 50 and 50 < mean_val[1] < 150:
                     if not is_close(orange_balls, int(x), int(y), 15):
                         orange_balls.append((int(x), int(y)))
+                else:
+                    print ( "undefined mean_val for ball: \n", mean_val)
+                    continue
             
             # Detect Egg (larger, slightly elongated circle)
             if 0.8 < circ < 0.9 and 15 < radius < 25:
@@ -148,11 +160,11 @@ def get_ball_positions():
             approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
         
             n = len(approx)
-            #n = len(contour)
+            
             #print ( "approx: \n", approx)
-            print ( "len(contour): \n", n)
-            if 8 <= n  < 15 :
-              #print ( "len(approx): \n", len(approx))
+            #print ( "len(contour): \n", n)
+            if 7 <= n  < 15 :
+              
               #print ( "contour: \n", contour)
               # Først tjek størrelsen, så små elementer udelukkes
               area = cv2.contourArea(contour)
@@ -166,7 +178,7 @@ def get_ball_positions():
                 cross_detected = True
                 angles = []
 
-                #print ( "len approx: \n", len (approx))
+                print ( "len approx: \n", n)
                 
                 
                 end_obst = []
