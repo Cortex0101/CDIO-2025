@@ -291,17 +291,17 @@ while True:
                         
                     # Display coordinates on the frame
             #  print ( "border_corners: \n", border_corners)
-              print ( "upper_left_corner: \n", upper_left_corner)
-              print ( "upper_right_corner: \n", upper_right_corner) 
+             # print ( "upper_left_corner: \n", upper_left_corner)
+             # print ( "upper_right_corner: \n", upper_right_corner) 
               
-              print ( "lower_right_corner: \n", lower_right_corner)
-              print ( "lower_left_corner: \n", lower_left_corner)
+             # print ( "lower_right_corner: \n", lower_right_corner)
+             # print ( "lower_left_corner: \n", lower_left_corner)
               
              # small_goal = (lower_right_corner[0] - upper_right_corner[0])/2
               small_goal = upper_left_corner[0][0] , (upper_left_corner[0][1] + lower_left_corner[0][1]) / 2
                 # Convert small_goal to a tuple of integers
               small_goal = tuple(map(int, small_goal))
-              print("small_goal after conversion:", small_goal)
+            #  print("small_goal after conversion:", small_goal)
               text = f"Small goal: {small_goal}" 
        
               
@@ -311,7 +311,7 @@ while True:
               #big_goal = (lower_left_corner[0] - upper_left_corner[0])/2
               big_goal = upper_right_corner[0][0], (upper_right_corner[0][1] + lower_right_corner[0][1]) / 2
               big_goal = tuple(map(int, big_goal))
-              print("big_goal after conversion:", big_goal)
+             # print("big_goal after conversion:", big_goal)
               text = f"Big goal: {big_goal}"
               cv2.putText(frame, text, (big_goal[0] + 30, big_goal[1] + 30),
               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
