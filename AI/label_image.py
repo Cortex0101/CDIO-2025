@@ -42,7 +42,7 @@ drawing = False # True if the mouse is pressed
 start_point = None # top left corner of the rectangle
 end_point = None # bottom right corner of the rectangle
 
-current_object_type = 0 # 0 for white ball, 1 orange ball
+current_object_type = 0 # 0 for white ball, 1 orange ball, 2 for cross, 3 for wall, 4 for robot
 
 def draw_rectangle(event, x, y, flags, param):
     global start_point, end_point, drawing, img_copy, rectangles
@@ -117,6 +117,24 @@ while True:
     elif key == ord('2'):
         current_object_type = 1
         print("Current object type: Orange ball")
+        img_copy = img.copy()
+        for rect in rectangles:
+            cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+    elif key == ord('3'):
+        current_object_type = 2
+        print("Current object type: Cross")
+        img_copy = img.copy()
+        for rect in rectangles:
+            cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+    elif key == ord('4'):
+        current_object_type = 3
+        print("Current object type: Wall")
+        img_copy = img.copy()
+        for rect in rectangles:
+            cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+    elif key == ord('5'):
+        current_object_type = 4
+        print("Current object type: Robot")
         img_copy = img.copy()
         for rect in rectangles:
             cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
