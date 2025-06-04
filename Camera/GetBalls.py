@@ -134,8 +134,8 @@ def get_robot_angle():
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours:
             largest = max(contours, key=cv2.contourArea)
-            # area size to catch, currently: 100 pixels
-            if cv2.contourArea(largest) > 1:
+            # area size to catch
+            if cv2.contourArea(largest) > 1: #area in pixels
                 M = cv2.moments(largest)
                 centers[color] = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
 

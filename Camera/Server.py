@@ -9,8 +9,6 @@ if __name__ == "__main__":
 
 global_robot_size = (15, 15) # bad practice robot size
 
-# used for mocking in get_robot_angle, remove later
-global_mock_angle = 0
 
 def choose_next_ball(white_balls, orange_balls, current_position):
     # Replace with actual logic to choose the next ball based on proximity
@@ -32,6 +30,7 @@ def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radi
     ballX, ballY = ball
     start_position
     startX, startY = start_position
+    # this makes sense, trust
     startpos = (startX, startY)
 
     current_angle = get_robot_angle()
