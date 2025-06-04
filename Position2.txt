@@ -1,0 +1,7 @@
+Upper_left_corner: (120, 69)
+Upper_right_corner: (740, 65)
+Lower_left_corner: (19, 577)
+Lower_right_corner: (783, 554)
+Small_goal: (120, 323)
+Big_goal: (740, 309)
+Obstacle: []
