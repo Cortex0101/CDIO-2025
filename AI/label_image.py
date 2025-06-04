@@ -14,10 +14,10 @@ import glob
 import random
 
 # Path to the image
-img_path = "images/image_76.jpg" # Change this to your image path
+img_path = "AI\images\image_49.jpg" # Change this to your image path
 
 # Path to the label file
-label_path = "images/" + os.path.basename(img_path).replace(".jpg", ".txt") # Change this to your label path
+label_path = "AI\images\ " + os.path.basename(img_path).replace(".jpg", ".txt") # Change this to your label path
 
 # Create the label file if it doesn't exist
 if not os.path.exists(label_path):
