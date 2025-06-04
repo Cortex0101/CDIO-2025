@@ -8,12 +8,15 @@ def capture_image():
     os.makedirs("AI/images", exist_ok=True)
 
     # Initialize the camera
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     if not cap.isOpened():
         print("Error: Could not open camera.")
         sys.exit()
 
-    image_count = 0
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)   
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+
+    image_count = 68
 
     while True:
         ret, frame = cap.read()
@@ -34,3 +37,7 @@ def capture_image():
 
     cap.release()
     cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    capture_image()
+    print("Image capture completed.")
