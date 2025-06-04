@@ -11,18 +11,14 @@ sound = Sound()
 
 def execute_instruction(instr):
     cmd = instr.get("cmd")
-    if cmd == "move":
-        distance = instr.get("distance", 0)
-        if distance >= 0:
-            robot.move_forward(distance)
+    if cmd == "drive":
+        left = instr.get("left_speed")
+        right = instr.get("right_speed")
+        if left is not None and right is not None:
+            robot.move_forward(left, right)
         else:
-            robot.move_backward(abs(distance))
-    elif cmd == "turn":
-        angle = instr.get("angle", 0)
-        if angle > 0:
-            robot.turn_right(angle)
-        elif angle < 0:
-            robot.turn_left(abs(angle))
+            print("[CLIENT] Invalid drive command: " + str(instr))
+            return False
     elif cmd == "claw":
         action = instr.get("action")
         if action == "open":
