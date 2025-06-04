@@ -20,23 +20,8 @@ class Robot:
 
         self.claw_motor.position = self.CLAW_OPEN_POS  # Initialize claw position to open
 
-    def move_forward(self, distance_cm, speed=50):
-        rotations = distance_cm / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(speed, speed, rotations)
-        
-    def move_backward(self, distance_cm, speed=50):
-        rotations = distance_cm / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(-speed, -speed, rotations)
-
-    def turn_left(self, angle, speed=30):
-        turn_distance = (angle / 360) * (math.pi * self.AXLE_TRACK)
-        rotations = turn_distance / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(-speed, speed, rotations)
-
-    def turn_right(self, angle, speed=30):
-        turn_distance = (angle / 360) * (math.pi * self.AXLE_TRACK)
-        rotations = turn_distance / self.WHEEL_CIRCUMFERENCE
-        self.tank_drive.on_for_rotations(speed, -speed, rotations)
+    def move_forward(self, left_speed, right_speed):
+        self.tank_drive.on(left_speed, right_speed)
 
     def open_claw(self):
         self.claw_motor.on_to_position(speed=20, position_sp=self.CLAW_OPEN_POS)
