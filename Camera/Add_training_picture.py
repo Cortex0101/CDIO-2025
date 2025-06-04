@@ -17,10 +17,13 @@ if not ret:
 # enter folder path
 
 folder = input("Enter folder: ")
-filename = input("Enter file name (without extension): ")
+while True:
+ filename = input("Enter file name (without extension) or 'q' to quit: ")
 
+ if cv.waitKey(1) & 0xFF == ord("q"):
+        break
 
-full_path = os.path.join(folder, filename + ".jpg")
+ full_path = os.path.join(folder, filename + ".jpg")
 
-cv.imwrite(full_path, frame)
-print(f"First picture saved as {full_path}.")
+ cv.imwrite(full_path, frame)
+ print(f"First picture saved as {full_path}.")
