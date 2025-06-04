@@ -65,8 +65,9 @@ def draw_rectangle(event, x, y, flags, param):
         # Stop drawing the rectangle
         drawing = False
         end_point = (x, y)
-        rectangles.append((start_point[0], start_point[1], end_point[0] - start_point[0], end_point[1] - start_point[1], current_object_type))
+
         cv2.rectangle(img_copy, start_point, end_point, (0, 255, 0), 2)
+        rectangles.append((start_point[0], start_point[1], end_point[0] - start_point[0], end_point[1] - start_point[1], current_object_type))
 
         print(f"Rectangle: {start_point} to {end_point}")
         print(f"Width: {end_point[0] - start_point[0]}, Height: {end_point[1] - start_point[1]}")
@@ -74,7 +75,20 @@ def draw_rectangle(event, x, y, flags, param):
         # Save the rectangles to the label file
         with open(label_path, "w") as f:
             for rect in rectangles:
-                f.write(f"{rect[4]} {rect[0]} {rect[1]} {rect[2]} {rect[3]}\n")
+                # find center x y between start and end point
+                # rect = (x, y, width, height, object_type)
+
+                center_coord = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
+                # convert to yolo width the coord being 0-1 bsed on the image size
+                img_height, img_width = img.shape[:2]
+                center_x = center_coord[0] / img_width
+                center_y = center_coord[1] / img_height
+
+                # convert to yolo width and height
+                width = rect[2] / img_width
+                height = rect[3] / img_height
+
+                f.write(f"{rect[4]} {center_x:.6f} {center_y:.6f} {width:.6f} {height:.6f}\n")
 
 # Bind the mouse callback function to the window
 cv2.setMouseCallback("Image", draw_rectangle)
