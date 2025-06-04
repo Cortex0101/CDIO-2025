@@ -33,14 +33,13 @@ def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radi
     # this makes sense, trust
     startpos = (startX, startY)
 
-    current_angle = get_robot_angle()
-
     avoidance_route = avoid_obstacles(startpos, ball, obstacles)
 
     avoidance_route.insert(0, startpos)
 
     for i in range(1, len(avoidance_route)):
-        
+
+        current_angle = get_robot_angle
         current_route = avoidance_route[i]
 
         routeX, routeY = current_route
