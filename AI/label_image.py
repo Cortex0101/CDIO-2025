@@ -65,7 +65,7 @@ def draw_rectangle(event, x, y, flags, param):
         # Stop drawing the rectangle
         drawing = False
         end_point = (x, y)
-        rectangles.append((start_point[0], start_point[1], end_point[0] - start_point[0], end_point[1] - start_point[1]))
+        rectangles.append((start_point[0], start_point[1], end_point[0] - start_point[0], end_point[1] - start_point[1], current_object_type))
         cv2.rectangle(img_copy, start_point, end_point, (0, 255, 0), 2)
 
         print(f"Rectangle: {start_point} to {end_point}")
@@ -74,7 +74,7 @@ def draw_rectangle(event, x, y, flags, param):
         # Save the rectangles to the label file
         with open(label_path, "w") as f:
             for rect in rectangles:
-                f.write(f"{current_object_type} {rect[0]} {rect[1]} {rect[2]} {rect[3]}\n")
+                f.write(f"{rect[4]} {rect[0]} {rect[1]} {rect[2]} {rect[3]}\n")
 
 # Bind the mouse callback function to the window
 cv2.setMouseCallback("Image", draw_rectangle)

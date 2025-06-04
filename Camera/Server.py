@@ -65,6 +65,13 @@ def position_close_enough(actual, expected, threshold=10):
     dy = abs(actual[1] - expected[1])
     return dx <= threshold and dy <= threshold
 
+def get_motor_speeds(distance, speed=100):
+    # Calculate the time it takes to cover the distance at the given speed
+    time_to_move = distance / speed
+    # Assuming a simple model where both motors run at the same speed
+    left_speed = right_speed = speed
+    return left_speed, right_speed
+
 # Server code wrapped inside the `if __name__ == "__main__":` block
 if __name__ == "__main__":
     HOST = '0.0.0.0'
@@ -95,7 +102,7 @@ if __name__ == "__main__":
             print(f"[SERVER] Next ball to move towards: {next_ball}")
 
             # Get instructions to move towards the chosen ball
-            instructions = get_instructions_to_ball(get_robot_position(), next_ball)
+            instructions = get_motor_speeds(calculate_distance(rbt_pos, next_ball))
 
             # Send instructions to EV3 robot
             cmds = json.dumps(instructions).encode('utf-8')
