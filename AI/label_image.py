@@ -110,31 +110,49 @@ while True:
     # if 1 or 2 is pressed, change the current object type
     if key == ord('1'):
         current_object_type = 0
-        print("Current object type: White ball")
+        print("Current object type: Orange ball")
         img_copy = img.copy()
         for rect in rectangles:
             cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
     elif key == ord('2'):
         current_object_type = 1
-        print("Current object type: Orange ball")
+        print("Current object type: White ball")
         img_copy = img.copy()
         for rect in rectangles:
             cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
     elif key == ord('3'):
         current_object_type = 2
-        print("Current object type: Cross")
+        print("Current object type: Egg")
         img_copy = img.copy()
         for rect in rectangles:
             cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
     elif key == ord('4'):
         current_object_type = 3
-        print("Current object type: Wall")
+        print("Current object type: Cross")
         img_copy = img.copy()
         for rect in rectangles:
             cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
     elif key == ord('5'):
         current_object_type = 4
         print("Current object type: Robot")
+        img_copy = img.copy()
+        for rect in rectangles:
+            cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+    elif key == ord('6'):
+        current_object_type = 5
+        print("Current object type: Small Goal")
+        img_copy = img.copy()
+        for rect in rectangles:
+            cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+    elif key == ord('7'):
+        current_object_type = 6
+        print("Current object type: Big Goal")
+        img_copy = img.copy()
+        for rect in rectangles:
+            cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+    elif key == ord('8'):
+        current_object_type = 7
+        print("Current object type: Walls")
         img_copy = img.copy()
         for rect in rectangles:
             cv2.rectangle(img_copy, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
