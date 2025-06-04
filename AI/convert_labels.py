@@ -3,8 +3,8 @@ import glob
 import cv2
 
 # ───────── CONFIG ─────────────────────────────────────────────────────────
-version = "V3"
-DATASET_DIR   = os.path.join("AI", "datasets", version)
+# D:\RoboFlow0506-1
+DATASET_DIR   = os.path.join("D:\\", "RoboFlow0506-1")
 TEST_DIR    = os.path.join(DATASET_DIR, "test")
 TRAIN_DIR   = os.path.join(DATASET_DIR, "train")
 VALID_DIR   = os.path.join(DATASET_DIR, "valid")
@@ -42,7 +42,7 @@ def convert_labels(folder):
             if class_id == 0:
                 # orange ball
                 class_id = 0
-            elif class_id == 4:
+            elif class_id == 3:
                 # white ball
                 class_id = 1
             else:
