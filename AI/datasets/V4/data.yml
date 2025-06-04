@@ -1,0 +1,5 @@
+train: D:/CDIO25/CDIO-2025/AI/datasets/V4/train/images
+val:   D:/CDIO25/CDIO-2025/AI/datasets/V4/valid/images
+test:   D:/CDIO25/CDIO-2025/AI/datasets/V4/test/images
+nc: 2
+names: ['orange','white']
