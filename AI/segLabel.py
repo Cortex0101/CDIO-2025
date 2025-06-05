@@ -29,6 +29,18 @@ is_panning = False
 pan_start = (0, 0)
 offset_start = (0, 0)
 
+# sort images by the number in the filename
+def sort_images(images):
+    def extract_number(filename):
+        base = os.path.basename(filename)
+        name, _ = os.path.splitext(base)
+        return int(''.join(filter(str.isdigit, name)))
+
+    return sorted(images, key=extract_number)
+
+# Ensure images are sorted by the number in the filename
+images = sort_images(images)
+
 def load_image(path):
     return cv2.imread(path)
 
@@ -229,6 +241,8 @@ def run_labeler():
 
         key = cv2.waitKey(50) & 0xFF
 
+        # check for console input
+        # if console input is a number, switch to that image if it exists
         if key in [ord(str(i + 1)) for i in range(len(CLASSES))]:
             current_class = key - ord('1')
         elif key == ord('z') and polygons:
