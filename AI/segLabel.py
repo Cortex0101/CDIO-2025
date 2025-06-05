@@ -186,6 +186,7 @@ def load_current_image():
     label_path = os.path.splitext(img_path)[0] + ".txt"
     polygons.clear()
     polygons.extend(load_labels(label_path, image.shape[1], image.shape[0]))
+    print(f"Loaded image: {img_path} with {len(polygons)} polygons.")
 
 def save_current_labels():
     img_path = images[index]
