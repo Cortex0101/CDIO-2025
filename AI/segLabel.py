@@ -194,7 +194,7 @@ def save_current_labels():
     save_labels(label_path, polygons, image.shape[1], image.shape[0])
 
 def run_labeler():
-    global index, current_class, current_polygon, offset
+    global index, current_class, current_polygon, offset, zoom_factor   
 
     if not images:
         print("No images found.")
@@ -255,6 +255,13 @@ def run_labeler():
         elif key == ord('q'):
             save_current_labels()
             break
+        elif key == ord('+'):
+            # zoom to the center of image
+            zoom_factor = min(zoom_factor * 1.1, 10)
+        elif key == ord('-'):
+            # zoom out from the center of image
+            zoom_factor = max(zoom_factor * 0.9, 0.2)
+
 
     cv2.destroyAllWindows()
 
