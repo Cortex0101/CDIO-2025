@@ -29,6 +29,6 @@ def create_txt_file_for_each_image(folder):
 
 if __name__ == "__main__":
     # Example usage
-    folder_path = 'AI/images2'  # Replace with your folder path
-    clear_txt_files_content(folder_path)
+    folder_path = 'AI/images'  # Replace with your folder path
+    create_txt_file_for_each_image(folder_path)
     print("All .txt files in the folder have been cleared.")
