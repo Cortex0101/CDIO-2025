@@ -217,66 +217,67 @@ def run_labeler():
     load_current_image()
 
     while True:
-        temp = image.copy()
-        draw_polygons(temp, polygons)
-        draw_current_polygon(temp, current_polygon)
-
-        zoomed = cv2.resize(temp, None, fx=zoom_factor, fy=zoom_factor)
-        h, w = image.shape[:2]
-        zh, zw = zoomed.shape[:2]
-
-        x1 = int(np.clip(offset[0], 0, max(zw - w, 0)))
-        y1 = int(np.clip(offset[1], 0, max(zh - h, 0)))
-        x2 = min(x1 + w, zw)
-        y2 = min(y1 + h, zh)
-
-        view = zoomed[y1:y2, x1:x2]
-        canvas = np.zeros((h, w, 3), dtype=np.uint8)
-        canvas[0:view.shape[0], 0:view.shape[1]] = view
-
-        cv2.putText(canvas, f"Class: {CLASSES[current_class]} ({current_class})", (10, 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-
-        cv2.imshow("Segment Tool", canvas)
-
+        render_canvas()
         key = cv2.waitKey(50) & 0xFF
-
-        # check for console input
-        # if console input is a number, switch to that image if it exists
-        if key in [ord(str(i + 1)) for i in range(len(CLASSES))]:
-            current_class = key - ord('1')
-        elif key == ord('z') and polygons:
-            polygons.pop()
-        elif key == ord('x'):
-            current_polygon.clear()
-        elif key == 13 and len(current_polygon) >= 3:
-            polygons.append({"class_id": current_class, "points": current_polygon.copy()})
-            current_polygon.clear()
-        elif key == ord('m'):
-            save_current_labels()
-            index = (index + 1) % len(images)
-            offset[:] = 0, 0
-            load_current_image()
-        elif key == ord('n'):
-            save_current_labels()
-            index = (index - 1) % len(images)
-            offset[:] = 0, 0
-            load_current_image()
-        elif key == ord(' '):
-            show_all_polygon_masks(image, polygons)
-        elif key == ord('h'):
-            print_help()
-        elif key == ord('q'):
-            save_current_labels()
-            break
-        elif key == ord('+'):
-            # zoom to the center of image
-            zoom_factor = min(zoom_factor * 1.1, 10)
-        elif key == ord('-'):
-            # zoom out from the center of image
-            zoom_factor = max(zoom_factor * 0.9, 0.2)
-
+        handle_keypress(key)
 
     cv2.destroyAllWindows()
+
+def render_canvas():
+    temp = image.copy()
+    draw_polygons(temp, polygons)
+    draw_current_polygon(temp, current_polygon)
+
+    zoomed = cv2.resize(temp, None, fx=zoom_factor, fy=zoom_factor)
+    h, w = image.shape[:2]
+    zh, zw = zoomed.shape[:2]
+
+    x1 = int(np.clip(offset[0], 0, max(zw - w, 0)))
+    y1 = int(np.clip(offset[1], 0, max(zh - h, 0)))
+    x2 = min(x1 + w, zw)
+    y2 = min(y1 + h, zh)
+
+    view = zoomed[y1:y2, x1:x2]
+    canvas = np.zeros((h, w, 3), dtype=np.uint8)
+    canvas[0:view.shape[0], 0:view.shape[1]] = view
+
+    cv2.putText(canvas, f"Class: {CLASSES[current_class]} ({current_class})", (10, 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
+    cv2.imshow("Segment Tool", canvas)
+
+def handle_keypress(key):
+    global current_class, current_polygon, index, offset, zoom_factor
+
+    if key in [ord(str(i + 1)) for i in range(len(CLASSES))]:
+        current_class = key - ord('1')
+    elif key == ord('z') and polygons:
+        polygons.pop()
+    elif key == ord('x'):
+        current_polygon.clear()
+    elif key == 13 and len(current_polygon) >= 3:
+        polygons.append({"class_id": current_class, "points": current_polygon.copy()})
+        current_polygon.clear()
+    elif key == ord('m'):
+        save_current_labels()
+        index = (index + 1) % len(images)
+        offset[:] = 0, 0
+        load_current_image()
+    elif key == ord('n'):
+        save_current_labels()
+        index = (index - 1) % len(images)
+        offset[:] = 0, 0
+        load_current_image()
+    elif key == ord(' '):
+        show_all_polygon_masks(image, polygons)
+    elif key == ord('h'):
+        print_help()
+    elif key == ord('q'):
+        save_current_labels()
+        exit()
+    elif key == ord('+'):
+        zoom_factor = min(zoom_factor * 1.1, 10)
+    elif key == ord('-'):
+        zoom_factor = max(zoom_factor * 0.9, 0.2)
 
 run_labeler()
