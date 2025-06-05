@@ -5,7 +5,7 @@ import numpy as np
 # Load your trained model
 model = YOLO("ball_detect/v3_balls_s_night_run/weights/best.pt")
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 while True:
     ret, frame = cap.read()
