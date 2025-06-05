@@ -3,7 +3,7 @@ import os
 import numpy as np
 from glob import glob
 
-FOLDER = "AI/images2"
+FOLDER = "AI/images"
 
 CLASSES = [
     "orange_ball", "white_ball", "egg", "cross",
