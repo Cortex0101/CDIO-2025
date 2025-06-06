@@ -29,6 +29,18 @@ is_panning = False
 pan_start = (0, 0)
 offset_start = (0, 0)
 
+# sort images by the number in the filename
+def sort_images(images):
+    def extract_number(filename):
+        base = os.path.basename(filename)
+        name, _ = os.path.splitext(base)
+        return int(''.join(filter(str.isdigit, name)))
+
+    return sorted(images, key=extract_number)
+
+# Ensure images are sorted by the number in the filename
+images = sort_images(images)
+
 def load_image(path):
     return cv2.imread(path)
 
@@ -57,16 +69,16 @@ def load_labels(path, img_w, img_h):
     return polys
 
 def point_in_polygon(point, polygon):
+    point = (float(point[0]), float(point[1]))
     return cv2.pointPolygonTest(np.array(polygon, np.int32), point, False) >= 0
 
 def screen_to_image_coords(x, y):
-    # Calculate image-space coordinates from screen-space, adjusted for zoom and offset
-    view_x = int(x + offset[0])
-    view_y = int(y + offset[1])
-    ix = int(view_x / zoom_factor)
-    iy = int(view_y / zoom_factor)
-    ix = np.clip(ix, 0, image.shape[1] - 1)
-    iy = np.clip(iy, 0, image.shape[0] - 1)
+    global zoom_factor, offset, image
+    img_h, img_w = image.shape[:2]
+    view_x = (x + offset[0]) / zoom_factor
+    view_y = (y + offset[1]) / zoom_factor
+    ix = int(np.clip(view_x, 0, img_w - 1))
+    iy = int(np.clip(view_y, 0, img_h - 1))
     return ix, iy
 
 def draw_polygons(img, polys):
@@ -129,6 +141,14 @@ def print_help():
 NOTE: Hvis du zoomer og klikker på kanten af billedet, er det offset. Zoom ud til normal størrelse for at undgå dette.
 """)
 
+def clamp_offset():
+    global offset, zoom_factor, image
+    h, w = image.shape[:2]
+    zh, zw = int(h * zoom_factor), int(w * zoom_factor)
+
+    offset[0] = np.clip(offset[0], 0, max(zw - w, 0))
+    offset[1] = np.clip(offset[1], 0, max(zh - h, 0))
+
 def mouse_callback(event, x, y, flags, param):
     global current_polygon, polygons, zoom_factor, offset, cursor_pos
     global is_panning, pan_start, offset_start
@@ -156,7 +176,7 @@ def mouse_callback(event, x, y, flags, param):
         old_zoom = zoom_factor
         zoom_step = 1.1 if flags > 0 else 0.9
         zoom_factor *= zoom_step
-        zoom_factor = max(0.2, min(zoom_factor, 10))
+        zoom_factor = max(1, min(zoom_factor, 10))
 
         dx = cursor_pos[0] * (1 / old_zoom)
         dy = cursor_pos[1] * (1 / old_zoom)
@@ -164,17 +184,20 @@ def mouse_callback(event, x, y, flags, param):
         new_dy = cursor_pos[1] * (1 / zoom_factor)
         offset[0] += (dx - new_dx) * zoom_factor
         offset[1] += (dy - new_dy) * zoom_factor
+        clamp_offset()
 
     elif event == cv2.EVENT_MBUTTONDOWN:
         is_panning = True
         pan_start = (x, y)
         offset_start = offset.copy()
+        clamp_offset()
 
     elif event == cv2.EVENT_MOUSEMOVE and is_panning:
         dx = x - pan_start[0]
         dy = y - pan_start[1]
         offset[0] = offset_start[0] - dx
         offset[1] = offset_start[1] - dy
+        clamp_offset()
 
     elif event == cv2.EVENT_MBUTTONUP:
         is_panning = False
@@ -193,8 +216,65 @@ def save_current_labels():
     label_path = os.path.splitext(img_path)[0] + ".txt"
     save_labels(label_path, polygons, image.shape[1], image.shape[0])
 
+def render_canvas():
+    temp = image.copy()
+    draw_polygons(temp, polygons)
+    draw_current_polygon(temp, current_polygon)
+
+    h, w = temp.shape[:2]
+    zh, zw = int(h * zoom_factor), int(w * zoom_factor)
+    zoomed = cv2.resize(temp, (zw, zh), interpolation=cv2.INTER_LINEAR)
+
+    x1 = int(offset[0])
+    y1 = int(offset[1])
+    x2 = min(x1 + w, zw)
+    y2 = min(y1 + h, zh)
+
+    view = zoomed[y1:y2, x1:x2]
+    canvas = np.zeros((h, w, 3), dtype=np.uint8)
+    canvas[0:view.shape[0], 0:view.shape[1]] = view
+
+    cv2.putText(canvas, f"Class: {CLASSES[current_class]} ({current_class})", (10, 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
+    cv2.imshow("Segment Tool", canvas)
+
+def handle_keypress(key):
+    global current_class, current_polygon, index, offset, zoom_factor
+
+    if key in [ord(str(i + 1)) for i in range(len(CLASSES))]:
+        current_class = key - ord('1')
+    elif key == ord('z') and polygons:
+        polygons.pop()
+    elif key == ord('x'):
+        current_polygon.clear()
+    elif key == 13 and len(current_polygon) >= 3:
+        polygons.append({"class_id": current_class, "points": current_polygon.copy()})
+        current_polygon.clear()
+    elif key == ord('m'):
+        save_current_labels()
+        index = (index + 1) % len(images)
+        offset[:] = 0, 0
+        load_current_image()
+    elif key == ord('n'):
+        save_current_labels()
+        index = (index - 1) % len(images)
+        offset[:] = 0, 0
+        load_current_image()
+    elif key == ord(' '):
+        show_all_polygon_masks(image, polygons)
+    elif key == ord('h'):
+        print_help()
+    elif key == ord('q'):
+        save_current_labels()
+        exit()
+    elif key == ord('+'):
+        zoom_factor = min(zoom_factor * 1.1, 10)
+    elif key == ord('-'):
+        zoom_factor = max(zoom_factor * 0.9, 0.2)
+
 def run_labeler():
-    global index, current_class, current_polygon, offset
+    global index, current_class, current_polygon, offset, zoom_factor   
 
     if not images:
         print("No images found.")
@@ -205,56 +285,9 @@ def run_labeler():
     load_current_image()
 
     while True:
-        temp = image.copy()
-        draw_polygons(temp, polygons)
-        draw_current_polygon(temp, current_polygon)
-
-        zoomed = cv2.resize(temp, None, fx=zoom_factor, fy=zoom_factor)
-        h, w = image.shape[:2]
-        zh, zw = zoomed.shape[:2]
-
-        x1 = int(np.clip(offset[0], 0, max(zw - w, 0)))
-        y1 = int(np.clip(offset[1], 0, max(zh - h, 0)))
-        x2 = min(x1 + w, zw)
-        y2 = min(y1 + h, zh)
-
-        view = zoomed[y1:y2, x1:x2]
-        canvas = np.zeros((h, w, 3), dtype=np.uint8)
-        canvas[0:view.shape[0], 0:view.shape[1]] = view
-
-        cv2.putText(canvas, f"Class: {CLASSES[current_class]} ({current_class})", (10, 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-
-        cv2.imshow("Segment Tool", canvas)
-
+        render_canvas()
         key = cv2.waitKey(50) & 0xFF
-
-        if key in [ord(str(i + 1)) for i in range(len(CLASSES))]:
-            current_class = key - ord('1')
-        elif key == ord('z') and polygons:
-            polygons.pop()
-        elif key == ord('x'):
-            current_polygon.clear()
-        elif key == 13 and len(current_polygon) >= 3:
-            polygons.append({"class_id": current_class, "points": current_polygon.copy()})
-            current_polygon.clear()
-        elif key == ord('m'):
-            save_current_labels()
-            index = (index + 1) % len(images)
-            offset[:] = 0, 0
-            load_current_image()
-        elif key == ord('n'):
-            save_current_labels()
-            index = (index - 1) % len(images)
-            offset[:] = 0, 0
-            load_current_image()
-        elif key == ord(' '):
-            show_all_polygon_masks(image, polygons)
-        elif key == ord('h'):
-            print_help()
-        elif key == ord('q'):
-            save_current_labels()
-            break
+        handle_keypress(key)
 
     cv2.destroyAllWindows()
 
