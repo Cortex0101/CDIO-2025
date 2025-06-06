@@ -155,4 +155,4 @@ def visualize_model_on_image(img_path, model):
     cv2.destroyAllWindows()
     
 if __name__ == "__main__":
-    copy_images_and_labels('AI/images', 'AI/datasets/V7', distribution=0.3, first_n=0, last_n=159)
+    copy_images_and_labels('AI/images', 'AI/datasets/V7', distribution=0.3, first_n=210, last_n=250)
