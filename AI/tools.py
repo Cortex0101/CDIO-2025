@@ -212,8 +212,6 @@ def show_model_predictions_in_folder(folder_path, model_path):
             for i, mask in enumerate(masks):
                 cls = int(r.boxes.cls[i])
                 conf = r.boxes.conf[i].item()
-                if model.names[cls] == 'wall':
-                    continue
 
                 color = colors[cls % len(colors)]
                 color_bgr = (color[2], color[1], color[0])
@@ -236,8 +234,11 @@ def show_model_predictions_in_folder(folder_path, model_path):
             index = (index + 1) % len(image_files)
         elif key == ord('n'):  # previous
             index = (index - 1) % len(image_files)
-        elif key == 27:  # ESC to quit
+        elif key == ord('q'):
+            print("Exiting...")
             break
+
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     show_model_predictions_in_folder('AI/images', 'ball_detect/v7dtu4/weights/best.pt')
