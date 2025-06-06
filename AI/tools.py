@@ -32,6 +32,12 @@ def create_new_dataset_structure(name):
     """
     Creates a new dataset structure with 'train' and 'val' folders.
     """
+    dir_path = "AI/datasets"
+
+    # check if folder has folder with name
+    if not os.path.exists(os.path.join(dir_path, name)):
+        os.makedirs(os.path.join(dir_path, name))
+
     train_folder = os.path.join(dataset_folder, name, 'train')
     val_folder = os.path.join(dataset_folder, name, 'val')
 
@@ -42,7 +48,7 @@ def create_new_dataset_structure(name):
 
     print(f"Created dataset structure for {name} in {dataset_folder}")
 
-def copy_images_and_labels(source_folder, target_folder, distribution=0.3, first_n=210, last_n=250):
+def copy_images_and_labels(source_folder, target_folder, distribution=0.3, first_n=0, last_n=250):
     """
     Copies images and labels from source_folder "image_0.jpg, image_1.jpg, ..., image_n.jpg"
     and image_0.txt, image_1.txt, ..., image_n.txt to target_folder.
@@ -149,4 +155,4 @@ def visualize_model_on_image(img_path, model):
     cv2.destroyAllWindows()
     
 if __name__ == "__main__":
-    visualize_model_on_image('path_to_your_image.jpg', 'yolov8n-seg.pt')  # Replace with your image path and model
+    copy_images_and_labels('AI/images', 'AI/datasets/V7', distribution=0.3, first_n=0, last_n=159)
