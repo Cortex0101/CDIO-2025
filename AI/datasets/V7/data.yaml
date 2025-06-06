@@ -1,0 +1,4 @@
+train: D:/CDIO25/CDIO-2025/AI/datasets/V7/train/images
+val: D:/CDIO25/CDIO-2025/AI/datasets/V7/val/images
+nc: 8
+names: ['orange', 'white', 'egg', 'cross', 'robot', 'small_goal', 'big_goal', 'wall']
