@@ -79,7 +79,6 @@ def screen_to_image_coords(x, y):
     view_y = (y + offset[1]) / zoom_factor
     ix = int(np.clip(view_x, 0, img_w - 1))
     iy = int(np.clip(view_y, 0, img_h - 1))
-    print(f"Screen coords: ({x}, {y}) -> Image coords: ({ix}, {iy}) (Image size: {img_w}, {img_h})")
     return ix, iy
 
 def draw_polygons(img, polys):
