@@ -1,0 +1,10 @@
+augment:
+  flipud: 0.5          # vertical flip probability (default is 0.0)
+  fliplr: 0.5          # horizontal flip probability (default is 0.5)
+  scale: 0.5           # scaling probability (0.5 means frequent resizing)
+  hsv_h: 0.015         # small hue shift (color variation)
+  hsv_s: 0.7           # saturation variation
+  hsv_v: 0.4           # value (brightness) variation
+  translate: 0.1       # random shift
+  shear: 0.0           # disable shearing
+  perspective: 0.0     # disable perspective warp
