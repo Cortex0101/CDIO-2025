@@ -183,6 +183,29 @@ class AIModel:
 
         return closest_ball
 
+    def highlight_ball_as_next(self, frame: np.ndarray, closest_ball: dict) -> np.ndarray:
+        """
+        Highlights the closest ball in the frame by drawing a rectangle and label.
+
+        Args:
+            frame: BGR image.
+            closest_ball: Dict with 'class', 'confidence', 'bbox', 'centroid'.
+
+        Returns:
+            The modified image with highlighted ball.
+        """
+        if closest_ball is None:
+            return frame
+
+        x1, y1, x2, y2 = closest_ball['bbox']
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 255), 2)
+        cx, cy = closest_ball['centroid']
+        cv2.circle(frame, (int(cx), int(cy)), 5, (0, 0, 255), -1)
+        cv2.putText(frame, f"{closest_ball['class']} {closest_ball['confidence']:.2f}",
+                    (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+        return frame
+
     @staticmethod
     def masks_intersect(mask1: np.ndarray, mask2: np.ndarray) -> bool:
         """
@@ -201,6 +224,7 @@ if __name__ == "__main__":
     model = AIModel()
     img = cv2.imread("AI/images/image_0.jpg")
 
+    
     results_img = model.show_results(img, options={
         "boxes": True,
         "labels": True,
@@ -215,14 +239,7 @@ if __name__ == "__main__":
     else:
         print("No closest ball found.")
 
-    # draw the closest ball on the image
-    if closest_ball:
-        x1, y1, x2, y2 = closest_ball['bbox']
-        cv2.rectangle(results_img, (x1, y1), (x2, y2), (0, 255, 255), 2)
-        cx, cy = closest_ball['centroid']
-        cv2.circle(results_img, (int(cx), int(cy)), 5, (0, 0, 255), -1)
-        cv2.putText(results_img, f"{closest_ball['class']} {closest_ball['confidence']:.2f}",
-                    (x1, y1 - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    model.highlight_ball_as_next(results_img, closest_ball)
 
     cv2.imshow("Detection Results", results_img)
     cv2.waitKey(0)
