@@ -163,7 +163,7 @@ if __name__ == "__main__":
     
     info = model.get_objects_info(img,
                                     classes_to_keep=["robot","white"],
-                                    return_bbox=True,
+                                    return_bbox=False,
                                     return_mask=False)
     for obj in info:
         print(obj)
