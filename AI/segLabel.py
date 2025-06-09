@@ -21,6 +21,8 @@ image = None
 polygons = []
 current_class = 0
 current_polygon = []
+hovered_poly_index = None
+
 
 zoom_factor = 1.0
 offset = np.array([0.0, 0.0])
@@ -116,6 +118,52 @@ def show_all_polygon_masks(image, polys):
         mask = cv2.add(mask, masked)
     cv2.imshow("All Polygon Masks", mask)
 
+def show_polygon_grid(image, polygons, cell_size=128, magnify=2):
+    '''
+    Display each polygon in a grid, cropped from image and magnified.
+    image: np.ndarray, original image
+    polygons: list of dicts with ["points"]
+    cell_size: output cell size (cell_size, cell_size)
+    magnify: magnification factor for polygon crop
+    '''
+    # calculate grid size
+    rows = cols = int(np.ceil(np.sqrt(len(polygons))))
+    if rows * cols < len(polygons):
+        cols += 1
+
+    grid_img = np.zeros((rows * cell_size, cols * cell_size, 3), dtype=np.uint8)
+
+    for idx, poly in enumerate(polygons):
+        if idx >= rows * cols:
+            break
+        pts = np.array(poly["points"], np.int32)  # CORRECT TYPE
+        # bounding rect
+        x, y, w, h = cv2.boundingRect(pts)
+        # crop
+        crop = image[y:y+h, x:x+w]
+        # mask for polygon
+        mask = np.zeros((h, w), dtype=np.uint8)
+        poly_shifted = pts - [x, y]
+        cv2.fillPoly(mask, [poly_shifted], 255)
+        crop_masked = cv2.bitwise_and(crop, crop, mask=mask)
+        # optional: set background transparent (or color)
+        bg = np.zeros_like(crop)
+        crop_visible = np.where(mask[..., None] == 255, crop_masked, bg)
+        # magnify
+        mag = cv2.resize(crop_visible, (w * magnify, h * magnify), interpolation=cv2.INTER_NEAREST)
+        # center in cell
+        cell = np.zeros((cell_size, cell_size, 3), dtype=np.uint8)
+        h_m, w_m = mag.shape[:2]
+        y_off = max((cell_size - h_m) // 2, 0)
+        x_off = max((cell_size - w_m) // 2, 0)
+        h_crop = min(cell_size, h_m)
+        w_crop = min(cell_size, w_m)
+        cell[y_off:y_off+h_crop, x_off:x_off+w_crop] = mag[:h_crop, :w_crop]
+        # place cell in grid
+        r, c = divmod(idx, cols)
+        grid_img[r*cell_size:(r+1)*cell_size, c*cell_size:(c+1)*cell_size] = cell
+    cv2.imshow("Polygon grid", grid_img)
+
 def print_help():
     print("""
 === Shortcut Guide ===
@@ -149,12 +197,59 @@ def clamp_offset():
     offset[0] = np.clip(offset[0], 0, max(zw - w, 0))
     offset[1] = np.clip(offset[1], 0, max(zh - h, 0))
 
+def render_hovered_polygon_zoom(canvas, poly, size=96, pad=2):
+    # poly: dict with 'points', image is global
+    pts = np.array(poly["points"], np.int32)
+    x, y, w, h = cv2.boundingRect(pts)
+    crop = image[y:y+h, x:x+w]
+    mask = np.zeros((h, w), dtype=np.uint8)
+    poly_shifted = pts - [x, y]
+    cv2.fillPoly(mask, [poly_shifted], 255)
+    crop_masked = cv2.bitwise_and(crop, crop, mask=mask)
+    bg = np.zeros_like(crop)
+    crop_visible = np.where(mask[..., None] == 255, crop_masked, bg)
+
+    # Scale so the largest side (h or w) fits within 'size - 2*pad'
+    scale = (size - 2 * pad) / max(h, w) if max(h, w) > 0 else 1.0
+    target_h = int(h * scale)
+    target_w = int(w * scale)
+    if target_h > 0 and target_w > 0:
+        mag_img = cv2.resize(crop_visible, (target_w, target_h), interpolation=cv2.INTER_LINEAR)
+    else:
+        mag_img = np.zeros((size, size, 3), np.uint8)
+
+    # Center the zoomed polygon in the preview square
+    vis = np.zeros((size, size, 3), np.uint8)
+    y_off = (size - target_h) // 2
+    x_off = (size - target_w) // 2
+    vis[y_off:y_off+target_h, x_off:x_off+target_w] = mag_img[:size-y_off, :size-x_off]
+
+    # Draw polygon outline over the zoomed crop
+    poly_zoomed = (poly_shifted * scale).astype(np.int32) + [x_off, y_off]
+    cv2.polylines(vis, [poly_zoomed], True, (0, 255, 0), 2)
+
+    # Draw class label
+    cv2.rectangle(vis, (0,0), (size-1, 22), (32,32,32), -1)
+    cv2.putText(vis, CLASSES[poly["class_id"]], (4,18), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 1)
+
+    # Paste onto top-left corner of canvas
+    canvas[6:6+size, 6:6+size] = vis
+
+
 def mouse_callback(event, x, y, flags, param):
     global current_polygon, polygons, zoom_factor, offset, cursor_pos
-    global is_panning, pan_start, offset_start
+    global is_panning, pan_start, offset_start, hovered_poly_index
 
     cursor_pos = (x, y)
     zx, zy = screen_to_image_coords(x, y)
+
+    # HOVER LOGIC (after zx, zy is set)
+    hovered_poly_index = None
+    for i, poly in enumerate(polygons):
+        if point_in_polygon((zx, zy), poly["points"]):
+            hovered_poly_index = i
+            break
+
 
     if event == cv2.EVENT_LBUTTONDOWN and not is_panning:
         current_polygon.append((zx, zy))
@@ -217,6 +312,8 @@ def save_current_labels():
     save_labels(label_path, polygons, image.shape[1], image.shape[0])
 
 def render_canvas():
+    global hovered_poly_index
+
     temp = image.copy()
     draw_polygons(temp, polygons)
     draw_current_polygon(temp, current_polygon)
@@ -236,6 +333,9 @@ def render_canvas():
 
     cv2.putText(canvas, f"Class: {CLASSES[current_class]} ({current_class})", (10, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+    
+    if hovered_poly_index is not None:
+        render_hovered_polygon_zoom(canvas, polygons[hovered_poly_index], size=150, pad=2)
 
     cv2.imshow("Segment Tool", canvas)
 
@@ -263,6 +363,7 @@ def handle_keypress(key):
         load_current_image()
     elif key == ord(' '):
         show_all_polygon_masks(image, polygons)
+        show_polygon_grid(image, polygons, cell_size=128, magnify=2)
     elif key == ord('h'):
         print_help()
     elif key == ord('q'):
