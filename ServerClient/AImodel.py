@@ -143,6 +143,46 @@ class AIModel:
 
         return infos
 
+    def find_closest_ball(self, frame: np.ndarray, ball_color: str = "white") -> dict | None:
+        """
+        Finds the closest ball of the specified color in the frame.
+
+        Args:
+            frame: BGR image.
+            ball_color: Color of the ball to find (e.g., "white", "orange").
+
+        Returns:
+            A dict with 'class', 'confidence', 'bbox', 'centroid' if found, else None.
+        """
+        results = self.predict(frame)
+        if results is None or results.boxes is None:
+            return None
+
+        closest_ball = None
+        min_distance = float('inf')
+
+        for box in results.boxes:
+            cls_id = int(box.cls[0].item())
+            cls_name = results.names[cls_id]
+            if cls_name != ball_color:
+                continue
+
+            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
+            cx = (x1 + x2) / 2.0
+            cy = (y1 + y2) / 2.0
+            distance = np.sqrt(cx**2 + cy**2)
+
+            if distance < min_distance:
+                min_distance = distance
+                closest_ball = {
+                    'class': cls_name,
+                    'confidence': float(box.conf[0].item()),
+                    'bbox': [int(x1), int(y1), int(x2), int(y2)],
+                    'centroid': (float(cx), float(cy))
+                }
+
+        return closest_ball
+
     @staticmethod
     def masks_intersect(mask1: np.ndarray, mask2: np.ndarray) -> bool:
         """
@@ -160,6 +200,33 @@ class AIModel:
 if __name__ == "__main__":
     model = AIModel()
     img = cv2.imread("AI/images/image_0.jpg")
+
+    results_img = model.show_results(img, options={
+        "boxes": True,
+        "labels": True,
+        "center": True,
+        "conf": False,
+        "masks": False
+    })
+
+    closest_ball = model.find_closest_ball(img, ball_color="white")
+    if closest_ball:
+        print(f"Closest ball found: {closest_ball}")
+    else:
+        print("No closest ball found.")
+
+    # draw the closest ball on the image
+    if closest_ball:
+        x1, y1, x2, y2 = closest_ball['bbox']
+        cv2.rectangle(results_img, (x1, y1), (x2, y2), (0, 255, 255), 2)
+        cx, cy = closest_ball['centroid']
+        cv2.circle(results_img, (int(cx), int(cy)), 5, (0, 0, 255), -1)
+        cv2.putText(results_img, f"{closest_ball['class']} {closest_ball['confidence']:.2f}",
+                    (x1, y1 - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+    cv2.imshow("Detection Results", results_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     info = model.get_objects_info(img,
                                     classes_to_keep=["robot","white"],
