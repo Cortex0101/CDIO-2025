@@ -298,13 +298,15 @@ def mouse_callback(event, x, y, flags, param):
         is_panning = False
 
 def load_current_image():
-    global image, polygons
+    global image, polygons, hovered_poly_index  # <== Add hovered_poly_index here
     img_path = images[index]
     image = load_image(img_path)
     label_path = os.path.splitext(img_path)[0] + ".txt"
     polygons.clear()
     polygons.extend(load_labels(label_path, image.shape[1], image.shape[0]))
+    hovered_poly_index = None  # <== Reset it here
     print(f"Loaded image: {img_path} with {len(polygons)} polygons.")
+
 
 def save_current_labels():
     img_path = images[index]
@@ -334,8 +336,9 @@ def render_canvas():
     cv2.putText(canvas, f"Class: {CLASSES[current_class]} ({current_class})", (10, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
     
-    if hovered_poly_index is not None:
+    if hovered_poly_index is not None and 0 <= hovered_poly_index < len(polygons):
         render_hovered_polygon_zoom(canvas, polygons[hovered_poly_index], size=150, pad=2)
+
 
     cv2.imshow("Segment Tool", canvas)
 
