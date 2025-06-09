@@ -77,7 +77,5 @@ class Server:
                 print("Unknown command. Use 'move' or 'claw'.")
                 continue
 
-    
-
 if __name__ == "__main__":
     server = Server()
