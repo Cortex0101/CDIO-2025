@@ -1,9 +1,6 @@
 from ultralytics import YOLO
 import cv2
 import numpy as np
-
-import numpy as np
-import cv2
 from sklearn.decomposition import PCA
 
 def calculate_robot_orientation(polygon_points):
@@ -68,7 +65,7 @@ def draw_robot_with_direction(image, polygon_points, angle_deg, center, directio
 
 # Load your trained model
 #model = YOLO("ball_detect/v3_balls_s_night_run/weights/best.pt")
-model = YOLO("ball_detect/v6_seg_aug_final/weights/best.pt")
+model = YOLO("ball_detect/v7dtu4/weights/best.pt")
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 while True:
@@ -80,6 +77,7 @@ while True:
     results = model.predict(source=frame, conf=0.3, iou=0.5)
     r = results[0]
 
+    """"
     # find "robot" segmentation mask if available
     if r.masks is not None:
         # find label "robot" in the masks
@@ -101,7 +99,7 @@ while True:
     else:
         print("No robot mask found in the current frame.")
     # If no robot mask, continue with detection boxes
-                
+    """
 
     # Convert to a writable image
     img = frame.copy()
