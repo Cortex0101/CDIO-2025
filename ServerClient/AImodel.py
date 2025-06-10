@@ -208,7 +208,6 @@ class AIModel:
         cv2.rectangle(self.current_processed_drawn_frame,
                         (box[0], box[1]), (box[2], box[3]), highlight_color, 2)
         
-        
     def do_boxes_overlap(self, box1, box2):
         """
         Check if two bounding boxes overlap.
@@ -339,7 +338,23 @@ class AIModel:
 
         return objects
     
-    def plan_smooth_path(self, target_coord, obstacle_padding=5, max_curvature=0.05, num_waypoints=100):
+    def plan_smooth_path_from_robot(self, target_coord, obstacle_padding=5, max_curvature=0.05, num_waypoints=100):
+        """
+        Generate a smooth, obstacle-avoiding path from robot to target using bounding boxes.
+
+        Args:
+            target_coord: (x,y) goal center.
+            obstacle_padding: extra padding around obstacles.
+            max_curvature: smoothing factor (lower -> tighter turns).
+            num_waypoints: number of sampled points.
+
+        Returns:
+            smooth_path: ndarray of shape (N,2) of x,y waypoints.
+        """
+        robot = self.current_course.get_objects_by_name("robot")[0]
+        return self.plan_smooth_path(robot.center, target_coord, obstacle_padding, max_curvature, num_waypoints)
+
+    def plan_smooth_path(self, start_coord, target_coord, obstacle_padding=5, max_curvature=0.05, num_waypoints=100):
         """
         Generate a smooth, obstacle-avoiding path from robot to target using bounding boxes.
 
@@ -363,8 +378,7 @@ class AIModel:
         # 1. Sample straight-line path
         robot = self.current_course.get_objects_by_name("robot")[0]
         t = np.linspace(0, 1, num_waypoints)
-        line = np.outer(1 - t, robot.center) + np.outer(t, target_coord)
-
+        line = np.outer(1 - t, start_coord) + np.outer(t, target_coord)
         robot_radius = (robot.bbox[2] - robot.bbox[0]) / 2.0  # use half of width as radius
 
         # 2. Build obstacle circles (center, radius)
@@ -433,6 +447,25 @@ class AIModel:
 
         return overlapping_balls
 
+    def determine_most_optimal_ball(self, balls):
+        """
+        Determines the most optimal ball to target based on some criteria.
+        For now, this method simply returns the first ball in the list.
+
+        Args:
+            balls: List of balls to choose from.
+
+        Returns:
+            The most optimal ball.
+        """
+        if not balls:
+            return None
+        
+        # generate path to each ball and then a path from that ball to the closest goal
+        for ball in balls:
+            path_to_ball = self.plan_smooth_path(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+            path_from_ball_to_goal = self.plan_smooth_path(self.current_course.get_objects_by_name('large_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+
 if __name__ == "__main__":
     model = AIModel()
 
@@ -453,20 +486,24 @@ if __name__ == "__main__":
     robot = objects['robot'][0]
     print(f"Robot is at center: {robot['center']} with bbox: {robot['bbox']} and confidence: {robot['confidence']:.2f}")
 
-    path = model.plan_smooth_path(model.current_course.get_objects_by_name('egg')[0].center, obstacle_padding=10, max_curvature=0.05, num_waypoints=100)
+    path = model.plan_smooth_path_from_robot(model.current_course.get_objects_by_name('egg')[0].center, obstacle_padding=10, max_curvature=0.05, num_waypoints=100)
     print(f"Planned path with {len(path)} waypoints.")
     model.draw_path(path) # draws the planned path on the current processed frame
 
-    path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+    path = model.plan_smooth_path_from_robot(model.current_course.get_objects_by_name('big_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
     print(f"Planned path to large goal with {len(path)} waypoints.")
     model.draw_path(path, color=(0, 255, 0), thickness=3) # draws the planned path to the large goal on the current processed frame
 
     # generate a path to each white ball
     
     for ball in model.current_course.get_objects_by_name('white'):
-        path = model.plan_smooth_path(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+        path = model.plan_smooth_path_from_robot(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
         print(f"Planned path to white ball at {ball.center} with {len(path)} waypoints.")
         model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
+
+    # path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('small_goal')[0].center ,obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+    path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('egg')[0].center ,obstacle_padding=10, max_curvature=0.06, num_waypoints=100)
+    model.draw_path(path, color=(0, 255, 255), thickness=2) # draws the planned path from small goal to large goal on the current processed frame
 
     cv2.imshow("Processed Frame", model.current_processed_drawn_frame)
     cv2.waitKey(0)

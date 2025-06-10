@@ -7,12 +7,14 @@ FOLDER = "AI/images"
 
 CLASSES = [
     "orange_ball", "white_ball", "egg", "cross",
-    "robot", "small_goal", "large_goal", "wall"
+    "robot", "small_goal", "large_goal", "wall",
+    "yellow", 'green'
 ]
 
 CLASS_COLORS = [
     (255, 128, 0), (255, 255, 255), (255, 255, 0), (255, 0, 255),
-    (0, 255, 255), (0, 255, 0), (0, 128, 255), (128, 128, 128)
+    (0, 255, 255), (0, 255, 0), (0, 128, 255), (128, 128, 128),
+    (0, 0, 255), (0, 128, 0)
 ]
 
 images = sorted(glob(os.path.join(FOLDER, "*.jpg")))
@@ -22,7 +24,6 @@ polygons = []
 current_class = 0
 current_polygon = []
 hovered_poly_index = None
-
 
 zoom_factor = 1.0
 offset = np.array([0.0, 0.0])
@@ -345,8 +346,15 @@ def render_canvas():
 def handle_keypress(key):
     global current_class, current_polygon, index, offset, zoom_factor
 
-    if key in [ord(str(i + 1)) for i in range(len(CLASSES))]:
-        current_class = key - ord('1')
+    # if key is 0-9, set current_class to that number
+    if key >= ord('1') and key <= ord('9'):
+        current_class = key - ord('0')
+        if current_class >= len(CLASSES):
+            current_class = 0
+        print(f"Switched to class: {CLASSES[current_class]} ({current_class})")
+    elif key == ord('0'):
+        current_class = 0  # Assuming 10 classes, 0-9
+        print(f"Switched to class: {CLASSES[current_class]} ({current_class})")
     elif key == ord('z') and polygons:
         polygons.pop()
     elif key == ord('x'):
