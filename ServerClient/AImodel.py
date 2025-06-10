@@ -217,7 +217,6 @@ class AIModel:
                         (int(green_center[0]), int(green_center[1])),
                         (255, 0, 0), 2, tipLength=0.1)
         
-
     def find_closest_ball(self, ball_type: str = "white") -> dict | None:
         """
         Finds the closest ball of the specified color (or if "either", any ball) in the current results.
@@ -512,7 +511,7 @@ class AIModel:
 
         return overlapping_balls
 
-    def determine_most_optimal_ball(self, balls):
+    def determine_most_optimal_ball(self, balls): #TODO: Finish
         """
         Determines the most optimal ball to target based on some criteria.
         For now, this method simply returns the first ball in the list.
