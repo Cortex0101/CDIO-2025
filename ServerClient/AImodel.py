@@ -66,7 +66,7 @@ class Course:
 
 class AIModel:
     def __init__(self):
-        self.model = YOLO("ball_detect/v7/weights/best.pt")
+        self.model = YOLO("ball_detect/v8/weights/best.pt")
         
         self.previous_results = []
 
@@ -92,6 +92,8 @@ class AIModel:
             "large_goal": (255, 255, 0), # Yellow
             "wall": (128, 128, 128),    # Gray
             "cross": (0, 0, 145),       # Dark Blue
+            "yellow": (0, 255, 255),  # Cyan
+            "green": (0, 195, 0),  # Green
         }
 
         self.excluded_classes = [
@@ -161,6 +163,60 @@ class AIModel:
                 cy = int((object.bbox[1] + object.bbox[3]) / 2)
                 cv2.circle(self.current_processed_drawn_frame, (cx, cy), 5, (0, 0, 255), -1)
                 cv2.putText(self.current_processed_drawn_frame, f"({cx},{cy})", (cx + 5, cy - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+    def determine_robot_direction(self):
+        """
+        Determines the direction of the robot based on the object with 'yellow' label being the back,
+        and the object with 'green' label being the front.
+
+        Draw a line from the center of the yellow object to the center of the green object.
+
+        The direction vector between those two points will be the direction of the robot.
+        
+        Returns:
+            int: A number from 0 being to the right, 90 being up, 180 being to the left, and 270 being down.
+        """
+        yellow_objects = self.current_course.get_objects_by_name("yellow")
+        green_objects = self.current_course.get_objects_by_name("green")
+
+        if not yellow_objects or not green_objects:
+            print("Cannot determine robot direction, missing green or yellow object.")
+            return None
+        
+        yellow_center = yellow_objects[0].center
+        green_center = green_objects[0].center
+
+        # Calculate the direction vector from green to yellow
+        direction_vector =  np.array(green_center) - np.array(yellow_center)
+        angle = np.arctan2(direction_vector[1], direction_vector[0])  # Angle in radians
+        angle = np.degrees(angle)  # Convert to degrees
+        angle = (angle + 360) % 360  # Normalize to [0, 360)
+
+        return int(angle)
+    
+    def draw_robot_direction(self):
+        """
+        Draws the direction of the robot on the current processed frame.
+        The direction is determined by the yellow and green objects.
+        """
+        angle = self.determine_robot_direction()
+        if angle is None:
+            return
+        
+        # Draw an arrow from the center of the green object to the center of the yellow object
+        green_objects = self.current_course.get_objects_by_name("green")
+        yellow_objects = self.current_course.get_objects_by_name("yellow")
+        if not green_objects or not yellow_objects:
+            print("Cannot draw robot direction, missing green or yellow object.")
+            return
+        
+        green_center = green_objects[0].center
+        yellow_center = yellow_objects[0].center
+        cv2.arrowedLine(self.current_processed_drawn_frame,
+                        (int(yellow_center[0]), int(yellow_center[1])),
+                        (int(green_center[0]), int(green_center[1])),
+                        (255, 0, 0), 2, tipLength=0.1)
+        
 
     def find_closest_ball(self, ball_type: str = "white") -> dict | None:
         """
@@ -496,8 +552,7 @@ def demo():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-
-if __name__ == "__main__":
+def demo1():
     model = AIModel()
 
     model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
@@ -541,6 +596,12 @@ if __name__ == "__main__":
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def demo2():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_excluded_classes(['wall'])
+
     img2 = cv2.imread("AI/images/image_26.jpg")
     model.process_frame(img2) # processes the second image
     model.draw_results() # draws the results on the second processed frame
@@ -557,5 +618,29 @@ if __name__ == "__main__":
     cv2.imshow("Processed Frame 2", model.current_processed_drawn_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+def final_demo():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_excluded_classes(['wall'])
+
+    img3 = cv2.imread("AI/images/image_375.jpg")
+    model.process_frame(img3) # processes the third image
+    model.draw_results() # draws the results on the third processed frame
+
+    direction = model.determine_robot_direction() # determines the direction of the robot in the third processed frame
+    model.draw_robot_direction() # draws the direction of the robot on the current processed frame
+
+    print(f"Robot direction angle: {direction} degrees")
+
+    cv2.imshow("Processed Frame 3", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
-    demo()
+
+if __name__ == "__main__":
+    #demo1()
+    #demo()
+    #demo2()
+    final_demo()
