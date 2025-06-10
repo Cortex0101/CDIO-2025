@@ -406,8 +406,17 @@ class AIModel:
                     push = (c['radius'] - dist)
                     path[i] += (vec / dist) * push
 
+        # Remove duplicate points
+        _, unique_indices = np.unique(path, axis=0, return_index=True)
+        unique_path = path[np.sort(unique_indices)]
+
+        # Check if enough unique points for splprep (k=3 needs at least 4)
+        if unique_path.shape[0] < 4:
+            # fallback: just return the straight line
+            return path
+
         # 4. Interpolate smooth spline
-        tck, u = splprep([path[:, 0], path[:, 1]], s=max_curvature * num_waypoints)
+        tck, u = splprep([unique_path[:, 0], unique_path[:, 1]], s=max_curvature * num_waypoints)
         u_new = np.linspace(0, 1, num_waypoints)
         x_new, y_new = splev(u_new, tck)
         smooth_path = np.vstack([x_new, y_new]).T
@@ -466,6 +475,28 @@ class AIModel:
             path_to_ball = self.plan_smooth_path(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
             path_from_ball_to_goal = self.plan_smooth_path(self.current_course.get_objects_by_name('large_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
 
+def demo():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_excluded_classes(['wall'])
+
+    img = cv2.imread("AI/images/image_65.jpg")
+    model.process_frame(img) # processes the third image
+    model.draw_results() # draws the results on the third processed frame
+
+    model.highlight_ball(model.current_course.get_objects_by_name('white')[3]) # highlights the first white ball in the third processed frame
+    path = model.plan_smooth_path_from_robot(model.current_course.get_objects_by_name('white')[3].center, obstacle_padding=10, max_curvature=0.05, num_waypoints=100)
+    model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to the first white ball on the current processed frame
+
+    path = model.plan_smooth_path(model.current_course.get_objects_by_name('white')[0].center, model.current_course.get_objects_by_name('white')[1].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+    model.draw_path(path, color=(0, 255, 20), thickness=3) # draws the planned path from the first white ball to the large goal on the current processed frame
+
+    cv2.imshow("Processed Frame 3", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
 if __name__ == "__main__":
     model = AIModel()
 
@@ -496,14 +527,15 @@ if __name__ == "__main__":
 
     # generate a path to each white ball
     
-    for ball in model.current_course.get_objects_by_name('white'):
-        path = model.plan_smooth_path_from_robot(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
-        print(f"Planned path to white ball at {ball.center} with {len(path)} waypoints.")
-        model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
+    #for ball in model.current_course.get_objects_by_name('white'):
+        #path = model.plan_smooth_path_from_robot(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+        #print(f"Planned path to white ball at {ball.center} with {len(path)} waypoints.")
+        #model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
 
-    # path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('small_goal')[0].center ,obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
-    path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('egg')[0].center ,obstacle_padding=10, max_curvature=0.06, num_waypoints=100)
-    model.draw_path(path, color=(0, 255, 255), thickness=2) # draws the planned path from small goal to large goal on the current processed frame
+   # path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('small_goal')[0].center ,obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+   # model.draw_path(path, color=(12, 120, 255), thickness=2) # draws the planned path from large goal to small goal on the current processed frame
+    #path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('egg')[0].center ,obstacle_padding=10, max_curvature=0.06, num_waypoints=100)
+    #model.draw_path(path, color=(0, 255, 255), thickness=2) # draws the planned path from small goal to large goal on the current processed frame
 
     cv2.imshow("Processed Frame", model.current_processed_drawn_frame)
     cv2.waitKey(0)
@@ -525,4 +557,5 @@ if __name__ == "__main__":
     cv2.imshow("Processed Frame 2", model.current_processed_drawn_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
+    
+    demo()
