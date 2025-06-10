@@ -241,4 +241,4 @@ def show_model_predictions_in_folder(folder_path, model_path):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    show_model_predictions_in_folder('AI/images', 'ball_detect/v7dtu4/weights/best.pt')
+    visualize_model_on_image('AI/images/image_375.jpg', 'ball_detect/v8/weights/best.pt')
