@@ -394,6 +394,25 @@ class AIModel:
         pts = np.array(path, dtype=np.int32)
         cv2.polylines(self.current_processed_drawn_frame, [pts], isClosed=False, color=color, thickness=thickness)
 
+    def get_ball_overlapping_with_robot(self): 
+        """
+        Finds the ball that overlaps with the robot in the current processed frame.
+
+        Returns:
+            dict: Ball information if found, else None.
+        """
+        objects = self.get_objects()
+        if 'robot' not in objects or 'white' not in objects:
+            return None
+
+        robot_bbox = objects['robot'][0]['bbox']
+        for ball in objects['white']:
+            ball_bbox = ball['bbox']
+            if self.do_boxes_overlap(robot_bbox, ball_bbox):
+                ball['centroid'] = ball['center']
+                return ball
+
+        return None
 
 if __name__ == "__main__":
     model = AIModel()
@@ -432,4 +451,20 @@ if __name__ == "__main__":
     cv2.imshow("Processed Frame", model.current_processed_drawn_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    img2 = cv2.imread("AI/images/image_26.jpg")
+    model.process_frame(img2) # processes the second image
+    model.draw_results() # draws the results on the second processed frame
+    '''
+    caught_ball = model.get_ball_overlapping_with_robot() # checks if a ball overlaps with the robot in the second processed frame
+    if caught_ball:
+        print(f"Caught ball: {caught_ball}")
+        model.highlight_ball(caught_ball) # highlights the caught ball in the second processed frame
+    else:
+        print("No ball caught in the robot's claw.")
+    
+    cv2.imshow("Processed Frame 2", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    '''
     
