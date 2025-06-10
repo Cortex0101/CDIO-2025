@@ -21,8 +21,7 @@ class Course:
         self.objects = []  # List of CourseObject instances
         self.object_count = {}
 
-    @staticmethod
-    def stream_to_model_results_to_course_objects(model_results):
+    def stream_to_model_results_to_course_objects(self, model_results):
         """
         Converts model results to a list of CourseObject instances.
         
@@ -43,7 +42,7 @@ class Course:
             mask = box.masks.xy if hasattr(box, 'masks') else None
             
             obj = CourseObject(name=cls_name, center=(cx, cy), bbox=[x1, y1, x2, y2], confidence=confidence, mask=mask)
-            objects.append(obj)
+            self.add_object(obj)
         
         return objects
 
@@ -55,7 +54,12 @@ class Course:
             self.object_count[obj.name] = 1
 
     def get_objects_by_name(self, name):
-        return [obj for obj in self.objects if obj.name == name]
+        objects = []
+        for obj in self.objects:
+            if obj.name == name:
+                objects.append(obj)
+
+        return objects
 
     def __repr__(self):
         return f"Course with {len(self.objects)} objects: {self.object_count}"
@@ -131,7 +135,8 @@ class AIModel:
         if len(self.previous_results) > 10:  # Keep only the last 10 results
             self.previous_results.pop(0)
 
-        self.current_course.objects = Course.stream_to_model_results_to_course_objects(self.current_results)
+        self.current_course = Course()  # Reset current course for new frame
+        self.current_course.stream_to_model_results_to_course_objects(self.current_results)
         self.previous_courses.append(self.current_course)
         if len(self.previous_courses) > 10:
             self.previous_courses.pop(0)
@@ -167,35 +172,29 @@ class AIModel:
         Returns:
             A dict with 'class', 'confidence', 'bbox', 'centroid' if found, else None.
         """
-        if self.current_results is None or self.current_results.boxes is None:
-            return None
-
         closest_ball = None
         min_distance = float('inf')
 
-        for box in self.current_results.boxes:
-            cls_id = int(box.cls[0].item())
-            cls_name = self.current_results.names[cls_id]
-            if ball_type != "either" and cls_name != ball_type:
+        for obj in self.current_course.objects:
+            if obj.name not in [ball_type, "either"] and ball_type != "either":
                 continue
-
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            cx = (x1 + x2) / 2.0
-            cy = (y1 + y2) / 2.0
-            distance = np.sqrt(cx**2 + cy**2)
+            
+            # Calculate distance from the robot to the ball
+            robot = self.current_course.get_objects_by_name("robot")[0]
+            if not robot:
+                continue
+            
+            robot_center = robot.center
+            ball_center = obj.center
+            distance = np.linalg.norm(np.array(robot_center) - np.array(ball_center))
 
             if distance < min_distance:
                 min_distance = distance
-                closest_ball = {
-                    'class': cls_name,
-                    'confidence': float(box.conf[0].item()),
-                    'bbox': [int(x1), int(y1), int(x2), int(y2)],
-                    'center': (float(cx), float(cy))
-                }
+                closest_ball = obj
 
-        return closest_ball
+        return closest_ball if closest_ball else None
     
-    def highlight_ball(self, ball, include_label=True): 
+    def highlight_ball(self, ball): 
         """
         Highlights the closest ball in the current processed frame by drawing a rectangle and label on that frame.
         This method modifies the `self.current_processed_drawn_frame` attribute.
@@ -203,17 +202,12 @@ class AIModel:
         Args:
             ball: Dict with 'class', 'confidence', 'bbox', 'centroid'.
         """
-        if ball is None:
-            return
-
-        x1, y1, x2, y2 = ball['bbox']
-        cv2.rectangle(self.current_processed_drawn_frame, (x1, y1), (x2, y2), (0, 255, 255), 2)
-        cx, cy = ball['center']
-        cv2.circle(self.current_processed_drawn_frame, (int(cx), int(cy)), 5, (0, 0, 255), -1)
-
-        if include_label:
-            cv2.putText(self.current_processed_drawn_frame, f"{ball['class']} {ball['confidence']:.2f}",
-                    (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        # bright green
+        highlight_color = (0, 165, 255)
+        box = ball.bbox
+        cv2.rectangle(self.current_processed_drawn_frame,
+                        (box[0], box[1]), (box[2], box[3]), highlight_color, 2)
+        
         
     def do_boxes_overlap(self, box1, box2):
         """
@@ -419,25 +413,29 @@ class AIModel:
         pts = np.array(path, dtype=np.int32)
         cv2.polylines(self.current_processed_drawn_frame, [pts], isClosed=False, color=color, thickness=thickness)
 
-    def get_ball_overlapping_with_robot(self): 
+    def get_balls_overlapping_with_robot(self): 
         """
         Finds the ball that overlaps with the robot in the current processed frame.
 
         Returns:
             dict: Ball information if found, else None.
         """
-        objects = self.get_objects()
-        if 'robot' not in objects or 'white' not in objects:
+        robot = self.current_course.get_objects_by_name("robot")[0]
+        if not robot:
             return None
 
-        robot_bbox = objects['robot'][0]['bbox']
-        for ball in objects['white']:
-            ball_bbox = ball['bbox']
-            if self.do_boxes_overlap(robot_bbox, ball_bbox):
-                ball['centroid'] = ball['center']
-                return ball
+        overlapping_balls = []
 
-        return None
+        for obj in self.current_course.objects:
+            if obj.name not in ['white', 'orange']:
+                continue
+            
+            ball = obj
+
+            if self.do_boxes_overlap(robot.bbox, ball.bbox):
+                overlapping_balls.append(ball)
+
+        return overlapping_balls
 
 if __name__ == "__main__":
     model = AIModel()
@@ -449,7 +447,7 @@ if __name__ == "__main__":
 
     model.process_frame(img) # processes the image, finding (but not yet drawing) the results
     model.draw_results() # draws the results on the current processed frame based on the options set
-    closest_ball = model.find_closest_ball("orange") # finds the closest ball of orange color
+    closest_ball = model.find_closest_ball("white") # finds the closest ball of orange color
     model.highlight_ball(closest_ball) # highlights the closest orange ball in the current processed frame
     model.highlight_overlapping_boxes(exclude_classes=['wall']) # draws lines between overlapping boxes in the current processed frame, excluding walls
 
@@ -482,12 +480,14 @@ if __name__ == "__main__":
     model.process_frame(img2) # processes the second image
     model.draw_results() # draws the results on the second processed frame
 
-    caught_ball = model.get_ball_overlapping_with_robot() # checks if a ball overlaps with the robot in the second processed frame
-    if caught_ball:
-        print(f"Caught ball: {caught_ball}")
-        model.highlight_ball(caught_ball, False) # highlights the caught ball in the second processed frame
+    overlapping_balls = model.get_balls_overlapping_with_robot() # finds the balls overlapping with the robot in the second processed frame
+    if overlapping_balls:
+        print(f"Found {len(overlapping_balls)} balls overlapping with the robot in the second frame.")
+        for ball in overlapping_balls:
+            print(ball)
+            model.highlight_ball(ball) # highlights the overlapping balls in the second processed frame
     else:
-        print("No ball caught in the robot's claw.")
+        print("No balls overlapping with the robot in the second frame.")
     
     cv2.imshow("Processed Frame 2", model.current_processed_drawn_frame)
     cv2.waitKey(0)
