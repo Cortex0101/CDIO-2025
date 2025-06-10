@@ -24,6 +24,16 @@ class Robot:
     def move_forward(self, left_speed, right_speed):
         self.tank_drive.on(left_speed, right_speed)
 
+    def perform_jiggle(self, number_of_jiggles=2, jiggle_degrees=4):
+        """
+        Jiggles the robot left and right by first turning left wheel backswards and right wheel forwards, then right wheel backwards and left wheel forwards.
+        """
+        for _ in range(number_of_jiggles):
+            self.tank_drive.on_for_degrees(left_speed=-20, right_speed=20, degrees=jiggle_degrees)
+            sleep(0.1)
+            self.tank_drive.on_for_degrees(left_speed=20, right_speed=-20, degrees=jiggle_degrees)
+        sleep(0.1)
+
     def open_claw(self):
         self.claw_motor.on_to_position(speed=20, position_sp=self.CLAW_OPEN_POS)
 
@@ -42,7 +52,7 @@ Wireless LAN adapter Wi-Fi:
    Default Gateway . . . . . . . . . : 192.168.0.1
 
 '''
-HOST = '192.168.0.197' 
+HOST = '192.168.187.245' 
 PORT = 12346
 
 robot = Robot()
@@ -66,6 +76,10 @@ def execute_instruction(instr):
         else:
             print("[CLIENT] Unknown claw action: " + str(action))
             return False
+    elif cmd == "jiggle":
+        number_of_jiggles = instr.get("number_of_jiggles", 2)
+        jiggle_degrees = instr.get("jiggle_degrees", 46)
+        robot.perform_jiggle(number_of_jiggles, jiggle_degrees)
     else:
         print("[CLIENT] Unknown command: " + cmd)
         return False
