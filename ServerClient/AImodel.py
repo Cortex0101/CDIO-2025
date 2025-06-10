@@ -530,6 +530,50 @@ class AIModel:
             path_to_ball = self.plan_smooth_path(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
             path_from_ball_to_goal = self.plan_smooth_path(self.current_course.get_objects_by_name('large_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
 
+    def create_grid_cell_based_image(self, cell_size=3):
+        """
+        Creates a grid cell based image representation of the current processed frame.
+
+        This method will make cells that overlap with an object in the current processed frame
+        appear in the grid with the color of that object.
+
+        Cells that do not overlap with any object will be black.
+        The grid cells will be of size `cell_size` x `cell_size` pixels.
+        
+        Args:
+            cell_size (int): Size of each grid cell in pixels.
+        
+        Returns:
+            grid_image (ndarray): Image with grid cells.
+        """
+        height, width = self.current_processed_drawn_frame.shape[:2]
+        grid_image = np.zeros((height, width, 3), dtype=np.uint8)
+
+        for obj in self.current_course.objects:
+            if obj.name in self.excluded_classes:
+                continue
+            
+            # Calculate the grid cell coordinates
+            x1, y1, x2, y2 = obj.bbox
+            x1_cell = int(x1 // cell_size)
+            y1_cell = int(y1 // cell_size)
+            x2_cell = int(x2 // cell_size)
+            y2_cell = int(y2 // cell_size)
+
+            # Fill the grid cells with the object's color
+            color = self.COLORS.get(obj.name, (0, 0, 0))
+            for i in range(x1_cell, x2_cell + 1):
+                for j in range(y1_cell, y2_cell + 1):
+                    cv2.rectangle(grid_image, (i * cell_size, j * cell_size), ((i + 1) * cell_size - 1, (j + 1) * cell_size - 1), color, -1)
+
+        # Draw grid lines
+        for i in range(0, width, cell_size):
+            cv2.line(grid_image, (i, 0), (i, height), (50, 50, 50), 1)
+        for j in range(0, height, cell_size):
+            cv2.line(grid_image, (0, j), (width, j), (50, 50, 50), 1)
+        return grid_image
+
+
 def demo():
     model = AIModel()
 
@@ -554,7 +598,7 @@ def demo():
 def demo1():
     model = AIModel()
 
-    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=True, show_center=False)
     model.set_excluded_classes(['wall'])
     
     img = cv2.imread("AI/images/image_87.jpg")
@@ -598,7 +642,7 @@ def demo1():
 def demo2():
     model = AIModel()
 
-    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_options(show_boxes=False, show_masks=True, show_confidence=False, show_labels=False, show_center=False)
     model.set_excluded_classes(['wall'])
 
     img2 = cv2.imread("AI/images/image_26.jpg")
@@ -636,10 +680,24 @@ def final_demo():
     cv2.imshow("Processed Frame 3", model.current_processed_drawn_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+def grid_demo():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=True, show_center=False)
+
+    img4 = cv2.imread("AI/images/image_86.jpg")
+    model.process_frame(img4) # processes the fourth image
+    model.draw_results() # draws the results on the fourth processed frame
+
+    grid_image = model.create_grid_cell_based_image(cell_size=3) # creates a grid cell based image representation of the current processed frame
+
+    cv2.imshow("Grid Cell Based Image", grid_image) # shows the grid cell based image
+
+    cv2.imshow("Processed Frame 4", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
 
 if __name__ == "__main__":
-    #demo1()
-    #demo()
-    #demo2()
-    final_demo()
+    grid_demo()
