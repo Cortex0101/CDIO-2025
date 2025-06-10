@@ -138,66 +138,25 @@ class AIModel:
 
         self.draw_results()  # Draw results on the current processed frame
 
-    def _draw_boxes(self, boxes):
-        for box in boxes:
-            cls = box.cls[0].item()
-            name = self.current_results.names[cls]
-            if name in self.excluded_classes:
-                continue
-
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            conf = box.conf[0].cpu().item()
-            cls = box.cls[0].item()
-            label = self.current_results.names[cls] if self.SHOW_LABELS else ""
-            color = self.COLORS.get(label, (0, 255, 0))
-            cv2.rectangle(self.current_processed_drawn_frame, (x1, y1), (x2, y2), color, 2)
-
-    def _draw_masks(self, masks):
-        if masks is None:
-            return
-        for polygon in masks.xy:
-            pts = np.array(polygon, dtype=np.int32)
-            cls = self.current_results.boxes.cls[0].item()
-            color = self.COLORS.get(self.current_results.names[cls], (0, 0, 255))
-            cv2.fillPoly(self.current_processed_drawn_frame, [pts], color)
-
-    def _draw_labels(self, boxes):
-        for box in boxes:
-            cls = box.cls[0].item()
-            name = self.current_results.names[cls]
-            if name in self.excluded_classes:
-                continue
-
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            conf = box.conf[0].cpu().item()
-            cls = box.cls[0].item()
-            label = self.current_results.names[cls] if self.SHOW_LABELS else ""
-            if self.SHOW_CONFIDENCE:
-                cv2.putText(self.current_processed_drawn_frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-    def _draw_centers(self, boxes):
-        for box in boxes:
-            cls = box.cls[0].item()
-            name = self.current_results.names[cls]
-            if name in self.excluded_classes:
-                continue
-
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            cx = int((x1 + x2) / 2)
-            cy = int((y1 + y2) / 2)
-            cv2.circle(self.current_processed_drawn_frame, (cx, cy), 5, (0, 0, 255), -1)
-            cv2.putText(self.current_processed_drawn_frame, f"({cx},{cy})", (cx + 5, cy - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-
     def draw_results(self):
-        if self.SHOW_BOXES:
-            self._draw_boxes(self.current_results.boxes)
-        if self.SHOW_MASKS:
-            self._draw_masks(self.current_results.masks) # TODO: dont draw masks of excluded classes
-        if self.SHOW_LABELS:
-            self._draw_labels(self.current_results.boxes)
-        if self.SHOW_CENTER:
-            self._draw_centers(self.current_results.boxes)
-    
+        for object in self.current_course.objects:
+            if object.name in self.excluded_classes:
+                continue
+            
+            if self.SHOW_BOXES:
+                cv2.rectangle(self.current_processed_drawn_frame, (object.bbox[0], object.bbox[1]), (object.bbox[2], object.bbox[3]), self.COLORS.get(object.name, (0, 255, 0)), 2)
+            if self.SHOW_MASKS and object.mask is not None:
+                pts = np.array(object.mask, dtype=np.int32)
+                cv2.fillPoly(self.current_processed_drawn_frame, [pts], self.COLORS.get(object.name, (0, 0, 255)))
+            if self.SHOW_LABELS:
+                label = f"{object.name} {object.confidence:.2f}" if self.SHOW_CONFIDENCE else object.name
+                cv2.putText(self.current_processed_drawn_frame, label, (object.bbox[0], object.bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            if self.SHOW_CENTER:
+                cx = int((object.bbox[0] + object.bbox[2]) / 2)
+                cy = int((object.bbox[1] + object.bbox[3]) / 2)
+                cv2.circle(self.current_processed_drawn_frame, (cx, cy), 5, (0, 0, 255), -1)
+                cv2.putText(self.current_processed_drawn_frame, f"({cx},{cy})", (cx + 5, cy - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
     def find_closest_ball(self, ball_type: str = "white") -> dict | None:
         """
         Finds the closest ball of the specified color (or if "either", any ball) in the current results.
