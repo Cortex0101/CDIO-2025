@@ -338,16 +338,13 @@ class AIModel:
             })
 
         return objects
-
+    
     def plan_smooth_path(self, target_coord, obstacle_padding=5, max_curvature=0.05, num_waypoints=100):
         """
         Generate a smooth, obstacle-avoiding path from robot to target using bounding boxes.
 
         Args:
-            robot_centroid: (x,y) robot center.
-            target_centroid: (x,y) goal center.
-            obstacle_bboxes: list of [x1,y1,x2,y2] for obstacles.
-            robot_radius: radius of robot in pixels.
+            target_coord: (x,y) goal center.
             obstacle_padding: extra padding around obstacles.
             max_curvature: smoothing factor (lower -> tighter turns).
             num_waypoints: number of sampled points.
@@ -355,35 +352,34 @@ class AIModel:
         Returns:
             smooth_path: ndarray of shape (N,2) of x,y waypoints.
         """
-        objects = self.get_objects()
-        robot_centroid = objects['robot'][0]['center']
-        target_centroid = target_coord  # Assuming target_coord is provided as (x, y)
+        # get all objects in the current course and remove the robot and the object with the same center as the target
+        filtered_objects = []
+        for obj in self.current_course.objects:
+            if obj.name == "robot" or obj.center == target_coord:
+                continue
 
-        # get all bboxes of all objects that dont have the same center coordinate as the robot or target
-        obstacle_bboxes = []
-        for obj in objects.values():
-            if isinstance(obj, list):
-                for item in obj:
-                    if item['center'] != robot_centroid and item['center'] != target_centroid:
-                        obstacle_bboxes.append(item['bbox'])
-
-        robot_radius = objects['robot'][0]['bbox'][2] - objects['robot'][0]['bbox'][0]  # width of robot bbox
-        robot_radius /= 2.0  # use half of width as radius
+            filtered_objects.append(obj)
 
         # 1. Sample straight-line path
+        robot = self.current_course.get_objects_by_name("robot")[0]
         t = np.linspace(0, 1, num_waypoints)
-        line = np.outer(1 - t, robot_centroid) + np.outer(t, target_centroid)
+        line = np.outer(1 - t, robot.center) + np.outer(t, target_coord)
+
+        robot_radius = (robot.bbox[2] - robot.bbox[0]) / 2.0  # use half of width as radius
 
         # 2. Build obstacle circles (center, radius)
         circles = []
-        for (x1, y1, x2, y2) in obstacle_bboxes:
-            cx = (x1 + x2) / 2.0
-            cy = (y1 + y2) / 2.0
+        for obj in filtered_objects:
+            if obj.name in self.excluded_classes:
+                continue
+            
+            cx = (obj.bbox[0] + obj.bbox[2]) / 2.0
+            cy = (obj.bbox[1] + obj.bbox[3]) / 2.0
             # approximate radius as half of diagonal
-            r = np.hypot(x2 - x1, y2 - y1) / 2.0
+            r = np.hypot(obj.bbox[2] - obj.bbox[0], obj.bbox[3] - obj.bbox[1]) / 2.0
             circles.append({'center': np.array([cx, cy], dtype=float),
                             'radius': r + robot_radius + obstacle_padding})
-
+            
         # 3. Apply repulsion to path points
         path = line.copy()
         for i in range(1, num_waypoints - 1):
@@ -402,7 +398,7 @@ class AIModel:
         x_new, y_new = splev(u_new, tck)
         smooth_path = np.vstack([x_new, y_new]).T
         return smooth_path
-    
+                        
     def draw_path(self, path, color=(0, 255, 255), thickness=2):
         """
         Draws a polyline on the frame for the given path.
@@ -457,20 +453,20 @@ if __name__ == "__main__":
     robot = objects['robot'][0]
     print(f"Robot is at center: {robot['center']} with bbox: {robot['bbox']} and confidence: {robot['confidence']:.2f}")
 
-    path = model.plan_smooth_path(objects['egg'][0]['center'], obstacle_padding=10, max_curvature=0.05, num_waypoints=100)
+    path = model.plan_smooth_path(model.current_course.get_objects_by_name('egg')[0].center, obstacle_padding=10, max_curvature=0.05, num_waypoints=100)
     print(f"Planned path with {len(path)} waypoints.")
     model.draw_path(path) # draws the planned path on the current processed frame
 
-    path = model.plan_smooth_path(objects['big_goal'][0]['center'], obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+    path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
     print(f"Planned path to large goal with {len(path)} waypoints.")
     model.draw_path(path, color=(0, 255, 0), thickness=3) # draws the planned path to the large goal on the current processed frame
 
     # generate a path to each white ball
     
-    #for ball in objects.get('white', []):
-    #    path = model.plan_smooth_path(ball['center'], obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
-    #    print(f"Planned path to white ball at {ball['center']} with {len(path)} waypoints.")
-    #    model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
+    for ball in model.current_course.get_objects_by_name('white'):
+        path = model.plan_smooth_path(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+        print(f"Planned path to white ball at {ball.center} with {len(path)} waypoints.")
+        model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
 
     cv2.imshow("Processed Frame", model.current_processed_drawn_frame)
     cv2.waitKey(0)
