@@ -84,16 +84,17 @@ class AIModel:
         self.SHOW_CENTER = True
 
         self.COLORS = {
-            "egg": (255, 0, 0),      # Red
-            "robot": (0, 255, 0),    # Green
-            "white_ball": (255, 255, 255),  # White
-            "orange_ball": (0, 165, 255),   # Orange
-            "small_goal": (255, 0, 0),  # Blue
-            "large_goal": (255, 255, 0), # Yellow
-            "wall": (128, 128, 128),    # Gray
-            "cross": (0, 0, 145),       # Dark Blue
-            "yellow": (0, 255, 255),  # Cyan
-            "green": (0, 195, 0),  # Green
+            "egg": (238, 130, 238),      # Violet - easily distinguishable, rarely confused
+            "robot": (0, 200, 70),       # Medium Green - stands out from background and other objects
+            "white_ball": (220, 220, 220), # Light Gray - more visible than pure white
+            "orange_ball": (255, 140, 0),  # Rich Orange - high contrast, classic orange
+            "small_goal": (70, 130, 180),  # Steel Blue - visually distinct from red/yellow
+            "big_goal": (255, 215, 0),   # Gold - deep yellow, more visible than light yellow
+            "wall": (70, 70, 70),          # Dark Gray - strong contrast for obstacles
+            "cross": (75, 0, 130),         # Indigo - deep blue/purple, distinct from wall/robot
+            "yellow": (255, 255, 0),       # Bright Yellow - classic, high contrast
+            "green": (50, 205, 50),        # Lime Green - distinct from robot's green
+            "empty": (200, 200, 200)                # Light Gray - neutral color for empty cells
         }
 
         self.excluded_classes = [
@@ -530,48 +531,57 @@ class AIModel:
             path_to_ball = self.plan_smooth_path(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
             path_from_ball_to_goal = self.plan_smooth_path(self.current_course.get_objects_by_name('large_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
 
-    def create_grid_cell_based_image(self, cell_size=3):
+    def create_grid_from_image(self, cell_size):
         """
-        Creates a grid cell based image representation of the current processed frame.
+        Creates a grid cell based representation of the current processed frame.
 
-        This method will make cells that overlap with an object in the current processed frame
-        appear in the grid with the color of that object.
-
-        Cells that do not overlap with any object will be black.
-        The grid cells will be of size `cell_size` x `cell_size` pixels.
+        Each object in the course is represented by filling the grid cells with a label or 'empty' if no object is present.
         
         Args:
             cell_size (int): Size of each grid cell in pixels.
         
         Returns:
-            grid_image (ndarray): Image with grid cells.
+            grid_image (ndarray): 2x2 grid where each cell is filled with a string representing the object type.
         """
         height, width = self.current_processed_drawn_frame.shape[:2]
-        grid_image = np.zeros((height, width, 3), dtype=np.uint8)
+        grid_height = height // cell_size
+        grid_width = width // cell_size
+
+        grid_image = np.full((grid_height, grid_width), 'wall', dtype=object) # The cells called "walls" are actually empty, and empty are actually walls
 
         for obj in self.current_course.objects:
-            if obj.name in self.excluded_classes:
-                continue
-            
             # Calculate the grid cell coordinates
             x1, y1, x2, y2 = obj.bbox
-            x1_cell = int(x1 // cell_size)
-            y1_cell = int(y1 // cell_size)
-            x2_cell = int(x2 // cell_size)
-            y2_cell = int(y2 // cell_size)
-
-            # Fill the grid cells with the object's color
-            color = self.COLORS.get(obj.name, (0, 0, 0))
-            for i in range(x1_cell, x2_cell + 1):
-                for j in range(y1_cell, y2_cell + 1):
-                    cv2.rectangle(grid_image, (i * cell_size, j * cell_size), ((i + 1) * cell_size - 1, (j + 1) * cell_size - 1), color, -1)
-
-        # Draw grid lines
-        for i in range(0, width, cell_size):
-            cv2.line(grid_image, (i, 0), (i, height), (50, 50, 50), 1)
-        for j in range(0, height, cell_size):
-            cv2.line(grid_image, (0, j), (width, j), (50, 50, 50), 1)
+            cell_x1 = x1 // cell_size
+            cell_y1 = y1 // cell_size
+            cell_x2 = x2 // cell_size
+            cell_y2 = y2 // cell_size
+            
+            # Fill the grid cells with the object name
+            for i in range(cell_x1, min(cell_x2 + 1, grid_width)):
+                for j in range(cell_y1, min(cell_y2 + 1, grid_height)):
+                    if obj.name == 'wall':
+                        grid_image[j, i] = 'empty'  # The cells called "walls" are actually empty, and empty are actually walls
+                    else:
+                        grid_image[j, i] = obj.name
+        
         return grid_image
+    
+    def convert_grid_to_grid_image(self, grid_image):
+        """
+        Displays the grid image in a window.
+        
+        Args:
+            grid_image (ndarray): The grid image to display.
+        """
+        # Convert grid to a color image for visualization
+        color_grid = np.zeros((grid_image.shape[0], grid_image.shape[1], 3), dtype=np.uint8)
+        for i in range(grid_image.shape[0]):
+            for j in range(grid_image.shape[1]):
+                color = self.COLORS.get(grid_image[i, j], (255, 255, 255))
+                color_grid[i, j] = color
+        # Resize for better visibility
+        return color_grid
 
 
 def demo():
@@ -690,11 +700,13 @@ def grid_demo():
     model.process_frame(img4) # processes the fourth image
     model.draw_results() # draws the results on the fourth processed frame
 
-    grid_image = model.create_grid_cell_based_image(cell_size=3) # creates a grid cell based image representation of the current processed frame
+    grid = model.create_grid_from_image(cell_size=1) # creates a grid from the current processed frame
+    print("Grid representation:")
+    print(grid) # prints the grid representation
+    grid_image = model.convert_grid_to_grid_image(grid) # converts the grid to a color image for visualization
 
-    cv2.imshow("Grid Cell Based Image", grid_image) # shows the grid cell based image
-
-    cv2.imshow("Processed Frame 4", model.current_processed_drawn_frame)
+    cv2.imshow("Processed Frame 4", model.current_processed_drawn_frame) # displays the grid image
+    cv2.imshow("Grid Image", grid_image) # displays the grid image
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
