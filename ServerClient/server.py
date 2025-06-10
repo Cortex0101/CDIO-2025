@@ -3,6 +3,8 @@ import json
 import time
 import math
 
+import AImodel
+
 class Server:
     def __init__(self):
         self.host = '0.0.0.0'
@@ -14,6 +16,8 @@ class Server:
         self.server.listen(1)
         print(f"[SERVER] Listening on {self.host}:{self.port}... Waiting for EV3 connection.")
         self.conn, addr = self.server.accept()
+
+        self.ai_model = AImodel.AIModel()
 
         # if send_custom_instructions is true, we will be able to simply send instruction by entering
         # them in the console, otherwise we will have to use we will run the main_loop() method
@@ -27,6 +31,12 @@ class Server:
     def accept_connection(self):
         self.conn, addr = self.server.accept()
         print(f"[SERVER] EV3 robot connected from {addr}")
+
+    def check_if_ball_is_caught_in_claw(self, ball):
+        '''
+           Makes the robot jiggle left and right twice, and checks if a ball still overlaps the bounding box of the robot
+        '''
+        self.ai_model.find_overlapping_boxes
 
     def main_loop():
         while True:
