@@ -3,6 +3,63 @@ import cv2
 import numpy as np
 from scipy.interpolate import splprep, splev
 
+class CourseObject:
+    def __init__(self, name, center, bbox, confidence, mask):
+        self.name = name # e.g. "robot", "white_ball", "orange_ball", "egg", "small_goal", "large_goal", "wall", "cross"
+        self.center = center  # (x, y)
+        self.bbox = bbox  # [x1, y1, x2, y2]
+        self.mask = mask  # Polygon mask if available, otherwise None
+        self.confidence = confidence
+
+    def __repr__(self):
+        return f"{self.name} at {self.center} with bbox {self.bbox} and confidence {self.confidence:.2f}"
+
+# contains the all the objects that are detected in the course, such as the robot, balls, goals, walls, etc.
+# contains utilities such as a counter
+class Course:
+    def __init__(self):
+        self.objects = []  # List of CourseObject instances
+        self.object_count = {}
+
+    @staticmethod
+    def stream_to_model_results_to_course_objects(model_results):
+        """
+        Converts model results to a list of CourseObject instances.
+        
+        Args:
+            model_results: The results from the YOLO model prediction.
+        
+        Returns:
+            List of CourseObject instances.
+        """
+        objects = []
+        for box in model_results.boxes:
+            cls_id = int(box.cls[0].item())
+            cls_name = model_results.names[cls_id]
+            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
+            cx = (x1 + x2) / 2.0
+            cy = (y1 + y2) / 2.0
+            confidence = float(box.conf[0].item())
+            mask = box.masks.xy if hasattr(box, 'masks') else None
+            
+            obj = CourseObject(name=cls_name, center=(cx, cy), bbox=[x1, y1, x2, y2], confidence=confidence, mask=mask)
+            objects.append(obj)
+        
+        return objects
+
+    def add_object(self, obj: CourseObject):
+        self.objects.append(obj)
+        if obj.name in self.object_count:
+            self.object_count[obj.name] += 1
+        else:
+            self.object_count[obj.name] = 1
+
+    def get_objects_by_name(self, name):
+        return [obj for obj in self.objects if obj.name == name]
+
+    def __repr__(self):
+        return f"Course with {len(self.objects)} objects: {self.object_count}"
+
 class AIModel:
     def __init__(self):
         self.model = YOLO("ball_detect/v7/weights/best.pt")
@@ -12,8 +69,11 @@ class AIModel:
         self.current_frame = None
         self.current_results = None
         self.current_processed_drawn_frame = None
+        
+        self.current_course = Course()
+        self.previous_courses = []  # List of Course instances to keep track of previous courses
 
-        self.SHOW_BOXES = True
+        self.SHOW_BOXES = False
         self.SHOW_MASKS = False
         self.SHOW_CONFIDENCE = True
         self.SHOW_LABELS = True
@@ -71,69 +131,32 @@ class AIModel:
         if len(self.previous_results) > 10:  # Keep only the last 10 results
             self.previous_results.pop(0)
 
-    def _draw_boxes(self, boxes):
-        for box in boxes:
-            cls = box.cls[0].item()
-            name = self.current_results.names[cls]
-            if name in self.excluded_classes:
-                continue
+        self.current_course.objects = Course.stream_to_model_results_to_course_objects(self.current_results)
+        self.previous_courses.append(self.current_course)
+        if len(self.previous_courses) > 10:
+            self.previous_courses.pop(0)
 
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            conf = box.conf[0].cpu().item()
-            cls = box.cls[0].item()
-            label = self.current_results.names[cls] if self.SHOW_LABELS else ""
-            color = self.COLORS.get(label, (0, 255, 0))
-            cv2.rectangle(self.current_processed_drawn_frame, (x1, y1), (x2, y2), color, 2)
-
-    def _draw_masks(self, masks):
-        if masks is None:
-            return
-        for polygon in masks.xy:
-            pts = np.array(polygon, dtype=np.int32)
-            cls = self.current_results.boxes.cls[0].item()
-            color = self.COLORS.get(self.current_results.names[cls], (0, 0, 255))
-            cv2.fillPoly(self.current_processed_drawn_frame, [pts], color)
-
-    def _draw_labels(self, boxes):
-        for box in boxes:
-            cls = box.cls[0].item()
-            name = self.current_results.names[cls]
-            if name in self.excluded_classes:
-                continue
-
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            conf = box.conf[0].cpu().item()
-            cls = box.cls[0].item()
-            label = self.current_results.names[cls] if self.SHOW_LABELS else ""
-            if self.SHOW_CONFIDENCE:
-                cv2.putText(self.current_processed_drawn_frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-    def _draw_centers(self, boxes):
-        for box in boxes:
-            cls = box.cls[0].item()
-            name = self.current_results.names[cls]
-            if name in self.excluded_classes:
-                continue
-
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-            cx = int((x1 + x2) / 2)
-            cy = int((y1 + y2) / 2)
-            cv2.circle(self.current_processed_drawn_frame, (cx, cy), 5, (0, 0, 255), -1)
-            cv2.putText(self.current_processed_drawn_frame, f"({cx},{cy})", (cx + 5, cy - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        self.draw_results()  # Draw results on the current processed frame
 
     def draw_results(self):
-        if self.current_results is None:
-            return self.current_frame
+        for object in self.current_course.objects:
+            if object.name in self.excluded_classes:
+                continue
+            
+            if self.SHOW_BOXES:
+                cv2.rectangle(self.current_processed_drawn_frame, (object.bbox[0], object.bbox[1]), (object.bbox[2], object.bbox[3]), self.COLORS.get(object.name, (0, 255, 0)), 2)
+            if self.SHOW_MASKS and object.mask is not None:
+                pts = np.array(object.mask, dtype=np.int32)
+                cv2.fillPoly(self.current_processed_drawn_frame, [pts], self.COLORS.get(object.name, (0, 0, 255)))
+            if self.SHOW_LABELS:
+                label = f"{object.name} {object.confidence:.2f}" if self.SHOW_CONFIDENCE else object.name
+                cv2.putText(self.current_processed_drawn_frame, label, (object.bbox[0], object.bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            if self.SHOW_CENTER:
+                cx = int((object.bbox[0] + object.bbox[2]) / 2)
+                cy = int((object.bbox[1] + object.bbox[3]) / 2)
+                cv2.circle(self.current_processed_drawn_frame, (cx, cy), 5, (0, 0, 255), -1)
+                cv2.putText(self.current_processed_drawn_frame, f"({cx},{cy})", (cx + 5, cy - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
-        if self.SHOW_BOXES:
-            self._draw_boxes(self.current_results.boxes)
-        if self.SHOW_MASKS:
-            self._draw_masks(self.current_results.masks) # TODO: dont draw masks of excluded classes
-        if self.SHOW_LABELS:
-            self._draw_labels(self.current_results.boxes)
-        if self.SHOW_CENTER:
-            self._draw_centers(self.current_results.boxes)
-        
     def find_closest_ball(self, ball_type: str = "white") -> dict | None:
         """
         Finds the closest ball of the specified color (or if "either", any ball) in the current results.
@@ -167,12 +190,12 @@ class AIModel:
                     'class': cls_name,
                     'confidence': float(box.conf[0].item()),
                     'bbox': [int(x1), int(y1), int(x2), int(y2)],
-                    'centroid': (float(cx), float(cy))
+                    'center': (float(cx), float(cy))
                 }
 
         return closest_ball
     
-    def highlight_ball(self, ball): 
+    def highlight_ball(self, ball, include_label=True): 
         """
         Highlights the closest ball in the current processed frame by drawing a rectangle and label on that frame.
         This method modifies the `self.current_processed_drawn_frame` attribute.
@@ -185,9 +208,11 @@ class AIModel:
 
         x1, y1, x2, y2 = ball['bbox']
         cv2.rectangle(self.current_processed_drawn_frame, (x1, y1), (x2, y2), (0, 255, 255), 2)
-        cx, cy = ball['centroid']
+        cx, cy = ball['center']
         cv2.circle(self.current_processed_drawn_frame, (int(cx), int(cy)), 5, (0, 0, 255), -1)
-        cv2.putText(self.current_processed_drawn_frame, f"{ball['class']} {ball['confidence']:.2f}",
+
+        if include_label:
+            cv2.putText(self.current_processed_drawn_frame, f"{ball['class']} {ball['confidence']:.2f}",
                     (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         
     def do_boxes_overlap(self, box1, box2):
@@ -394,6 +419,25 @@ class AIModel:
         pts = np.array(path, dtype=np.int32)
         cv2.polylines(self.current_processed_drawn_frame, [pts], isClosed=False, color=color, thickness=thickness)
 
+    def get_ball_overlapping_with_robot(self): 
+        """
+        Finds the ball that overlaps with the robot in the current processed frame.
+
+        Returns:
+            dict: Ball information if found, else None.
+        """
+        objects = self.get_objects()
+        if 'robot' not in objects or 'white' not in objects:
+            return None
+
+        robot_bbox = objects['robot'][0]['bbox']
+        for ball in objects['white']:
+            ball_bbox = ball['bbox']
+            if self.do_boxes_overlap(robot_bbox, ball_bbox):
+                ball['centroid'] = ball['center']
+                return ball
+
+        return None
 
 if __name__ == "__main__":
     model = AIModel()
@@ -424,12 +468,28 @@ if __name__ == "__main__":
     model.draw_path(path, color=(0, 255, 0), thickness=3) # draws the planned path to the large goal on the current processed frame
 
     # generate a path to each white ball
-    for ball in objects.get('white', []):
-        path = model.plan_smooth_path(ball['center'], obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
-        print(f"Planned path to white ball at {ball['center']} with {len(path)} waypoints.")
-        model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
+    
+    #for ball in objects.get('white', []):
+    #    path = model.plan_smooth_path(ball['center'], obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+    #    print(f"Planned path to white ball at {ball['center']} with {len(path)} waypoints.")
+    #    model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
 
     cv2.imshow("Processed Frame", model.current_processed_drawn_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    img2 = cv2.imread("AI/images/image_26.jpg")
+    model.process_frame(img2) # processes the second image
+    model.draw_results() # draws the results on the second processed frame
+
+    caught_ball = model.get_ball_overlapping_with_robot() # checks if a ball overlaps with the robot in the second processed frame
+    if caught_ball:
+        print(f"Caught ball: {caught_ball}")
+        model.highlight_ball(caught_ball, False) # highlights the caught ball in the second processed frame
+    else:
+        print("No ball caught in the robot's claw.")
     
+    cv2.imshow("Processed Frame 2", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
