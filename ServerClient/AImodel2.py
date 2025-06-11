@@ -87,10 +87,6 @@ class Course:
             robot[0].direction = angle
 
         return course
-
-    def get_by_label(self, label: str):
-        """Return all CourseObjects matching a given label."""
-        return [obj for obj in self.objects if obj.label == label]
     
     def is_complete(self):
         """
@@ -120,6 +116,45 @@ class Course:
                 (len(small_goals) + len(big_goals)) == 2 and
                 len(walls) == 1 and
                 len(crosses) == 1)
+
+    def get_by_label(self, label: str):
+        """Return all CourseObjects matching a given label."""
+        return [obj for obj in self.objects if obj.label == label]
+    
+    def get_robot(self):
+        """ Returns robot object if it exists if course is complete, otherwise throws an error. """
+        if not self.is_complete():
+            raise ValueError("Course is not complete, cannot get robot object.")
+        
+        return self.get_by_label('robot')[0]
+    
+    def get_cross(self):
+        """ Returns the cross object in the course. """
+        if not self.is_complete():
+            raise ValueError("Course is not complete, cannot get cross object.")
+        
+        return self.get_by_label('cross')[0]
+    
+    def get_floor(self):
+        """ Returns the wall object, which is the floor in the course, only one if course is complete. """
+        if not self.is_complete():
+            raise ValueError("Course is not complete, cannot get floor object.")
+       
+        return self.get_by_label('wall')[0]
+
+    def get_white_balls(self):
+        """ Returns all white balls in the course. """
+        return self.get_by_label('white')
+    
+    def get_orange_balls(self):
+        """ Returns all orange balls in the course. """
+        return self.get_by_label('orange')
+    
+    def get_eggs(self):
+        """ Returns all eggs in the course. Might be more than one? """
+        return self.get_by_label('egg')
+    
+    # TODO: functions for goals? Weird when they might be mixed up, or both small or both large
 
     def __iter__(self):
         return iter(self.objects)
