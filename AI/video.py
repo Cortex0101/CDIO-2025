@@ -171,11 +171,27 @@ while True:
     ang = get_robot_angle(img)
     print(f"Robot angle: {ang} degrees")
 
+    eggs = []    
+    crosses = []
+
     # Loop over each detected box
     for box in r.boxes:
         # xyxy = [[x1, y1, x2, y2]]
         x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
         conf = box.conf[0].cpu().item()
+
+        # pinpoint correct egg/cross
+        cls = int(box.cls[0].item())
+        area = (x2 - x1) * (y2 - y1)
+        if cls == 2: # egg i think? Maybe find by "egg" if it doesn't work
+            eggs.append((area, x1, y1, x2, y2, conf))
+        elif cls == 3: # cross
+            crosses.append((area, x1, y1, x2, y2, conf))
+        
+        for detections in [crosses, eggs]:
+            if detections:
+                largest = max(detections, key=lambda x: x[0])
+                area, x1, y1, x2, y2, conf = largest
 
         # compute center
         cx = int((x1 + x2) / 2)
