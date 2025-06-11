@@ -2,7 +2,9 @@ from ultralytics import YOLO
 import cv2
 import numpy as np
 import math
+
 from sklearn.decomposition import PCA
+
 
 DEBUG = True  # Set to True to enable debug mode
 
@@ -127,8 +129,8 @@ def get_robot_angle(frame):
 
 # Load your trained model
 #model = YOLO("ball_detect/v3_balls_s_night_run/weights/best.pt")
-model = YOLO("ball_detect/v7/weights/best.pt")
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+model = YOLO("ball_detect/v8/weights/best.pt")
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 while True:
     ret, frame = cap.read()
