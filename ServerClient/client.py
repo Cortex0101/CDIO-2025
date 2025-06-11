@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, MoveTank
 from ev3dev2.sound import Sound
 from time import sleep
@@ -71,7 +73,7 @@ Wireless LAN adapter Wi-Fi:
    Default Gateway . . . . . . . . . : 192.168.0.1
 
 '''
-HOST = '192.168.187.245' 
+HOST = '192.168.187.245'
 PORT = 12346
 
 robot = Robot()
@@ -89,6 +91,7 @@ def execute_instruction(instr):
     elif cmd == "claw":
         action = instr.get("action")
         if action == "open":
+            print("[CLIENT] Opening claw")
             robot.open_claw()
         elif action == "close":
             robot.close_claw()
