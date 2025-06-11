@@ -128,7 +128,7 @@ class AIModel:
         self.excluded_classes = classes
 
     def process_frame(self, frame):
-        self.current_results = self.model.predict(source=frame, conf=0.3, iou=0.5)[0]  # Get the first result
+        self.current_results = self.model.predict(source=frame, conf=0.3, iou=0.5, verbose=False)[0]  # Get the first result
         if not self.current_results:
             print("No results found.")
             return None
