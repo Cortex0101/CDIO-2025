@@ -129,7 +129,7 @@ def get_robot_angle(frame):
 
 # Load your trained model
 #model = YOLO("ball_detect/v3_balls_s_night_run/weights/best.pt")
-model = YOLO("ball_detect/v7/weights/best.pt")
+model = YOLO("ball_detect/v8/weights/best.pt")
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 while True:
