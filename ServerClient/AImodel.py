@@ -66,7 +66,7 @@ class Course:
 
 class AIModel:
     def __init__(self):
-        self.model = YOLO("ball_detect/v7/weights/best.pt")
+        self.model = YOLO("ball_detect/v8/weights/best.pt")
         
         self.previous_results = []
 
@@ -84,14 +84,17 @@ class AIModel:
         self.SHOW_CENTER = True
 
         self.COLORS = {
-            "egg": (255, 0, 0),      # Red
-            "robot": (0, 255, 0),    # Green
-            "white_ball": (255, 255, 255),  # White
-            "orange_ball": (0, 165, 255),   # Orange
-            "small_goal": (255, 0, 0),  # Blue
-            "large_goal": (255, 255, 0), # Yellow
-            "wall": (128, 128, 128),    # Gray
-            "cross": (0, 0, 145),       # Dark Blue
+            "egg": (238, 130, 238),      # Violet - easily distinguishable, rarely confused
+            "robot": (0, 200, 70),       # Medium Green - stands out from background and other objects
+            "white_ball": (220, 220, 220), # Light Gray - more visible than pure white
+            "orange_ball": (255, 140, 0),  # Rich Orange - high contrast, classic orange
+            "small_goal": (70, 130, 180),  # Steel Blue - visually distinct from red/yellow
+            "big_goal": (255, 215, 0),   # Gold - deep yellow, more visible than light yellow
+            "wall": (70, 70, 70),          # Dark Gray - strong contrast for obstacles
+            "cross": (75, 0, 130),         # Indigo - deep blue/purple, distinct from wall/robot
+            "yellow": (255, 255, 0),       # Bright Yellow - classic, high contrast
+            "green": (50, 205, 50),        # Lime Green - distinct from robot's green
+            "empty": (200, 200, 200)                # Light Gray - neutral color for empty cells
         }
 
         self.excluded_classes = [
@@ -162,6 +165,59 @@ class AIModel:
                 cv2.circle(self.current_processed_drawn_frame, (cx, cy), 5, (0, 0, 255), -1)
                 cv2.putText(self.current_processed_drawn_frame, f"({cx},{cy})", (cx + 5, cy - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
+    def determine_robot_direction(self):
+        """
+        Determines the direction of the robot based on the object with 'yellow' label being the back,
+        and the object with 'green' label being the front.
+
+        Draw a line from the center of the yellow object to the center of the green object.
+
+        The direction vector between those two points will be the direction of the robot.
+        
+        Returns:
+            int: A number from 0 being to the right, 90 being up, 180 being to the left, and 270 being down.
+        """
+        yellow_objects = self.current_course.get_objects_by_name("yellow")
+        green_objects = self.current_course.get_objects_by_name("green")
+
+        if not yellow_objects or not green_objects:
+            print("Cannot determine robot direction, missing green or yellow object.")
+            return None
+        
+        yellow_center = yellow_objects[0].center
+        green_center = green_objects[0].center
+
+        # Calculate the direction vector from green to yellow
+        direction_vector =  np.array(green_center) - np.array(yellow_center)
+        angle = np.arctan2(direction_vector[1], direction_vector[0])  # Angle in radians
+        angle = np.degrees(angle)  # Convert to degrees
+        angle = (angle + 360) % 360  # Normalize to [0, 360)
+
+        return int(angle)
+    
+    def draw_robot_direction(self):
+        """
+        Draws the direction of the robot on the current processed frame.
+        The direction is determined by the yellow and green objects.
+        """
+        angle = self.determine_robot_direction()
+        if angle is None:
+            return
+        
+        # Draw an arrow from the center of the green object to the center of the yellow object
+        green_objects = self.current_course.get_objects_by_name("green")
+        yellow_objects = self.current_course.get_objects_by_name("yellow")
+        if not green_objects or not yellow_objects:
+            print("Cannot draw robot direction, missing green or yellow object.")
+            return
+        
+        green_center = green_objects[0].center
+        yellow_center = yellow_objects[0].center
+        cv2.arrowedLine(self.current_processed_drawn_frame,
+                        (int(yellow_center[0]), int(yellow_center[1])),
+                        (int(green_center[0]), int(green_center[1])),
+                        (255, 0, 0), 2, tipLength=0.1)
+        
     def find_closest_ball(self, ball_type: str = "white") -> dict | None:
         """
         Finds the closest ball of the specified color (or if "either", any ball) in the current results.
@@ -406,8 +462,17 @@ class AIModel:
                     push = (c['radius'] - dist)
                     path[i] += (vec / dist) * push
 
+        # Remove duplicate points
+        _, unique_indices = np.unique(path, axis=0, return_index=True)
+        unique_path = path[np.sort(unique_indices)]
+
+        # Check if enough unique points for splprep (k=3 needs at least 4)
+        if unique_path.shape[0] < 4:
+            # fallback: just return the straight line
+            return path
+
         # 4. Interpolate smooth spline
-        tck, u = splprep([path[:, 0], path[:, 1]], s=max_curvature * num_waypoints)
+        tck, u = splprep([unique_path[:, 0], unique_path[:, 1]], s=max_curvature * num_waypoints)
         u_new = np.linspace(0, 1, num_waypoints)
         x_new, y_new = splev(u_new, tck)
         smooth_path = np.vstack([x_new, y_new]).T
@@ -447,7 +512,7 @@ class AIModel:
 
         return overlapping_balls
 
-    def determine_most_optimal_ball(self, balls):
+    def determine_most_optimal_ball(self, balls): #TODO: Finish
         """
         Determines the most optimal ball to target based on some criteria.
         For now, this method simply returns the first ball in the list.
@@ -466,10 +531,84 @@ class AIModel:
             path_to_ball = self.plan_smooth_path(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
             path_from_ball_to_goal = self.plan_smooth_path(self.current_course.get_objects_by_name('large_goal')[0].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
 
-if __name__ == "__main__":
+    def create_grid_from_image(self, cell_size):
+        """
+        Creates a grid cell based representation of the current processed frame.
+
+        Each object in the course is represented by filling the grid cells with a label or 'empty' if no object is present.
+        
+        Args:
+            cell_size (int): Size of each grid cell in pixels.
+        
+        Returns:
+            grid_image (ndarray): 2x2 grid where each cell is filled with a string representing the object type.
+        """
+        height, width = self.current_processed_drawn_frame.shape[:2]
+        grid_height = height // cell_size
+        grid_width = width // cell_size
+
+        grid_image = np.full((grid_height, grid_width), 'wall', dtype=object) # The cells called "walls" are actually empty, and empty are actually walls
+
+        for obj in self.current_course.objects:
+            # Calculate the grid cell coordinates
+            x1, y1, x2, y2 = obj.bbox
+            cell_x1 = x1 // cell_size
+            cell_y1 = y1 // cell_size
+            cell_x2 = x2 // cell_size
+            cell_y2 = y2 // cell_size
+            
+            # Fill the grid cells with the object name
+            for i in range(cell_x1, min(cell_x2 + 1, grid_width)):
+                for j in range(cell_y1, min(cell_y2 + 1, grid_height)):
+                    if obj.name == 'wall':
+                        grid_image[j, i] = 'empty'  # The cells called "walls" are actually empty, and empty are actually walls
+                    else:
+                        grid_image[j, i] = obj.name
+        
+        return grid_image
+    
+    def convert_grid_to_grid_image(self, grid_image):
+        """
+        Displays the grid image in a window.
+        
+        Args:
+            grid_image (ndarray): The grid image to display.
+        """
+        # Convert grid to a color image for visualization
+        color_grid = np.zeros((grid_image.shape[0], grid_image.shape[1], 3), dtype=np.uint8)
+        for i in range(grid_image.shape[0]):
+            for j in range(grid_image.shape[1]):
+                color = self.COLORS.get(grid_image[i, j], (255, 255, 255))
+                color_grid[i, j] = color
+        # Resize for better visibility
+        return color_grid
+
+
+def demo():
     model = AIModel()
 
     model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_excluded_classes(['wall'])
+
+    img = cv2.imread("AI/images/image_65.jpg")
+    model.process_frame(img) # processes the third image
+    model.draw_results() # draws the results on the third processed frame
+
+    model.highlight_ball(model.current_course.get_objects_by_name('white')[3]) # highlights the first white ball in the third processed frame
+    path = model.plan_smooth_path_from_robot(model.current_course.get_objects_by_name('white')[3].center, obstacle_padding=10, max_curvature=0.05, num_waypoints=100)
+    model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to the first white ball on the current processed frame
+
+    path = model.plan_smooth_path(model.current_course.get_objects_by_name('white')[0].center, model.current_course.get_objects_by_name('white')[1].center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+    model.draw_path(path, color=(0, 255, 20), thickness=3) # draws the planned path from the first white ball to the large goal on the current processed frame
+
+    cv2.imshow("Processed Frame 3", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+def demo1():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=True, show_center=False)
     model.set_excluded_classes(['wall'])
     
     img = cv2.imread("AI/images/image_87.jpg")
@@ -496,18 +635,25 @@ if __name__ == "__main__":
 
     # generate a path to each white ball
     
-    for ball in model.current_course.get_objects_by_name('white'):
-        path = model.plan_smooth_path_from_robot(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
-        print(f"Planned path to white ball at {ball.center} with {len(path)} waypoints.")
-        model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
+    #for ball in model.current_course.get_objects_by_name('white'):
+        #path = model.plan_smooth_path_from_robot(ball.center, obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+        #print(f"Planned path to white ball at {ball.center} with {len(path)} waypoints.")
+        #model.draw_path(path, color=(255, 0, 0), thickness=2) # draws the planned path to each white ball on the current processed frame
 
-    # path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('small_goal')[0].center ,obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
-    path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('egg')[0].center ,obstacle_padding=10, max_curvature=0.06, num_waypoints=100)
-    model.draw_path(path, color=(0, 255, 255), thickness=2) # draws the planned path from small goal to large goal on the current processed frame
+   # path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('small_goal')[0].center ,obstacle_padding=10, max_curvature=0.01, num_waypoints=100)
+   # model.draw_path(path, color=(12, 120, 255), thickness=2) # draws the planned path from large goal to small goal on the current processed frame
+    #path = model.plan_smooth_path(model.current_course.get_objects_by_name('big_goal')[0].center, model.current_course.get_objects_by_name('egg')[0].center ,obstacle_padding=10, max_curvature=0.06, num_waypoints=100)
+    #model.draw_path(path, color=(0, 255, 255), thickness=2) # draws the planned path from small goal to large goal on the current processed frame
 
     cv2.imshow("Processed Frame", model.current_processed_drawn_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+def demo2():
+    model = AIModel()
+
+    model.set_options(show_boxes=False, show_masks=True, show_confidence=False, show_labels=False, show_center=False)
+    model.set_excluded_classes(['wall'])
 
     img2 = cv2.imread("AI/images/image_26.jpg")
     model.process_frame(img2) # processes the second image
@@ -526,3 +672,44 @@ if __name__ == "__main__":
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def final_demo():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_excluded_classes(['wall'])
+
+    img3 = cv2.imread("AI/images/image_375.jpg")
+    model.process_frame(img3) # processes the third image
+    model.draw_results() # draws the results on the third processed frame
+
+    direction = model.determine_robot_direction() # determines the direction of the robot in the third processed frame
+    model.draw_robot_direction() # draws the direction of the robot on the current processed frame
+
+    print(f"Robot direction angle: {direction} degrees")
+
+    cv2.imshow("Processed Frame 3", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+def grid_demo():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=True, show_center=False)
+
+    img4 = cv2.imread("AI/images/image_86.jpg")
+    model.process_frame(img4) # processes the fourth image
+    model.draw_results() # draws the results on the fourth processed frame
+
+    grid = model.create_grid_from_image(cell_size=1) # creates a grid from the current processed frame
+    print("Grid representation:")
+    print(grid) # prints the grid representation
+    grid_image = model.convert_grid_to_grid_image(grid) # converts the grid to a color image for visualization
+
+    cv2.imshow("Processed Frame 4", model.current_processed_drawn_frame) # displays the grid image
+    cv2.imshow("Grid Image", grid_image) # displays the grid image
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+
+if __name__ == "__main__":
+    grid_demo()
