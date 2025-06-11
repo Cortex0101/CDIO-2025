@@ -54,5 +54,16 @@ def get_position():
         robot.get_position()
     })
 
+@app.route('/open_claw', methods=['POST'])
+def open_claw():
+    robot.open_claw()
+    return jsonify({"status": "claw opened"})
+
+@app.route('/close_claw', methods=['POST'])
+def close_claw():
+    robot.close_claw()
+    return jsonify({"status": "claw closed"})
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
