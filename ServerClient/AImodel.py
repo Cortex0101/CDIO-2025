@@ -2,6 +2,7 @@ from ultralytics import YOLO
 import cv2
 import numpy as np
 from scipy.interpolate import splprep, splev
+import heapq
 
 class CourseObject:
     def __init__(self, name, center, bbox, confidence, mask):
@@ -582,7 +583,329 @@ class AIModel:
                 color_grid[i, j] = color
         # Resize for better visibility
         return color_grid
+  
+    def pixel_to_grid(self, pixel_coord, cell_size):
+        """Convert pixel coordinates to grid coordinates."""
+        x, y = pixel_coord
+        return int(x // cell_size), int(y // cell_size)
+    
+    def grid_to_pixel(self, grid_coord, cell_size):
+        """Convert grid coordinates to pixel coordinates (center of cell)."""
+        gx, gy = grid_coord
+        return int(gx * cell_size + cell_size // 2), int(gy * cell_size + cell_size // 2)
+    
+    def get_neighbors(self, pos, grid):
+        """Get valid neighboring cells for pathfinding."""
+        x, y = pos
+        neighbors = []
+        grid_height, grid_width = grid.shape
+        
+        # 8-directional movement (including diagonals)
+        directions = [
+            (-1, -1), (-1, 0), (-1, 1),
+            (0, -1),           (0, 1),
+            (1, -1),  (1, 0),  (1, 1)
+        ]
+        
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if (0 <= nx < grid_width and 0 <= ny < grid_height and 
+                grid[ny, nx] == 0):  # Passable cell
+                # Calculate cost (diagonal moves cost more)
+                cost = 1.414 if abs(dx) + abs(dy) == 2 else 1.0
+                neighbors.append(((nx, ny), cost))
+        
+        return neighbors
+    
+    def dijkstra_pathfind(self, start_pos, end_pos, grid):
+        """
+        Find shortest path using Dijkstra's algorithm.
+        """
+        # Priority queue: (cost, current_pos)
+        pq = [(0, start_pos)]
+        distances = {start_pos: 0}
+        previous = {}
+        visited = set()
+        
+        while pq:
+            current_cost, current_pos = heapq.heappop(pq)
+            
+            if current_pos in visited:
+                continue
+                
+            visited.add(current_pos)
+            
+            # Found the target
+            if current_pos == end_pos:
+                # Reconstruct path
+                path = []
+                pos = end_pos
+                while pos is not None:
+                    path.append(pos)
+                    pos = previous.get(pos)
+                path.reverse()
+                return path, distances[end_pos]
+            
+            # Check neighbors
+            for neighbor_pos, move_cost in self.get_neighbors(current_pos, grid):
+                if neighbor_pos in visited:
+                    continue
+                
+                new_cost = current_cost + move_cost
+                
+                if neighbor_pos not in distances or new_cost < distances[neighbor_pos]:
+                    distances[neighbor_pos] = new_cost
+                    previous[neighbor_pos] = current_pos
+                    heapq.heappush(pq, (new_cost, neighbor_pos))
+        
+        # No path found
+        return None, float('inf')
+    
+    def find_paths_to_all_balls(self, cell_size=20):
+        """
+        Find shortest paths to all balls using Dijkstra's algorithm.
+        """
+        # Get robot position
+        robot_objects = self.current_course.get_objects_by_name("robot")
+        if not robot_objects:
+            return {}
+        
+        robot = robot_objects[0]
+        
+        # Create navigation grid
+        grid, grid_width, grid_height, cell_size = self.create_navigation_grid(cell_size)
+        
+        # Convert robot position to grid coordinates
+        robot_grid_pos = self.pixel_to_grid(robot.center, cell_size)
+        
+        paths_to_balls = {}
+        
+        # Find all balls
+        ball_types = ['white_ball', 'orange_ball', 'white', 'orange']
+        for ball_type in ball_types:
+            balls = self.current_course.get_objects_by_name(ball_type)
+            for ball in balls:
+                # Convert ball position to grid coordinates
+                ball_grid_pos = self.pixel_to_grid(ball.center, cell_size)
+                
+                # Check if positions are valid
+                if (0 <= robot_grid_pos[0] < grid_width and 0 <= robot_grid_pos[1] < grid_height and
+                    0 <= ball_grid_pos[0] < grid_width and 0 <= ball_grid_pos[1] < grid_height):
+                    
+                    # Find path using Dijkstra
+                    path_grid, cost = self.dijkstra_pathfind(robot_grid_pos, ball_grid_pos, grid)
+                    
+                    if path_grid:
+                        # Convert path back to pixel coordinates
+                        path_pixels = [self.grid_to_pixel(pos, cell_size) for pos in path_grid]
+                        paths_to_balls[ball] = (path_pixels, cost)
+        
+        return paths_to_balls
+    
+    def create_navigation_grid(self, cell_size=20):
+        """
+        Creates a navigation grid for pathfinding where each cell represents
+        whether it's passable (0) or blocked (1).
+        
+        IMPORTANT: Objects marked as 'wall' are actually the DRIVEABLE TRACK!
+        """
+        height, width = self.current_processed_drawn_frame.shape[:2]
+        grid_height = height // cell_size
+        grid_width = width // cell_size
+        
+        # Initialize grid as blocked (everything off-track is not driveable)
+        grid = np.ones((grid_height, grid_width), dtype=int)
+        
+        # Mark 'wall' objects as PASSABLE (they are the track!)
+        track_objects = self.current_course.get_objects_by_name('wall')
+        passable_cells = 0
+        
+        for track_obj in track_objects:
+            x1, y1, x2, y2 = track_obj.bbox
+            
+            # Convert to grid coordinates
+            cell_x1 = max(0, x1 // cell_size)
+            cell_y1 = max(0, y1 // cell_size)
+            cell_x2 = min(grid_width - 1, x2 // cell_size)
+            cell_y2 = min(grid_height - 1, y2 // cell_size)
+            
+            # Mark track cells as passable
+            for i in range(int(cell_x1), int(cell_x2) + 1):
+                for j in range(int(cell_y1), int(cell_y2) + 1):
+                    if 0 <= i < grid_width and 0 <= j < grid_height:
+                        if grid[j, i] == 1:  # Only count if we're changing from blocked to passable
+                            passable_cells += 1
+                        grid[j, i] = 0  # Passable (track surface)
+        
+        # Now mark actual obstacles as blocked
+        actual_obstacles = ['egg']  # Add other obstacle types that should block movement
+        blocked_cells = 0
+        
+        for obj in self.current_course.objects:
+            if obj.name in actual_obstacles:
+                x1, y1, x2, y2 = obj.bbox
+                
+                # Add padding around obstacles for robot clearance
+                padding = 2  # Adjust based on robot size
+                cell_x1 = max(0, (x1 // cell_size) - padding)
+                cell_y1 = max(0, (y1 // cell_size) - padding)
+                cell_x2 = min(grid_width - 1, (x2 // cell_size) + padding)
+                cell_y2 = min(grid_height - 1, (y2 // cell_size) + padding)
+                
+                # Mark obstacle cells as blocked
+                for i in range(int(cell_x1), int(cell_x2) + 1):
+                    for j in range(int(cell_y1), int(cell_y2) + 1):
+                        if 0 <= i < grid_width and 0 <= j < grid_height:
+                            if grid[j, i] == 0:  # Only block if it was previously passable
+                                blocked_cells += 1
+                            grid[j, i] = 1  # Blocked
+        
+        # Debug information
+        total_cells = grid_width * grid_height
+        final_passable = np.sum(grid == 0)
+        final_blocked = np.sum(grid == 1)
+        
+        print(f"Navigation grid created: {grid_width}x{grid_height} = {total_cells} total cells")
+        print(f"Track objects found: {len(track_objects)} (marked as passable)")
+        print(f"Passable cells: {final_passable} ({(final_passable/total_cells)*100:.1f}%)")
+        print(f"Blocked cells: {final_blocked} ({(final_blocked/total_cells)*100:.1f}%)")
+        print(f"Obstacle types: {actual_obstacles}")
+        
+        return grid, grid_width, grid_height, cell_size
 
+    def draw_dijkstra_paths(self, cell_size=20):
+        """
+        Draw Dijkstra paths to all balls with improved visualization and distance display.
+        """
+        # Get robot position first for distance calculations
+        robot_objects = self.current_course.get_objects_by_name("robot")
+        if not robot_objects:
+            print("No robot found - cannot calculate distances")
+            return
+        
+        robot = robot_objects[0]
+        
+        # Find all balls and calculate straight-line distances
+        ball_types = ['white_ball', 'orange_ball', 'white', 'orange']
+        all_balls = []
+        for ball_type in ball_types:
+            balls = self.current_course.get_objects_by_name(ball_type)
+            all_balls.extend(balls)
+        
+        if not all_balls:
+            print("No balls found - cannot show distances")
+            return
+        
+        # Calculate and display straight-line distances to each ball
+        print(f"\nDistances from robot at {robot.center}:")
+        ball_distances = []
+        
+        for i, ball in enumerate(all_balls):
+            # Calculate straight-line distance
+            distance = np.linalg.norm(np.array(robot.center) - np.array(ball.center))
+            ball_distances.append((ball, distance))
+            print(f"Ball {i+1} ({ball.name}) at {ball.center}: {distance:.1f} pixels")
+            
+            # Draw distance label on each ball
+            ball_center = (int(ball.center[0]), int(ball.center[1]))
+            distance_text = f"{distance:.0f}px"
+            
+            # Draw background for text
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.6
+            font_thickness = 2
+            text_size = cv2.getTextSize(distance_text, font, font_scale, font_thickness)[0]
+            
+            # Position text above the ball
+            text_x = ball_center[0] - text_size[0] // 2
+            text_y = ball_center[1] - 15
+            
+            # Draw background rectangle
+            cv2.rectangle(self.current_processed_drawn_frame,
+                        (text_x - 3, text_y - text_size[1] - 3),
+                        (text_x + text_size[0] + 3, text_y + 3),
+                        (0, 0, 0), -1)  # Black background
+            
+            # Draw distance text
+            cv2.putText(self.current_processed_drawn_frame, distance_text,
+                    (text_x, text_y), font, font_scale, (255, 255, 255), font_thickness)
+        
+        # Sort by distance and show closest ball
+        ball_distances.sort(key=lambda x: x[1])
+        closest_ball, closest_distance = ball_distances[0]
+        print(f"\nClosest ball: {closest_ball.name} at distance {closest_distance:.1f} pixels")
+        
+        # Now try to find pathfinding paths
+        paths_to_balls = self.find_paths_to_all_balls(cell_size)
+        
+        # Color scheme for different paths
+        colors = [
+            (255, 0, 0),    # Red
+            (0, 255, 0),    # Green
+            (0, 0, 255),    # Blue
+            (255, 255, 0),  # Cyan
+            (255, 0, 255),  # Magenta
+            (0, 255, 255),  # Yellow
+            (128, 0, 128),  # Purple
+            (255, 165, 0),  # Orange
+        ]
+        
+        print(f"\nFound {len(paths_to_balls)} pathfinding routes")
+        
+        if len(paths_to_balls) == 0:
+            print("No pathfinding routes found - this might be due to grid obstacles")
+            # Show navigation grid for debugging
+            self.draw_navigation_grid(cell_size=cell_size, alpha=0.3)
+        else:
+            # Sort paths by cost to show shortest path first
+            sorted_paths = sorted(paths_to_balls.items(), key=lambda x: x[1][1])
+            
+            for i, (ball, (path_pixels, cost)) in enumerate(sorted_paths):
+                print(f"Pathfinding route {i+1} to {ball.name} ball: cost {cost:.1f}")
+                
+                if len(path_pixels) < 2:
+                    continue
+                
+                color = colors[i % len(colors)]
+                thickness = max(2, 5 - i)
+                
+                # Draw path
+                for j in range(len(path_pixels) - 1):
+                    cv2.line(self.current_processed_drawn_frame, 
+                            path_pixels[j], path_pixels[j + 1], color, thickness)
+                
+                # Draw arrow at the end
+                if len(path_pixels) >= 2:
+                    end_point = path_pixels[-1]
+                    second_last = path_pixels[-2]
+                    cv2.arrowedLine(self.current_processed_drawn_frame,
+                                second_last, end_point, color, thickness + 1, tipLength=0.3)
+
+    def draw_navigation_grid(self, cell_size=20, alpha=0.3):
+        """
+        Draw the navigation grid overlay for debugging with correct visualization.
+        Green = driveable track, Red = obstacles/off-track areas
+        """
+        grid, grid_width, grid_height, _ = self.create_navigation_grid(cell_size)
+        
+        # Create overlay
+        overlay = self.current_processed_drawn_frame.copy()
+        
+        for i in range(grid_width):
+            for j in range(grid_height):
+                x1 = i * cell_size
+                y1 = j * cell_size
+                x2 = x1 + cell_size
+                y2 = y1 + cell_size
+                
+                if grid[j, i] == 1:  # Blocked cell (off-track or obstacle)
+                    cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 0, 255), -1)  # Red fill
+                else:  # Passable cell (driveable track)
+                    cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 0), 1)  # Green outline
+        
+        # Blend with original image
+        cv2.addWeighted(overlay, alpha, self.current_processed_drawn_frame, 1 - alpha, 0, 
+                    self.current_processed_drawn_frame)
 
 def demo():
     model = AIModel()
@@ -738,6 +1061,56 @@ def grid_demo():
     cv2.destroyAllWindows()
     
 
+def dijkstra_demo_fixed():
+    model = AIModel()
+    
+    # Set up visualization options
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=True, show_center=False)
+    model.set_excluded_classes(['wall'])  # Exclude walls from visualization but they'll still be obstacles
+    
+    # Load and process the image
+    img = cv2.imread("AI/images/image_432.jpg")
+    if img is None:
+        print("Error: Could not load image. Check the file path.")
+        return
+    
+    print("Processing frame...")
+    model.process_frame(img)
+    model.draw_results()
+    
+    # Debug: Print what objects were found
+    print("\nObjects found:")
+    for obj_name, count in model.current_course.object_count.items():
+        print(f"  {obj_name}: {count}")
+    
+    # Check if robot exists
+    robot_objects = model.current_course.get_objects_by_name("robot")
+    if not robot_objects:
+        print("WARNING: No robot found!")
+        return
+    
+    # Draw robot direction if possible
+    try:
+        model.draw_robot_direction()
+    except Exception as e:
+        print(f"Could not draw robot direction: {e}")
+    
+    # Use the fixed pathfinding method
+    print("\nCalculating distances and paths...")
+    
+    try:
+        cell_size = 20  # Larger cell size for easier pathfinding
+        model.draw_dijkstra_paths(cell_size=cell_size)
+    except Exception as e:
+        print(f"Error in pathfinding: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    # Show results
+    cv2.imshow("Fixed Pathfinding Demo", model.current_processed_drawn_frame)
+    print("\nPress any key to close...")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 if __name__ == "__main__":
-    demo4() 
-    #grid_demo()
+    dijkstra_demo_fixed()
