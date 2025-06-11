@@ -672,7 +672,7 @@ def demo2():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def final_demo():
+def demo3():
     model = AIModel()
 
     model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
@@ -688,6 +688,33 @@ def final_demo():
     print(f"Robot direction angle: {direction} degrees")
 
     cv2.imshow("Processed Frame 3", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+def demo4():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=True, show_center=False)
+    model.set_excluded_classes(['wall'])
+
+    img4 = cv2.imread("AI/images/image_432.jpg")
+    model.process_frame(img4)
+    model.draw_results()
+    model.draw_robot_direction()
+    closest_ball = model.find_closest_ball("white")
+    if closest_ball:
+        model.highlight_ball(closest_ball)
+        print(f"Closest white ball: {closest_ball}")
+        path = model.plan_smooth_path_from_robot(
+            closest_ball.center, 
+            obstacle_padding=10, 
+            max_curvature=0.05, 
+            num_waypoints=100
+        )
+        model.draw_path(path, color=(255, 0, 0), thickness=2)  # Red path
+    else:
+        print("No white ball found.")
+    cv2.imshow("Processed Frame 4", model.current_processed_drawn_frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -712,4 +739,5 @@ def grid_demo():
     
 
 if __name__ == "__main__":
-    grid_demo()
+    demo4() 
+    #grid_demo()
