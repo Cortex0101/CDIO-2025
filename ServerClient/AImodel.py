@@ -567,6 +567,36 @@ class AIModel:
         
         return grid_image
     
+    def draw_path_on_processed_frame(self, color=(0, 255, 255)):
+        # opens a new window and with the processed frame 
+        # users can press lmbutton to add a point to the path
+        # after each point a smooth line is drawn from the previous point to the current point and previous lines between poins are also smoothed
+        cv2.namedWindow("Processed Frame with Path", cv2.WINDOW_NORMAL)
+        cv2.resizeWindow("Processed Frame with Path", 800, 600)
+
+        cv2.imshow("Processed Frame with Path", self.current_processed_drawn_frame)
+        path = []
+        def mouse_callback(event, x, y, flags, param):
+            if event == cv2.EVENT_LBUTTONDOWN:
+                # Add point to path
+                path.append((x, y))
+                if len(path) > 1:
+                    # Draw line from previous point to current point
+                    cv2.line(self.current_processed_drawn_frame, path[-2], path[-1], color, 2)
+                    # Smooth the path
+                    if len(path) > 2:
+                        pts = np.array(path, dtype=np.int32)
+                        cv2.polylines(self.current_processed_drawn_frame, [pts], isClosed=False, color=color, thickness=2)
+                cv2.imshow("Processed Frame with Path", self.current_processed_drawn_frame)
+        cv2.setMouseCallback("Processed Frame with Path", mouse_callback)
+        while True:
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break
+
+        cv2.destroyAllWindows()
+        return path
+
     def convert_grid_to_grid_image(self, grid_image):
         """
         Displays the grid image in a window.
@@ -710,6 +740,25 @@ def grid_demo():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
+def path_demo():
+    model = AIModel()
+
+    model.set_options(show_boxes=True, show_masks=False, show_confidence=False, show_labels=False, show_center=False)
+    model.set_excluded_classes(['wall'])
+
+    img3 = cv2.imread("AI/images/image_375.jpg")
+    model.process_frame(img3) # processes the third image
+    model.draw_results() # draws the results on the third processed frame
+
+    direction = model.determine_robot_direction() # determines the direction of the robot in the third processed frame
+    model.draw_robot_direction() # draws the direction of the robot on the current processed frame
+
+    model.draw_path_on_processed_frame() # allows the user to draw a path on the processed frame by clicking on the image
+
+    cv2.imshow("Processed Frame 3 with Path", model.current_processed_drawn_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    grid_demo()
+    path_demo()
+    

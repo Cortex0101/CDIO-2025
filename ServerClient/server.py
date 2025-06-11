@@ -55,7 +55,6 @@ class Server:
            Makes the robot jiggle left and right twice, and checks if a ball still overlaps the bounding box of the robot
         '''
         
-
     def main_loop():
         while True:
              # do nothing for now
