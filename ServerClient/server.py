@@ -2,9 +2,31 @@ import socket
 import json
 import time
 import math
+import sys
+import select
+import threading
+import queue
+
+import cv2
+
+import AImodel
+from pathplanner import compute_motor_speeds, poins_close_enough
 
 class Server:
     def __init__(self):
+        ######################
+        self.ai_model = AImodel.AIModel()
+        self.cap = cv2.VideoCapture(0)  # Use 0 for the default camera
+        if not self.cap.isOpened():
+            print("Error: Could not open camera.")
+            exit()
+
+        self.input_queue = queue.Queue()
+        threading.Thread(target=self._input_listener, daemon=True).start()
+        cv2.namedWindow("view")
+
+        ########################
+
         self.host = '0.0.0.0'
         self.port = 12346
         self.SEND_CUSTOM_INSTRUCTIONS = True
@@ -28,25 +50,125 @@ class Server:
         self.conn, addr = self.server.accept()
         print(f"[SERVER] EV3 robot connected from {addr}")
 
+    def check_if_ball_is_caught_in_claw(self, ball):
+        '''
+           Makes the robot jiggle left and right twice, and checks if a ball still overlaps the bounding box of the robot
+        '''
+        
     def main_loop():
         while True:
              # do nothing for now
             pass
 
-    def send_instruction(self, instruction):
+    def send_instruction(self, instruction, wait_for_response=False):
         try:
             self.conn.sendall(json.dumps(instruction).encode())
-            data = self.conn.recv(1024)
-            response = json.loads(data.decode())
-            return response
+            if wait_for_response:
+                data = self.conn.recv(1024)
+                response = json.loads(data.decode())
+                return response
         except Exception as e:
             print(f"[SERVER] Error sending instruction: {e}")
             return {"status": "error", "msg": str(e)}
+        
+    def _input_listener(self):
+        while True:
+            try:
+                line = sys.stdin.readline()
+                if line.strip():  # Only enqueue non-empty lines
+                    print(f"[INPUT LISTENER] Received input: {line.strip()}")
+                    self.input_queue.put(line.strip())
+            except Exception as e:
+                print(f"[INPUT LISTENER ERROR] {e}")
+
+    def get_input(self):
+        try:
+            cmd = self.input_queue.get_nowait()
+            return cmd
+        except queue.Empty:
+            return None
+        
+    def capture_and_process_frame(self):
+        ret, frame = self.cap.read()
+        if not ret:
+            print("[SERVER] Failed to capture frame from camera.")
+
+        # Process the frame with the AI model
+        self.ai_model.process_frame(frame)
+        self.ai_model.draw_results()
+        self.ai_model.determine_robot_direction()
+        self.ai_model.draw_robot_direction()
 
     def custom_instruction_loop(self):
+        last_clicked_coords = [None]  # Use mutable to modify from callback
+
+        def mouse_callback(event, x, y, flags, param):
+                if event == cv2.EVENT_LBUTTONDOWN:
+                    print(f"[SERVER] Mouse clicked at ({x}, {y})")
+                    last_clicked_coords[0] = (x, y)
+
+        cv2.setMouseCallback("view", mouse_callback)
+
+        while True:
+            self.capture_and_process_frame()
+            img = self.ai_model.current_processed_drawn_frame
+
+            cv2.imshow("view", img)
+
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):  # Press 'q' to quit
+                print("[SERVER] Quitting...")
+                break
+
+            # wait for user to press mouse button on some coord in the image
+            if last_clicked_coords[0] is not None:
+                robot_direction = self.ai_model.determine_robot_direction()
+                robot_pos = self.ai_model.current_course.get_objects_by_name('robot')[0].center
+                # (x, y)
+                robot_speeds = compute_motor_speeds(robot_pos[0], robot_pos[1], robot_direction, last_clicked_coords[0][0], last_clicked_coords[0][1], 40, 40)
+
+                instruction = {
+                    "cmd": "drive",
+                    "left_speed": robot_speeds[0],
+                    "right_speed": robot_speeds[1]
+                }
+
+                print(f"[SERVER] Sending instruction: {instruction}")
+                self.send_instruction(instruction)
+
+                # Check if the robot is close enough to the target point
+                if poins_close_enough(robot_pos, last_clicked_coords[0], threshold=60):
+                    print(f"[SERVER] Robot is close enough to the target point.")
+                    last_clicked_coords[0] = None  # Reset the clicked coordinates
+                    instruction = {
+                        "cmd": "drive",
+                        "left_speed": 0,
+                        "right_speed": 0
+                    }
+                    print(f"[SERVER] Stopping the robot.")
+                    self.send_instruction(instruction)
+
+    def custom_instruction_loop2(self):
         print("[SERVER] Ready to send custom instructions. Type `exit` to quit.")
         while True:
-            raw = input("Command (e.g. move 10 20 or claw open or claw close): with it being 10 on left motor and 20 on right motor").strip()
+            self.capture_and_process_frame()
+            img = self.ai_model.current_processed_drawn_frame
+
+            cv2.imshow("view", img)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):  # Press 'q' to quit
+                print("[SERVER] Quitting...")
+                break
+
+            if img is None:
+                print("[SERVER] No image captured. Retrying...")
+                continue
+
+            raw = self.get_input()
+            if raw is None:
+                continue
+            
+            #raw = input("Command (e.g. move 10 20 or claw open or claw close): with it being 10 on left motor and 20 on right motor").strip()
             if raw.lower() == "exit":
                 break
 

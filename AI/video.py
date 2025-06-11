@@ -1,7 +1,12 @@
 from ultralytics import YOLO
 import cv2
 import numpy as np
+import math
+
 from sklearn.decomposition import PCA
+
+
+DEBUG = True  # Set to True to enable debug mode
 
 def calculate_robot_orientation(polygon_points):
     mask_coords = np.array(polygon_points, dtype=np.float32)
@@ -61,11 +66,70 @@ def draw_robot_with_direction(image, polygon_points, angle_deg, center, directio
 
     return image
 
+def get_robot_angle(frame):
+    angle = None
+
+    # green range
+    color1_hsv = (np.array([70, 100, 50]), np.array([95, 255, 200]))
+    # yellow range
+    color2_hsv = (np.array([20, 100, 100]), np.array([35, 255, 255]))
+
+    if not ret:
+        print("Error: Unable to read frame from camera.")
+        return None
+        
+    display_frame = frame.copy()  # Create a copy for visualization
+    
+        
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    # makes masks[color]
+    masks = {color: cv2.inRange(hsv, *hsv_range) for color, hsv_range in zip(('color1', 'color2'), (color1_hsv, color2_hsv))}
+    centers = {}
+    
+    for color, mask in masks.items():
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if contours:
+            largest = max(contours, key=cv2.contourArea)
+            # area size to catch, currently: 100 pixels
+            if cv2.contourArea(largest) > 1:
+                M = cv2.moments(largest)
+                centers[color] = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
+
+                    # Draw the contour and center for each color
+                color_bgr = (0, 0, 255) if color == 'color1' else (0, 255, 255)  # Red for color1, Yellow for color2
+                cv2.drawContours(display_frame, [largest], -1, color_bgr, 2)
+                cv2.circle(display_frame, centers[color], 5, color_bgr, -1)
+    
+    result = np.zeros_like(frame)
+
+
+    if 'color1' in centers and 'color2' in centers:
+
+        # Draw line between the two color centers
+        cv2.line(display_frame, centers['color1'], centers['color2'], (255, 255, 255), 2)
+        
+        # Calculate angle
+        dx, dy = np.subtract(centers['color1'], centers['color2'])
+        angle = (math.degrees(math.atan2(dy, dx)) + 360) % 360
+        
+        # Add text showing the angle
+        text_pos = ((centers['color1'][0] + centers['color2'][0]) // 2, 
+                   (centers['color1'][1] + centers['color2'][1]) // 2 - 20)
+        cv2.putText(display_frame, f"Angle: {angle:.1f}°", text_pos, 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+    
+    # Display the frame
+    if DEBUG:
+        cv2.imshow("Robot Direction", display_frame)
+        cv2.waitKey(1)  # Small delay to allow display to update
+
+    return angle
+
 
 
 # Load your trained model
 #model = YOLO("ball_detect/v3_balls_s_night_run/weights/best.pt")
-model = YOLO("ball_detect/v7dtu4/weights/best.pt")
+model = YOLO("ball_detect/v8/weights/best.pt")
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 while True:
@@ -104,11 +168,30 @@ while True:
     # Convert to a writable image
     img = frame.copy()
 
+    ang = get_robot_angle(img)
+    print(f"Robot angle: {ang} degrees")
+
+    eggs = []    
+    crosses = []
+
     # Loop over each detected box
     for box in r.boxes:
         # xyxy = [[x1, y1, x2, y2]]
         x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
         conf = box.conf[0].cpu().item()
+
+        # pinpoint correct egg/cross
+        cls = int(box.cls[0].item())
+        area = (x2 - x1) * (y2 - y1)
+        if cls == 2: # egg i think? Maybe find by "egg" if it doesn't work
+            eggs.append((area, x1, y1, x2, y2, conf))
+        elif cls == 3: # cross
+            crosses.append((area, x1, y1, x2, y2, conf))
+        
+        for detections in [crosses, eggs]:
+            if detections:
+                largest = max(detections, key=lambda x: x[0])
+                area, x1, y1, x2, y2, conf = largest
 
         # compute center
         cx = int((x1 + x2) / 2)
