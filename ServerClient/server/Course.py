@@ -86,6 +86,9 @@ class Course:
                                            green[0].center)
             robot[0].direction = angle
 
+        course.width = result.orig_shape[1]  # Width of the original image
+        course.height = result.orig_shape[0]
+
         return course
     
     def is_complete(self):
