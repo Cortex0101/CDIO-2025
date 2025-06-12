@@ -15,6 +15,14 @@ def compute_motor_speeds(robot_x, robot_y, robot_angle_deg, target_x, target_y, 
     Returns:
         Dict with 'left_speed' and 'right_speed'
     """
+
+    if (robot_x is None or robot_y is None):
+        return (0, 0)
+    if (target_x is None or target_y is None):
+        return (0, 0)
+    if (robot_angle_deg is None):
+        return (0, 0)
+
     # Calculate angle to target
     dx = target_x - robot_x
     dy = target_y - robot_y
@@ -43,10 +51,21 @@ def compute_motor_speeds(robot_x, robot_y, robot_angle_deg, target_x, target_y, 
         # Turn left (reduce left speed)
         left_speed -= abs(turn_factor) * max_diff
 
-    return {
-        'left_speed': int(left_speed),
-        'right_speed': int(right_speed)
-    }
+    return (int(left_speed), int(right_speed))
+
+def poins_close_enough(p1, p2, threshold=20):
+    """
+    Check if two points are close enough within a given threshold.
+    
+    Parameters:
+        p1, p2: Tuples representing the points (x, y)
+        threshold: Distance threshold to consider points close enough
+    
+    Returns:
+        True if points are close enough, False otherwise
+    """
+    print(f"Checking if points {p1} and {p2} are close enough with threshold {threshold}")
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) <= threshold
 
 if __name__ == "__main__":
     # test the function with example values
