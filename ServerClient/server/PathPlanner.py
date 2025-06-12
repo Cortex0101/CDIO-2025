@@ -101,6 +101,96 @@ class AStarStrategy:
         # No path found
         return []
 
+class AStarStrategyOptimized:
+    '''
+    A* pathfinding algorithm implementation with object radius.
+    Optimized by pre-inflating obstacle grid and using array-based scores.
+    '''
+
+    def __init__(self, obj_radius=1):
+        # Radius of the object (in grid cells)
+        self.OBJ_RADIUS = obj_radius
+
+    def _heuristic(self, a, b):
+        # Octile distance for 8-directional grid
+        dx = abs(a[0] - b[0])
+        dy = abs(a[1] - b[1])
+        return (dx + dy) + (np.sqrt(2) - 2) * min(dx, dy)
+
+    def find_path(self, start, end, grid):
+        '''
+        Find path from start to end using A*.
+
+        start, end: (x, y)
+        grid: 2D numpy array where 0=free, >0=obstacle
+        '''
+        h, w = grid.shape
+        # 1) Pre-inflate obstacles by OBJ_RADIUS
+        obstacles = (grid != 0).astype(np.uint8)
+        kernel_size = 2 * self.OBJ_RADIUS + 1
+        kernel = np.ones((kernel_size, kernel_size), dtype=np.uint8)
+        inflated = cv2.dilate(obstacles, kernel)
+        passable = (inflated == 0)
+
+        # 2) Initialize score arrays and visited mask
+        inf = float('inf')
+        g_score = np.full((h, w), inf, dtype=np.float32)
+        f_score = np.full((h, w), inf, dtype=np.float32)
+        visited = np.zeros((h, w), dtype=bool)
+
+        # 3) Open set (min-heap) with tie-breaker counter
+        open_set = []
+        counter = 0
+        sx, sy = start
+        ex, ey = end
+        g_score[sy, sx] = 0.0
+        f_score[sy, sx] = self._heuristic(start, end)
+        heapq.heappush(open_set, (f_score[sy, sx], counter, start))
+
+        # 4) Directions and costs
+        dirs = [
+            (1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
+            (1, 1, np.sqrt(2)), (1, -1, np.sqrt(2)), (-1, 1, np.sqrt(2)), (-1, -1, np.sqrt(2))
+        ]
+        came_from = dict()
+
+        # 5) Main search loop
+        while open_set:
+            _, _, (cx, cy) = heapq.heappop(open_set)
+            if visited[cy, cx]:
+                continue
+            visited[cy, cx] = True
+            if (cx, cy) == (ex, ey):
+                # Reconstruct path
+                path = []
+                node = (ex, ey)
+                while node != (sx, sy):
+                    path.append(node)
+                    node = came_from[node]
+                path.append((sx, sy))
+                return path[::-1]
+
+            for dx, dy, cost in dirs:
+                nx, ny = cx + dx, cy + dy
+                if not (0 <= nx < w and 0 <= ny < h):
+                    continue
+                if not passable[ny, nx]:
+                    continue
+                if visited[ny, nx]:
+                    continue
+
+                tentative_g = g_score[cy, cx] + cost
+                if tentative_g < g_score[ny, nx]:
+                    g_score[ny, nx] = tentative_g
+                    f_score[ny, nx] = tentative_g + self._heuristic((nx, ny), (ex, ey))
+                    came_from[(nx, ny)] = (cx, cy)
+                    counter += 1
+                    heapq.heappush(open_set, (f_score[ny, nx], counter, (nx, ny)))
+
+        # No path found
+        print("No path found from start to end.")
+        return []
+
 '''
     PathPlanner is an object that convert the info from Course to a grid based 0,1 grid.
 
@@ -248,102 +338,3 @@ class PathPlannerVisualizer:
         for x, y in path:
             if 0 <= x < self.width and 0 <= y < self.height:
                 self.img[y, x] = (255, 0, 0)
-
-def demo_path_planner_visualization():
-    """
-    Demo function to visualize the path planning on a course.
-    """
-    model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
-    course = model.generate_course("AI/images/image_432.jpg")  # Predict on an image
-
-    path_planner = PathPlanner(strategy=None)
-    grid = path_planner.generate_grid(course)
-
-    viz = PathPlannerVisualizer(grid)
-    viz.draw_grid_objects()
-    
-    cv2.imshow("Path Planner Visualization", viz.img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-def demo_astar():
-    """
-    Demo function to visualize the path planning on a course.
-    """
-    model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
-    course = model.generate_course("AI/images/image_432.jpg")  # Predict on an image
-
-    path_planner = PathPlanner(strategy=AStarStrategy(obj_radius=2))  # Using A* strategy with object radius of 2
-    grid = path_planner.generate_grid(course)
-
-    viz = PathPlannerVisualizer(grid)
-    img = viz.draw_grid_objects()
-    cv2.imshow("Path Planner Visualization", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-    path = path_planner.generate_path((120, 120), (350, 250), grid)
-    viz.draw_path(path)
-    cv2.imshow("Path on Grid", viz.img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-start = None
-end = None
-has_generated_path = False
-
-def _mouse_callback(event, x, y, flags, param):
-        """
-        Mouse callback function to handle clicks on the grid.
-        It allows the user to select start and end points for path planning.
-        """
-        global start, end, has_generated_path
-        if event == cv2.EVENT_LBUTTONDOWN:
-            if start is None:
-                start = (x, y)
-
-            elif end is None:
-                end = (x, y)
-
-        if event == cv2.EVENT_RBUTTONDOWN:
-            # Reset start and end points on right click
-            start = None
-            end = None
-            has_generated_path = False
-
-def demo_astar2():
-    """
-    Demo function to visualize the path planning on a course.
-    """
-    global start, end, has_generated_path
-    model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
-    course = model.generate_course("AI/images/image_432.jpg")  # Predict on an image
-
-    path_planner = PathPlanner(strategy=AStarStrategy(obj_radius=2))  # Using A* strategy with object radius of 2
-    grid = path_planner.generate_grid(course)
-
-    viz = PathPlannerVisualizer(grid, path_planner=path_planner)
-    viz.draw_grid_objects()
-    img = viz.img.copy()
-    
-    cv2.namedWindow("Path Planner Visualization", cv2.WINDOW_NORMAL)
-    cv2.setMouseCallback("Path Planner Visualization", _mouse_callback)
-
-    print("Click to select start and end points for path planning.")
-    print("Press 'q' to exit.")
-
-    cv2.imshow("Path Planner Visualization", img)
-
-    while True:
-        if start is not None and end is not None and not has_generated_path:
-            path = path_planner.generate_path(start, end, grid)
-            viz.draw_path(path)
-            has_generated_path = True
-            cv2.imshow("Path Planner Visualization", viz.img)
-
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
-            break
-
-if __name__ == "__main__":
-    demo_astar2()
