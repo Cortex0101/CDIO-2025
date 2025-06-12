@@ -4,6 +4,9 @@ from AImodel import *
 
 import cv2
 
+import numpy as np
+import math
+
 '''
     PathPlanner is an object that convert the info from Course to a grid based 0,1 grid.
 
@@ -15,104 +18,128 @@ import cv2
     It account for the radius of the object (typically the robot) that is moving on the grid.
 '''
 class PathPlanner:
-    def __init__(self, course: Course, 
-                 robot_radius: float = 5.5,
-                 grid_scale: float = 1.0):
-        self.course = course
-        self.robot_radius = robot_radius
-        self.grid_scale = grid_scale
+    # names: ['free', 'orange', 'white', 'egg', 'cross', 'robot', 'small_goal', 'big_goal', 'wall']
+    OBJECT_NUMS = {
+        'wall': 0,  # Free space is represented by 0
+        'orange': 1,
+        'white': 2,
+        'egg': 3,
+        'cross': 4,
+        'robot': 5,
+        'small_goal': 6,
+        'big_goal': 7,
+        'outside_course': 8,  # This is used for the outside course area
+    }
 
-    def generate_grid(self, obstacle_padding: int = 0):
-        """
-        Generate a grid representation of the course.
-        The grid is a 2D list where each cell is either 0 (free) or 1 (obstacle).
-        The size of the grid is determined by the course dimensions and the grid scale.
+    def __init__(self):
+        pass
 
-        Args:
-            obstacle_padding (int): Extra padding around obstacles to ensure the robot can navigate around them.
+    def _polygon_fill_points(self, pts):
+        # pts: array of shape (N,2), dtype=int
+        x_min, y_min = pts.min(axis=0)
+        x_max, y_max = pts.max(axis=0)
+        # build a list of edges [(x0,y0,x1,y1), …]
+        edges = []
+        N = len(pts)
+        for i in range(N):
+            x0, y0 = pts[i]
+            x1, y1 = pts[(i+1) % N]
+            # ignore horizontal edges or swap to ensure y0 < y1
+            if y0 == y1:
+                continue
+            if y0 > y1:
+                x0, y0, x1, y1 = x1, y1, x0, y0
+            edges.append((x0, y0, x1, y1))
 
-        Returns:
-            list: A 2D list representing the grid, where 
-            0 is free space
-            And 1 - 9 is:
-            ['orange', 'white', 'egg', 'cross', 'small_goal', 'big_goal']
-        """
-        OBJECT_NUMS = {
-            'orange': 1,
-            'white': 2,
-            'egg': 3,
-            'cross': 4,
-            'small_goal': 5,
-            'big_goal': 6
-        }
+        inside = []
+        for y in range(y_min, y_max+1):
+            x_intersects = []
+            for x0, y0, x1, y1 in edges:
+                if y0 <= y < y1:
+                    # compute intersection
+                    t = (y - y0) / (y1 - y0)
+                    xi = x0 + t*(x1 - x0)
+                    x_intersects.append(xi)
+            x_intersects.sort()
+            # fill between pairs
+            for i in range(0, len(x_intersects), 2):
+                x_start = int(np.ceil(x_intersects[i]))
+                x_end   = int(np.floor(x_intersects[i+1]))
+                inside.extend((x, y) for x in range(x_start, x_end+1))
+        return inside
 
-        width = 640
-        height = 480
-        grid = [[0 for _ in range(width)] for _ in range(height)]
+    def generate_grid(self, course: Course):
+        # fill grid with 8's (outside course area)
+        grid = np.full((course.height, course.width), self.OBJECT_NUMS['outside_course'], dtype=np.uint8)
+        
+        floor = course.get_floor() # returns 'walls' which is the object representing the floor area
+        if floor is not None:
+            #grid[obj.y:obj.y + obj.height, obj.x:obj.x + obj.width] = self.OBJECT_NUMS['wall']
+            y1 = (floor.bbox[1]).astype(int)
+            y2 = (floor.bbox[3]).astype(int)
+            x1 = (floor.bbox[0]).astype(int)
+            x2 = (floor.bbox[2]).astype(int)
+            grid[y1:y2, x1:x2] = self.OBJECT_NUMS['wall']
 
-        for obj in self.course.objects:
-                if obj.label == 'wall' or obj.label == 'robot':
-                    continue # Walls and the robot itself are not considered obstacles in this context
+        for obj in course.objects:
+            if obj.label == 'wall' or obj.label == 'green' or obj.label == 'yellow':
+                continue
 
-                x, y = obj.bbox[0] / self.grid_scale, obj.bbox[1] / self.grid_scale
-                radius = (obj.bbox[2] - obj.bbox[0]) / 2 / self.grid_scale + obstacle_padding
-                x_start = max(0, int(x - radius))
-                x_end = min(width, int(x + radius))
-                y_start = max(0, int(y - radius))
-                y_end = min(height, int(y + radius))
+            pts = np.rint(obj.mask).astype(np.int32).reshape(-1, 2)
 
-                for i in range(y_start, y_end):
-                    for j in range(x_start, x_end):
-                        if (i - y) ** 2 + (j - x) ** 2 <= radius ** 2:
-                            grid[i][j] = OBJECT_NUMS.get(obj.label, 0)  # Use the object number or 0 if not found
+            coords_inside = self._polygon_fill_points(pts)
+            for x, y in coords_inside:
+                if 0 <= x < course.width and 0 <= y < course.height:
+                    grid[y, x] = self.OBJECT_NUMS[obj.label]
 
         return grid
     
 class PathPlannerVisualizer:
     OBJECT_COLORS = {
-        "orange":     (255, 165,   0),   # orange
-        "white":      (255, 255, 255),   # white
-        "egg":        (255, 105, 180),   # pinkish
-        "cross":      (128,   0, 128),   # purple
-        "robot":      (  0, 128, 255),   # sky blue
-        "small_goal": (  0, 255, 128),   # mint green
-        "big_goal":   (255,   0, 255),   # magenta
-        "wall":       (128, 128,   0),   # olive
+        1:     (255, 165,   0),   # orange
+        2:      (255, 255, 255),   # white
+        3:        (255, 105, 180),   # pinkish
+        4:      (128,   0, 128),   # purple
+        5:      (  0, 128, 255),   # sky blue
+        6: (  0, 255, 128),   # mint green
+        7:   (255,   0, 255),   # magenta
+        0:       (128, 128,   0),   # olive
+        8: (128, 128, 128)  # gray for outside course area
     }
     
-    def __init__(self, course: Course):
-        self.course = course
+    def __init__(self):
+        pass
 
     def display_grid(self, grid):
         """
-        Draw the grid on a new image with 
+        Display the grid using OpenCV.
         """
-        # new image of size 640x480
-        img = np.zeros((480, 640, 3), dtype=np.uint8)
-        height, width = img.shape[:2]
-        cell_height = height / len(grid)
-        cell_width = width / len(grid[0])
+        width = len(grid[0])
+        height = len(grid)
+        img = np.zeros((height, width, 3), dtype=np.uint8)
 
-        for i in range(len(grid)):
-            for j in range(len(grid[i])):
-                cell_value = grid[i][j]
-                if cell_value == 0:
-                    continue
+        for y in range(height):
+            for x in range(width):
+                obj_num = grid[y, x]
+                if obj_num in self.OBJECT_COLORS:
+                    img[y, x] = self.OBJECT_COLORS[obj_num]
 
-                # Get the color for the object
-                color = self.OBJECT_COLORS.get(self.course.objects[cell_value - 1].label, (0, 0, 0))
-                # Calculate the rectangle coordinates
-                x1 = int(j * cell_width)
-                y1 = int(i * cell_height)
-                x2 = int((j + 1) * cell_width)
-                y2 = int((i + 1) * cell_height)
-                # Draw the rectangle
-                cv2.rectangle(img, (x1, y1), (x2, y2), color, -1)
-        # Resize the image to fit the screen
-        img = cv2.resize(img, (800, 600), interpolation=cv2.INTER_AREA)
-
-        # Show the image
         cv2.imshow("Grid Visualization", img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+def demo_path_planner_visualization():
+    """
+    Demo function to visualize the path planning on a course.
+    """
+    model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
+    course = model.generate_course("AI/images/image_432.jpg")  # Predict on an image
+
+    path_planner = PathPlanner()
+    grid = path_planner.generate_grid(course)
+
+    viz = PathPlannerVisualizer()
+    viz.display_grid(grid)
+
+if __name__ == "__main__":
+    demo_path_planner_visualization()
