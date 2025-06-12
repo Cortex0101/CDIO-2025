@@ -31,10 +31,11 @@ class Course:
     Container for all CourseObject instances detected in a single frame.
     Provides utilities to build from YOLO results and to query objects by label.
     """
-    def __init__(self):
+    def __init__(self, enable_errors: bool = False):
         self.objects = []  # List[CourseObject]
         self.width = 0
         self.height = 0
+        self.enable_errors = enable_errors  # Enable error checking for course completeness
 
     @staticmethod 
     def _compute_direction(point1 : tuple, point2 : tuple) -> float:
@@ -126,21 +127,21 @@ class Course:
     
     def get_robot(self):
         """ Returns robot object if it exists if course is complete, otherwise throws an error. """
-        if not self.is_complete():
+        if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get robot object.")
         
         return self.get_by_label('robot')[0]
     
     def get_cross(self):
         """ Returns the cross object in the course. """
-        if not self.is_complete():
+        if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get cross object.")
         
         return self.get_by_label('cross')[0]
     
     def get_floor(self):
         """ Returns the wall object, which is the floor in the course, only one if course is complete. """
-        if not self.is_complete():
+        if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get floor object.")
        
         return self.get_by_label('wall')[0]
