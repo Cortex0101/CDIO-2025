@@ -9,10 +9,10 @@ def demo_path_planner_visualization():
     model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
     course = model.generate_course("AI/images/image_432.jpg")  # Predict on an image
 
-    path_planner = PathPlanner(course, robot_radius=5.5, grid_scale=1.0)
-    grid = path_planner.generate_grid(obstacle_padding=3)
+    path_planner = PathPlanner()
+    grid = path_planner.generate_grid(course)
 
-    viz = PathPlannerVisualizer(course)
+    viz = PathPlannerVisualizer()
     viz.display_grid(grid)
 
 if __name__ == "__main__":
