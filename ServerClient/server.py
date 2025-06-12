@@ -10,7 +10,7 @@ import queue
 import cv2
 
 import AImodel
-
+from pathplanner import compute_motor_speeds, poins_close_enough
 
 class Server:
     def __init__(self):
@@ -60,12 +60,13 @@ class Server:
              # do nothing for now
             pass
 
-    def send_instruction(self, instruction):
+    def send_instruction(self, instruction, wait_for_response=False):
         try:
             self.conn.sendall(json.dumps(instruction).encode())
-            data = self.conn.recv(1024)
-            response = json.loads(data.decode())
-            return response
+            if wait_for_response:
+                data = self.conn.recv(1024)
+                response = json.loads(data.decode())
+                return response
         except Exception as e:
             print(f"[SERVER] Error sending instruction: {e}")
             return {"status": "error", "msg": str(e)}
@@ -99,6 +100,55 @@ class Server:
         self.ai_model.draw_robot_direction()
 
     def custom_instruction_loop(self):
+        last_clicked_coords = [None]  # Use mutable to modify from callback
+
+        def mouse_callback(event, x, y, flags, param):
+                if event == cv2.EVENT_LBUTTONDOWN:
+                    print(f"[SERVER] Mouse clicked at ({x}, {y})")
+                    last_clicked_coords[0] = (x, y)
+
+        cv2.setMouseCallback("view", mouse_callback)
+
+        while True:
+            self.capture_and_process_frame()
+            img = self.ai_model.current_processed_drawn_frame
+
+            cv2.imshow("view", img)
+
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):  # Press 'q' to quit
+                print("[SERVER] Quitting...")
+                break
+
+            # wait for user to press mouse button on some coord in the image
+            if last_clicked_coords[0] is not None:
+                robot_direction = self.ai_model.determine_robot_direction()
+                robot_pos = self.ai_model.current_course.get_objects_by_name('robot')[0].center
+                # (x, y)
+                robot_speeds = compute_motor_speeds(robot_pos[0], robot_pos[1], robot_direction, last_clicked_coords[0][0], last_clicked_coords[0][1], 40, 40)
+
+                instruction = {
+                    "cmd": "drive",
+                    "left_speed": robot_speeds[0],
+                    "right_speed": robot_speeds[1]
+                }
+
+                print(f"[SERVER] Sending instruction: {instruction}")
+                self.send_instruction(instruction)
+
+                # Check if the robot is close enough to the target point
+                if poins_close_enough(robot_pos, last_clicked_coords[0], threshold=60):
+                    print(f"[SERVER] Robot is close enough to the target point.")
+                    last_clicked_coords[0] = None  # Reset the clicked coordinates
+                    instruction = {
+                        "cmd": "drive",
+                        "left_speed": 0,
+                        "right_speed": 0
+                    }
+                    print(f"[SERVER] Stopping the robot.")
+                    self.send_instruction(instruction)
+
+    def custom_instruction_loop2(self):
         print("[SERVER] Ready to send custom instructions. Type `exit` to quit.")
         while True:
             self.capture_and_process_frame()
