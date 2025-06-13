@@ -46,19 +46,25 @@ class Robot:
     def close_claw(self):
         self.claw_motor.on_to_position(speed=20, position_sp=self.CLAW_CLOSED_POS)
 
-    # 
     def deliver_ball(self, cm_amount=4):
-        self.move_in_cm(cm_amount, cm_amount)
+        self.move_in_cm(cm_amount)
         sleep(0.5)
         self.open_claw()
         sleep(0.5)
-        self.move_in_cm(-cm_amount, -cm_amount)
+        self.move_in_cm(-cm_amount)
         sleep(0.5)
         # maybe jiggle here if the ball is stuck
         #self.perform_jiggle(2, 46)
-        self.move_in_cm(cm_amount, cm_amount)
+        self.move_in_cm(cm_amount)
         sleep(0.5)
-        self.move_in_cm(-cm_amount, -cm_amount)
+        self.move_in_cm(-cm_amount)
+
+    def emergency_stop(self):
+        self.tank_drive.off()
+        self.claw_motor.off()
+        self.left_motor.off()
+        self.right_motor.off()
+        
 
 
 '''
