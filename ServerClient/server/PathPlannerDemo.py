@@ -79,19 +79,14 @@ def demo_astar2(img_path="AI/images/image_432.jpg"):
     """
     global start, end, has_generated_path, img_blob, ROBOT_RADIUS
     model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
+
     course = model.generate_course(img_path)  # Predict on an image
+    course_viz = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_masks=False)
 
     path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=ROBOT_RADIUS))  # Using A* strategy with object radius of 2
-    grid = path_planner.generate_grid(course)
-
-    viz = PathPlannerVisualizer(grid, path_planner=path_planner)
-    viz.draw_grid_objects()
-    img_blob = viz.img.copy()
+    path_planner_viz = PathPlannerVisualizer()
     
     cv2.setMouseCallback("Path Planner Visualization", _mouse_callback)
-
-    print("Click to select start and end points for path planning.")
-    print("Press 'q' to exit.")
 
     cv2.imshow("Path Planner Visualization", img_blob)
 

@@ -307,34 +307,34 @@ class PathPlannerVisualizer:
         8: (128, 128, 128)  # gray for outside course area
     }
     
-    def __init__(self, grid, path_planner=None):
-        self.path_planner = path_planner
-        self.grid = grid
-        self.width = len(grid[0])
-        self.height = len(grid)
-        self.img = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+    def __init__(self):
         self.start = None
         self.end = None
 
-    def draw_grid_objects(self):
+    def draw_grid_objects(self, grid):
         """
         Display the grid using OpenCV.
         """
-        for y in range(self.height):
-            for x in range(self.width):
+        canvas = np.zeros((grid.shape[0], grid.shape[1], 3), dtype=np.uint8)
+        for y in range(len(grid)):
+            for x in range(len(grid[0])):
                 obj_num = self.grid[y, x]
                 if obj_num in self.OBJECT_COLORS:
-                    self.img[y, x] = self.OBJECT_COLORS[obj_num]
+                    canvas[y, x] = self.OBJECT_COLORS[obj_num]
 
-        return self.img
+        return canvas
     
-    def draw_path(self, path):
+    def draw_path(self, img, path):
         """
         Draw the path on the grid.
         
         Args:
             path: list of tuples representing the path to draw
         """
+        canvas = img.copy()
+        width, height = canvas.shape[1], canvas.shape[0]
         for x, y in path:
-            if 0 <= x < self.width and 0 <= y < self.height:
-                self.img[y, x] = (255, 0, 0)
+            if 0 <= x < width and 0 <= y < height:
+                canvas[y, x] = (255, 0, 0)
+
+        return canvas
