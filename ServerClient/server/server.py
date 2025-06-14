@@ -12,8 +12,10 @@ import cv2
 from AImodel import *
 from Course import *
 from PathPlanner import *
-from PID import *
-from utility import *
+from PurePursuit import *
+
+def distance(a, b):
+    return math.hypot(b[0] - a[0], b[1] - a[1])
 
 class Server:
     def __init__(self, fakeEv3Connection=False):
@@ -76,18 +78,11 @@ class Server:
             self.mouse_clicked_coords[0] = (x, y)
 
     def custom_instruction_loop(self):
-        # Increased Kp for more aggressive steering
-        steer_pid = PID(Kp=3.0, Ki=0.0, Kd=0.2)
-        speed_pid = PID(Kp=2, Ki=0.0, Kd=0.0)
-
         current_path = None
         following_path = False
-        path_index = 0
-        last_time = time.time()
         robot = None
         robot_direction = 0
-
-        max_speed = 50  # Maximum wheel speed
+        purse_pursuit_navigator = None
 
         while True:
             ret, current_video_frame = self.cap.read()
@@ -99,11 +94,18 @@ class Server:
             self.course = self.ai_model.generate_course(current_video_frame)
             current_video_frame_with_objs = self.course_visualizer.draw(current_video_frame, self.course)
 
-            key = cv2.waitKey(20) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             
             if key == ord('q'):
                 print("[SERVER] Quitting...")
                 break
+
+            if key == ord('c'):
+                following_path = False
+                current_path = None
+                purse_pursuit_navigator = None
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
 
             # Handle mouse click to generate path
             if self.mouse_clicked_coords[0] is not None:
@@ -122,11 +124,7 @@ class Server:
                 print(f"[SERVER] Path found: {len(current_path)} points.")
                 cv2.imshow("grid_visualization", grid_img)
                 following_path = True  # Start following the path
-                path_index = 0
-                steer_pid.prev_error = 0
-                steer_pid.integral = 0
-                speed_pid.prev_error = 0
-                speed_pid.integral = 0
+                purse_pursuit_navigator = PurePursuitNavigator(current_path, lookahead_distance=20, max_speed=5)
 
             # Draw path if exists
             if current_path is not None:
@@ -144,50 +142,19 @@ class Server:
                         robot_direction = robot.direction
                     else:
                         print("[SERVER] Robot direction is None, use previous value.")
-                    robot_angle_rad = math.radians(robot_direction)
+                    
+                instruction = purse_pursuit_navigator.compute_drive_command(robot_pos, robot_direction)
+                self.send_instruction(instruction)
 
-                    # Get next target point on path
-                    target_point = get_next_path_point(robot_pos, current_path, lookahead=30) # upped from 20 to 30 and draw next point.
-                    #current_video_frame_with_objs = self.path_planner_visualizer.draw_target_point(current_video_frame_with_objs, target_point)
-                    cross_track_error = compute_distance(robot_pos, target_point)
-                    heading_error = compute_angle_error(robot_pos, robot_angle_rad, target_point)
-
-                    now = time.time()
-                    dt = now - last_time
-                    last_time = now
-
-                    # If heading error is large, slow down or turn in place
-                    if abs(heading_error) > math.radians(90):
-                        speed = 2
-                    elif abs(heading_error) > math.radians(45):
-                        speed = 10
-                    else:
-                        speed = max(10, max_speed - speed_pid.update(abs(cross_track_error), dt))
-
-                    steer = steer_pid.update(heading_error, dt)
-
-                    # Clamp steer to avoid excessive turning
-                    steer = max(-max_speed, min(max_speed, steer))
-
-                    print(f"[SERVER] Robot pos: {robot_pos}, Target: {target_point}, Speed: {speed}, Steer: {steer}, Heading error: {math.degrees(heading_error):.2f} degrees")
-
-                    # Send steer command to robot
-                    self.send_instruction({
-                        "cmd": "steer",
-                        "speed": float(speed),
-                        "steer": float(steer)
-                    })
-
-                    # Stop if close to goal
-                    if compute_distance(robot_pos, current_path[-1]) < 15:
-                        print("[SERVER] Reached goal, stopping.")
-                        self.send_instruction({"cmd": "steer", "speed": 0, "steer": 0})
-                        following_path = False
-                        current_path = None
+                if distance(robot_pos, current_path[-1]) < 30:
+                    print("[SERVER] Reached the end of the path.")
+                    following_path = False
+                    current_path = None
+                    purse_pursuit_navigator = None
+                    instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                    self.send_instruction(instruction)
 
             cv2.imshow("view", current_video_frame_with_objs)
-        
-
 
 if __name__ == "__main__":
     server = Server(fakeEv3Connection=False)  # Set to True for fake EV3 connection
