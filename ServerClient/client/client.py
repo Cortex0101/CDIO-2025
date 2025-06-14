@@ -88,6 +88,18 @@ def execute_instruction(instr):
         else:
             print("[CLIENT] Invalid drive command: " + str(instr))
             return False
+    elif cmd == "steer":
+        speed = instr.get("speed")
+        steer = instr.get("steer")
+        if speed is not None and steer is not None:
+            # Convert speed/steer to left/right speeds
+            # steer > 0: turn right, steer < 0: turn left
+            left_speed = speed + steer
+            right_speed = speed - steer
+            robot.move_forward(left_speed, right_speed)
+        else:
+            print("[CLIENT] Invalid steer command: " + str(instr))
+            return False
     elif cmd == "claw":
         action = instr.get("action")
         if action == "open":
@@ -140,8 +152,12 @@ def main():
             else:
                 client.sendall(json.dumps({"status": "error", "msg": "invalid command"}).encode())
 
-    except KeyboardInterrupt:
-        print("[CLIENT] Interrupted.")
+    # if exception occurs, we retry to connect to the server
+    except (socket.error, json.JSONDecodeError) as e:
+        print(f"[CLIENT] Error: {e}")
+        client.sendall(json.dumps({"status": "error", "msg": str(e)}).encode())
+        print("[CLIENT] Connection error. Exiting.")
+
 
     finally:
         client.close()

@@ -117,7 +117,7 @@ class AStarStrategyOptimized:
         dy = abs(a[1] - b[1])
         return (dx + dy) + (np.sqrt(2) - 2) * min(dx, dy)
 
-    def find_path(self, start, end, grid):
+    def find_path(self, start, end, grid, exlude_obstacle_types=[0, 5]): #wall, robot, yellow, green
         '''
         Find path from start to end using A*.
 
@@ -126,7 +126,8 @@ class AStarStrategyOptimized:
         '''
         h, w = grid.shape
         # 1) Pre-inflate obstacles by OBJ_RADIUS
-        obstacles = (grid != 0).astype(np.uint8)
+        #obstacles = (grid != 0).astype(np.uint8)
+        obstacles = np.isin(grid, exlude_obstacle_types, invert=True).astype(np.uint8)
         kernel_size = 2 * self.OBJ_RADIUS + 1
         kernel = np.ones((kernel_size, kernel_size), dtype=np.uint8)
         inflated = cv2.dilate(obstacles, kernel)
@@ -251,18 +252,23 @@ class PathPlanner:
                 inside.extend((x, y) for x in range(x_start, x_end+1))
         return inside
 
-    def generate_grid(self, course: Course):
+    def generate_grid(self, course: Course, makeFloorEntireImage: bool = False):
         # fill grid with 8's (outside course area)
         grid = np.full((course.height, course.width), self.OBJECT_NUMS['outside_course'], dtype=np.uint8)
         
-        floor = course.get_floor() # returns 'walls' which is the object representing the floor area
-        if floor is not None:
-            #grid[obj.y:obj.y + obj.height, obj.x:obj.x + obj.width] = self.OBJECT_NUMS['wall']
-            y1 = (floor.bbox[1]).astype(int)
-            y2 = (floor.bbox[3]).astype(int)
-            x1 = (floor.bbox[0]).astype(int)
-            x2 = (floor.bbox[2]).astype(int)
-            grid[y1:y2, x1:x2] = self.OBJECT_NUMS['wall']
+        # makeFloorEntireImage: for debugging purposes, if True, the floor will be the entire image excpet the outer most 20 pixels
+        if makeFloorEntireImage:
+            # fill the entire grid with walls except the outer most 20 pixels
+            grid[20:course.height-20, 20:course.width-20] = self.OBJECT_NUMS['wall']
+        else:
+            floor = course.get_floor() # returns 'walls' which is the object representing the floor area
+            if floor is not None:
+                #grid[obj.y:obj.y + obj.height, obj.x:obj.x + obj.width] = self.OBJECT_NUMS['wall']
+                y1 = (floor.bbox[1]).astype(int)
+                y2 = (floor.bbox[3]).astype(int)
+                x1 = (floor.bbox[0]).astype(int)
+                x2 = (floor.bbox[2]).astype(int)
+                grid[y1:y2, x1:x2] = self.OBJECT_NUMS['wall']
 
         for obj in course.objects:
             if obj.label == 'wall' or obj.label == 'green' or obj.label == 'yellow':
@@ -277,7 +283,7 @@ class PathPlanner:
 
         return grid
     
-    def generate_path(self, start, end, grid):
+    def find_path(self, start, end, grid):
         """
         Generate a path from start to end using the specified strategy.
         
@@ -318,7 +324,7 @@ class PathPlannerVisualizer:
         canvas = np.zeros((grid.shape[0], grid.shape[1], 3), dtype=np.uint8)
         for y in range(len(grid)):
             for x in range(len(grid[0])):
-                obj_num = self.grid[y, x]
+                obj_num = grid[y, x]
                 if obj_num in self.OBJECT_COLORS:
                     canvas[y, x] = self.OBJECT_COLORS[obj_num]
 
@@ -338,3 +344,6 @@ class PathPlannerVisualizer:
                 canvas[y, x] = (255, 0, 0)
 
         return canvas
+    
+    def draw_target_point(self, img, path_point):
+        cv2.circle(img, path_point, 5, (0, 255, 0), -1)

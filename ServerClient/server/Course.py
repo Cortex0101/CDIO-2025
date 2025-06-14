@@ -130,6 +130,8 @@ class Course:
         if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get robot object.")
         
+        if not self.get_by_label('robot'):
+            return None
         return self.get_by_label('robot')[0]
     
     def get_cross(self):
