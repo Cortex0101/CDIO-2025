@@ -6,6 +6,8 @@ from time import sleep
 import math
 import socket
 import json
+import sys
+import time
 
 class Robot:
     WHEEL_DIAMETER = 5.5 # cm
@@ -127,41 +129,47 @@ def execute_instruction(instr):
     return True
 
 def main():
-    print("[CLIENT] Connecting to camera server...")
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((HOST, PORT))
-    print("[CLIENT] Connected to server.")
+    while True:
+        try:
+            print("[CLIENT] Connecting to camera server...")
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((HOST, PORT))
+            print("[CLIENT] Connected to server.")
 
-    try:
-        while True:
-            data = client.recv(1024)
-            if not data:
-                print("[CLIENT] No data received. Exiting.")
-                break
+            while True:
+                data = client.recv(1024)
+                if not data:
+                    print("[CLIENT] No data received. Exiting connection loop.")
+                    break
 
+                try:
+                    instruction = json.loads(data.decode())
+                    print("[CLIENT] Received instruction: " + str(instruction))
+                except json.JSONDecodeError:
+                    print("[CLIENT] Failed to decode instruction.")
+                    break
+
+                if execute_instruction(instruction):
+                    print("[CLIENT] Instruction executed.")
+                    client.sendall(json.dumps({"status": "done"}).encode())
+                else:
+                    client.sendall(json.dumps({"status": "error", "msg": "invalid command"}).encode())
+
+        except (socket.error, json.JSONDecodeError) as e:
+            print("[CLIENT] Error: " + str(e))
             try:
-                instruction = json.loads(data.decode())
-                print("[CLIENT] Received instruction: " + str(instruction))
-            except json.JSONDecodeError:
-                print("[CLIENT] Failed to decode instruction.")
-                break
+                client.sendall(json.dumps({"status": "error", "msg": str(e)}).encode())
+            except Exception:
+                pass
+            print("[CLIENT] Connection error. Will retry in 3 seconds.")
 
-            if execute_instruction(instruction):
-                print("[CLIENT] Instruction executed.")
-                client.sendall(json.dumps({"status": "done"}).encode())
-            else:
-                client.sendall(json.dumps({"status": "error", "msg": "invalid command"}).encode())
-
-    # if exception occurs, we retry to connect to the server
-    except (socket.error, json.JSONDecodeError) as e:
-        print(f"[CLIENT] Error: {e}")
-        client.sendall(json.dumps({"status": "error", "msg": str(e)}).encode())
-        print("[CLIENT] Connection error. Exiting.")
-
-
-    finally:
-        client.close()
-        print("[CLIENT] Connection closed.")
+        finally:
+            try:
+                client.close()
+            except Exception:
+                pass
+            print("[CLIENT] Connection closed. Retrying in 3 seconds...")
+            time.sleep(3)
 
 if __name__ == '__main__':
     main()

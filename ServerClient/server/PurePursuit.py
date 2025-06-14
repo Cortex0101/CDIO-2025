@@ -38,7 +38,7 @@ class PurePursuitNavigator:
         heading_error = self._normalize_angle(angle_to_target - robot_heading)
 
         # Steering control
-        Kp = 0.8  # steering gain
+        Kp = 0.3  # steering gain
         steering = -Kp * heading_error  # NEGATE if needed for correct direction
 
         # Speed adjustment (slow down on sharp turns)
