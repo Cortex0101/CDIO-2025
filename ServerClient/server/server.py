@@ -56,6 +56,34 @@ class Server:
 
         cv2.destroyAllWindows()
 
+    def accept_connections_loop(self):
+        if self.fakeEv3Connection:
+            print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")
+            self.conn = None
+            self.custom_instruction_loop()
+            return
+
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server.bind((self.host, self.port))
+        self.server.listen(1)
+        print(f"[SERVER] Listening on {self.host}:{self.port}... Waiting for EV3 connection.")
+
+        while True:
+            print("[SERVER] Waiting for a new EV3 connection...")
+            self.conn, addr = self.server.accept()
+            print(f"[SERVER] Connected to EV3 at {addr}")
+            try:
+                self.custom_instruction_loop()
+            except Exception as e:
+                print(f"[SERVER] Connection lost or error: {e}")
+            finally:
+                try:
+                    self.conn.close()
+                except Exception:
+                    pass
+                print("[SERVER] Connection closed.")
+
     def main_loop():
         while True:
              # do nothing for now
