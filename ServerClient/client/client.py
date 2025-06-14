@@ -90,18 +90,6 @@ def execute_instruction(instr):
         else:
             print("[CLIENT] Invalid drive command: " + str(instr))
             return False
-    elif cmd == "steer":
-        speed = instr.get("speed")
-        steer = instr.get("steer")
-        if speed is not None and steer is not None:
-            # Convert speed/steer to left/right speeds
-            # steer > 0: turn right, steer < 0: turn left
-            left_speed = speed + steer
-            right_speed = speed - steer
-            robot.move_forward(left_speed, right_speed)
-        else:
-            print("[CLIENT] Invalid steer command: " + str(instr))
-            return False
     elif cmd == "claw":
         action = instr.get("action")
         if action == "open":
@@ -136,14 +124,16 @@ def main():
             client.connect((HOST, PORT))
             print("[CLIENT] Connected to server.")
 
+            # Use a file-like object for line-based protocol
+            file = client.makefile('r')
             while True:
-                data = client.recv(1024)
-                if not data:
+                line = file.readline()
+                if not line:
                     print("[CLIENT] No data received. Exiting connection loop.")
                     break
 
                 try:
-                    instruction = json.loads(data.decode())
+                    instruction = json.loads(line)
                     print("[CLIENT] Received instruction: " + str(instruction))
                 except json.JSONDecodeError:
                     print("[CLIENT] Failed to decode instruction.")
@@ -151,14 +141,14 @@ def main():
 
                 if execute_instruction(instruction):
                     print("[CLIENT] Instruction executed.")
-                    client.sendall(json.dumps({"status": "done"}).encode())
+                    client.sendall((json.dumps({"status": "done"}) + '\n').encode())
                 else:
-                    client.sendall(json.dumps({"status": "error", "msg": "invalid command"}).encode())
+                    client.sendall((json.dumps({"status": "error", "msg": "invalid command"}) + '\n').encode())
 
         except (socket.error, json.JSONDecodeError) as e:
             print("[CLIENT] Error: " + str(e))
             try:
-                client.sendall(json.dumps({"status": "error", "msg": str(e)}).encode())
+                client.sendall((json.dumps({"status": "error", "msg": str(e)}) + '\n').encode())
             except Exception:
                 pass
             print("[CLIENT] Connection error. Will retry in 3 seconds.")
