@@ -213,6 +213,43 @@ class Course:
         """
         return (bbox1[0] >= bbox2[0] and bbox1[2] <= bbox2[2] and
                 bbox1[1] >= bbox2[1] and bbox1[3] <= bbox2[3])
+    
+    def _distance(self, point1: tuple, point2: tuple) -> float:
+        """
+        Calculate the Euclidean distance between two points.
+
+        Args:
+            point1: (x1, y1) coordinates of the first point
+            point2: (x2, y2) coordinates of the second point
+        Returns:
+            float: Euclidean distance between the two points
+        """
+        return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+    
+    def distance_bboxes(self, bbox1: tuple, bbox2: tuple) -> float:
+        """
+        Calculate the distance between the closest points 
+        """
+        x1a, y1a, x2a, y2a = bbox1
+        x1b, y1b, x2b, y2b = bbox1
+
+        # Horizontal distance
+        if x2a < x1b:
+            dx = x1b - x2a
+        elif x2b < x1a:
+            dx = x1a - x2b
+        else:
+            dx = 0
+
+        # Vertical distance
+        if y2a < y1b:
+            dy = y1b - y2a
+        elif y2b < y1a:
+            dy = y1a - y2b
+        else:
+            dy = 0
+
+        return math.hypot(dx, dy)
 
     #todo make this function evaluate optimal spot on more conditions and assign scores to each
     def get_optimal_ball_parking_spot(self, ball: CourseObject, robot: CourseObject):
@@ -242,16 +279,23 @@ class Course:
             angle_rad = math.radians(angle)
             x = int(ball.center[0] + robot_size * math.cos(angle_rad))
             y = int(ball.center[1] + robot_size * math.sin(angle_rad))
-            parking_spots.append((x, y))
+            parking_spots.append({
+                "coordinates": (x, y),
+                "distance_to_closest_obstacle": float('inf')  # Initialize with a large value
+            })
 
         # Check each parking spot for collisions with other objects
         for spot in parking_spots:
-            x, y = spot
+            x, y = spot.get("coordinates")
             # Create a bounding box around the parking spot
             bbox = (x - robot_size // 2, y - robot_size // 2, x + robot_size // 2, y + robot_size // 2)
 
             # Check if this bbox overlaps with any other object
             for obj in self.objects:
+                # if object is itself, skip it
+                if obj is ball or obj is robot:
+                    continue
+
                 #skip wall and robot label 
                 if obj.label in ['wall', 'robot']:
                     continue
@@ -263,13 +307,19 @@ class Course:
                 # check also that the spot is within the course boundaries
                 # that is it lies withing the bbox of 'wall'
                 course = self.get_floor()
-                if not self._bbox_contained_in(bbox, course.bbox):
-                    break
-                else: 
-                    # If we reach here, the spot is valid
-                    return (x, y)
-                
-                return None  # Spot is outside course boundaries
+                if self._bbox_contained_in(bbox, course.bbox):
+                    #distance_to_obstacle = self._distance((x, y), obj.center)
+                    distance_to_obstacle = self.distance_bboxes(bbox, obj.bbox)
+                    if distance_to_obstacle < spot["distance_to_closest_obstacle"]:
+                        spot["distance_to_closest_obstacle"] = distance_to_obstacle
+
+        # return the spot with the minimum "distance_to_closest_obstacle" 
+        optimal_spot = min(parking_spots, key=lambda s: s["distance_to_closest_obstacle"], default=None)
+        if optimal_spot is None or optimal_spot["distance_to_closest_obstacle"] == float('inf'):
+            return None
+        
+        return optimal_spot["coordinates"]
+              
 
 
     def __iter__(self):
