@@ -162,6 +162,32 @@ class Course:
     
     # TODO: functions for goals? Weird when they might be mixed up, or both small or both large
 
+    def get_nearest_ball(self, point: tuple, color: str = 'white'):
+        """
+        Find the nearest white ball to a given point.
+
+        Args:
+            point: (x, y) coordinates of the point to search from
+        Returns:
+            CourseObject: the nearest white ball object, or None if none found
+        """
+        balls = []
+
+        if color == 'orange':
+            balls = self.get_orange_balls()
+        elif color == 'white':
+            balls = self.get_white_balls()
+        elif color == 'either':
+            balls = self.get_white_balls() + self.get_orange_balls()
+        else:
+            raise ValueError(f"Unknown color: {color}. Use 'white', 'orange', or 'either'.")
+
+        if not balls:
+            return None
+
+        nearest_ball = min(balls, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
+        return nearest_ball
+
     def __iter__(self):
         return iter(self.objects)
 
@@ -187,6 +213,7 @@ class CourseVisualizer:
         "wall":       (128, 128,   0),   # olive
     }
     DEFAULT_COLOR = (255, 0, 0)  # Default to red if not found
+    BALL_HIGHLIGHT_COLOR = (0, 255, 255)  # Cyan for ball highlight
     FONT = cv2.FONT_HERSHEY_TRIPLEX
 
     def __init__(self,
@@ -268,4 +295,20 @@ class CourseVisualizer:
                 cv2.putText(canvas, f"Direction: {obj.direction:.2f}°", (10, 30), self.FONT, 0.5, self.TEXT_COLOR, 1)
 
         return canvas
+    
+    def highlight_ball(self, image: np.ndarray, ball: CourseObject) -> np.ndarray:
+        """
+        Highlight a specific ball in the image by drawing a bounding box and label.
 
+        Args:
+            image: The original image to draw on.
+            ball: The CourseObject representing the ball to highlight.
+        Returns:
+            np.ndarray: The modified image with the highlighted ball.
+        """
+        canvas = image.copy()
+        x1, y1, x2, y2 = map(int, ball.bbox)
+        cv2.rectangle(canvas, (x1, y1), (x2, y2), self.OBJECT_COLORS.get(ball.label, self.BALL_HIGHLIGHT_COLOR), 2)
+        label_text = f"{ball.label} {ball.confidence:.2f}" if self.draw_confidence else ball.label
+        cv2.putText(canvas, label_text, (x1, y1 - 10), self.FONT, 0.5, self.TEXT_COLOR, 1)
+        return canvas
