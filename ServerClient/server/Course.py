@@ -188,6 +188,90 @@ class Course:
         nearest_ball = min(balls, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
         return nearest_ball
 
+    def _bbox_overlap(self, bbox1: tuple, bbox2: tuple) -> bool:
+        """
+        Check if two bounding boxes overlap.
+
+        Args:
+            bbox1: (x1, y1, x2, y2) coordinates of the first bounding box
+            bbox2: (x1, y1, x2, y2) coordinates of the second bounding box
+        Returns:
+            bool: True if the bounding boxes overlap, False otherwise
+        """
+        return not (bbox1[0] >= bbox2[2] or bbox1[2] <= bbox2[0] or
+                    bbox1[1] >= bbox2[3] or bbox1[3] <= bbox2[1])
+    
+    def _bbox_contained_in(self, bbox1: tuple, bbox2: tuple) -> bool:
+        """
+        Check if bbox1 is completely contained within bbox2.
+
+        Args:
+            bbox1: (x1, y1, x2, y2) coordinates of the first bounding box
+            bbox2: (x1, y1, x2, y2) coordinates of the second bounding box
+        Returns:
+            bool: True if bbox1 is completely contained within bbox2, False otherwise
+        """
+        return (bbox1[0] >= bbox2[0] and bbox1[2] <= bbox2[2] and
+                bbox1[1] >= bbox2[1] and bbox1[3] <= bbox2[3])
+
+    #todo make this function evaluate optimal spot on more conditions and assign scores to each
+    def get_optimal_ball_parking_spot(self, ball: CourseObject, robot: CourseObject):
+        """
+        Find the optimal parking spot for a ball based on its position and the robot's position.
+        
+        This functions looks in 360 degrees around the balls position (at a distance of the size of the robots bounding box), and checks if there is a spot, the size
+        of the robots bounding box, that is not occupied by any other object (minimizing the possibility of collisions).
+
+        If several spots are found, it will return the one closest to the robot.
+        If none is found, it will return None and we can look for another ball.
+
+        Args:
+            ball: CourseObject representing the ball to park
+            robot: CourseObject representing the robot
+        Returns:
+            tuple: (x, y) coordinates of the optimal parking spot
+        """
+        robot_width = robot.bbox[2] - robot.bbox[0]
+        robot_height = robot.bbox[3] - robot.bbox[1]
+
+        robot_size = max(robot_width, robot_height)  # Use the larger dimension for parking
+
+        # Generate potential parking spots around the ball
+        parking_spots = []
+        for angle in range(0, 360, 10):  # Check every 10 degrees
+            angle_rad = math.radians(angle)
+            x = int(ball.center[0] + robot_size * math.cos(angle_rad))
+            y = int(ball.center[1] + robot_size * math.sin(angle_rad))
+            parking_spots.append((x, y))
+
+        # Check each parking spot for collisions with other objects
+        for spot in parking_spots:
+            x, y = spot
+            # Create a bounding box around the parking spot
+            bbox = (x - robot_size // 2, y - robot_size // 2, x + robot_size // 2, y + robot_size // 2)
+
+            # Check if this bbox overlaps with any other object
+            for obj in self.objects:
+                #skip wall and robot label 
+                if obj.label in ['wall', 'robot']:
+                    continue
+
+                if self._bbox_overlap(bbox, obj.bbox):
+                    # If it overlaps with any object, skip this spot
+                    break
+                
+                # check also that the spot is within the course boundaries
+                # that is it lies withing the bbox of 'wall'
+                course = self.get_floor()
+                if not self._bbox_contained_in(bbox, course.bbox):
+                    break
+                else: 
+                    # If we reach here, the spot is valid
+                    return (x, y)
+                
+                return None  # Spot is outside course boundaries
+
+
     def __iter__(self):
         return iter(self.objects)
 
@@ -296,7 +380,7 @@ class CourseVisualizer:
 
         return canvas
     
-    def highlight_ball(self, image: np.ndarray, ball: CourseObject) -> np.ndarray:
+    def highlight_ball(self, image: np.ndarray, ball: CourseObject, color: tuple = None) -> np.ndarray:
         """
         Highlight a specific ball in the image by drawing a bounding box and label.
 
@@ -306,9 +390,27 @@ class CourseVisualizer:
         Returns:
             np.ndarray: The modified image with the highlighted ball.
         """
+        if color is None:
+            color = self.BALL_HIGHLIGHT_COLOR
         canvas = image.copy()
         x1, y1, x2, y2 = map(int, ball.bbox)
-        cv2.rectangle(canvas, (x1, y1), (x2, y2), self.OBJECT_COLORS.get(ball.label, self.BALL_HIGHLIGHT_COLOR), 2)
+        cv2.rectangle(canvas, (x1, y1), (x2, y2), color, 2)
         label_text = f"{ball.label} {ball.confidence:.2f}" if self.draw_confidence else ball.label
         cv2.putText(canvas, label_text, (x1, y1 - 10), self.FONT, 0.5, self.TEXT_COLOR, 1)
+        return canvas
+    
+    def highlight_point(self, image: np.ndarray, point: tuple, color: tuple = (0, 255, 0), radius: int = 5) -> np.ndarray:
+        """
+        Highlight a specific point in the image.
+
+        Args:
+            image: The original image to draw on.
+            point: (x, y) coordinates of the point to highlight.
+            color: Color of the highlight circle.
+            radius: Radius of the highlight circle.
+        Returns:
+            np.ndarray: The modified image with the highlighted point.
+        """
+        canvas = image.copy()
+        cv2.circle(canvas, point, radius, color, -1)
         return canvas
