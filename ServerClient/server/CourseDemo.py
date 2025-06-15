@@ -57,5 +57,31 @@ def demo_course_visualize_maks():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def demo_visualize_nearest_ball():
+    """
+    Demo function to visualize the nearest ball in a Course.
+    """
+    model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
+    course = model.generate_course("AI/images/image_138.jpg")  # Predict on an image
+
+    visualizer = CourseVisualizer()
+    img = cv2.imread("AI/images/image_138.jpg")
+    img = visualizer.draw(img, course)
+    robot = course.get_robot()
+    if not robot:
+        print("No robot found in the course.")
+        return
+    
+    # Assuming the robot has a 'center' attribute for its position
+    robot_center = robot.center
+    nearest_ball = course.get_nearest_ball(robot_center)  # Example point
+    
+    if nearest_ball:
+        img = visualizer.highlight_ball(img, nearest_ball)
+
+    cv2.imshow("Nearest Ball Visualization", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 if __name__ == "__main__":
-    demo_course_visualize_maks()
+    demo_visualize_nearest_ball()
