@@ -2,12 +2,14 @@ import math
 import numpy as np
 
 class PurePursuitNavigator:
-    def __init__(self, path, lookahead_distance=40, max_speed=100, true_max_speed=10):
+    def __init__(self, path, lookahead_distance=25, max_speed=120, true_max_speed=90, kp=0.3, max_turn_slowdown=0.7):
         self.path = path  # list of (x, y)
         self.lookahead_distance = lookahead_distance
         self.max_speed = max_speed
         self.true_max_speed = true_max_speed  # NEW: physical max wheel speed
         self.current_index = 0
+        self.kp = kp
+        self.max_turn_slowdown = max_turn_slowdown  # NEW: max slowdown factor for sharp turns
 
     def _distance(self, a, b):
         return math.hypot(b[0] - a[0], b[1] - a[1])
@@ -38,11 +40,10 @@ class PurePursuitNavigator:
         heading_error = self._normalize_angle(angle_to_target - robot_heading)
 
         # Steering control
-        Kp = 0.3  # steering gain
-        steering = -Kp * heading_error  # NEGATE if needed for correct direction
+        steering = -self.kp * heading_error  # NEGATE if needed for correct direction
 
         # Speed adjustment (slow down on sharp turns)
-        forward_speed = self.max_speed * (1 - min(abs(steering) / 100, 0.7))
+        forward_speed = self.max_speed * (1 - min(abs(steering) / 100, self.max_turn_slowdown))
 
         left_speed = int(forward_speed - steering)
         right_speed = int(forward_speed + steering)

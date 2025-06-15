@@ -152,7 +152,12 @@ class Server:
                 print(f"[SERVER] Path found: {len(current_path)} points.")
                 cv2.imshow("grid_visualization", grid_img)
                 following_path = True  # Start following the path
-                purse_pursuit_navigator = PurePursuitNavigator(current_path, lookahead_distance=20, max_speed=75, true_max_speed=10)
+                purse_pursuit_navigator = PurePursuitNavigator(current_path, 
+                                                               lookahead_distance=25, 
+                                                               max_speed=20, 
+                                                               true_max_speed=20, 
+                                                               kp=0.6, 
+                                                               max_turn_slowdown=1)
 
             # Draw path if exists
             if current_path is not None:
