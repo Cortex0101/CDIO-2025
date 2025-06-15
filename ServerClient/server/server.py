@@ -47,7 +47,7 @@ class Server:
         self.ai_model = AIModel("ball_detect/v8/weights/best.pt")
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False)
-        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=40))
+        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=50))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
         # if send_custom_instructions is true, we will be able to simply send instruction by entering
@@ -91,7 +91,7 @@ class Server:
 
     def send_instruction(self, instruction, wait_for_response=False):
         try:
-            self.conn.sendall(json.dumps(instruction).encode())
+            self.conn.sendall((json.dumps(instruction) + '\n').encode())
             if wait_for_response:
                 data = self.conn.recv(1024)
                 response = json.loads(data.decode())
@@ -152,7 +152,7 @@ class Server:
                 print(f"[SERVER] Path found: {len(current_path)} points.")
                 cv2.imshow("grid_visualization", grid_img)
                 following_path = True  # Start following the path
-                purse_pursuit_navigator = PurePursuitNavigator(current_path, lookahead_distance=20, max_speed=5)
+                purse_pursuit_navigator = PurePursuitNavigator(current_path, lookahead_distance=20, max_speed=75, true_max_speed=10)
 
             # Draw path if exists
             if current_path is not None:
