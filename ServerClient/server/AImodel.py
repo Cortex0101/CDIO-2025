@@ -16,5 +16,5 @@ class AIModel:
     def generate_course(self, source):
         if self.model is None:
             raise RuntimeError("YOLO model not loaded.")
-        results = self.model.predict(source=source, verbose=False, conf=self.min_confidence, device='cuda:0')
+        results = self.model.predict(source=source, verbose=False, conf=self.min_confidence, device=0)
         return Course.from_yolo_results(results[0])
