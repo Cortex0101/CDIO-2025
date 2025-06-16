@@ -73,6 +73,8 @@ def demo_visualize_nearest_ball():
         print("No robot found in the course.")
         return
     
+    print("Course boundaries:", course.get_floor().bbox)
+    
     # Assuming the robot has a 'center' attribute for its position
     robot_center = robot.center
     nearest_ball = course.get_nearest_ball(robot_center)  # Example point

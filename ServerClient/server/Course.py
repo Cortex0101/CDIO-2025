@@ -249,7 +249,92 @@ class Course:
         else:
             dy = 0
 
-        return math.hypot(dx, dy)
+        res = math.hypot(dx, dy)
+        if res == 0:
+            return float('inf')  # If the boxes overlap, return infinity
+        return res
+    
+    #abcdefghijklmnopqrstuvwxyzæøå
+    def distance_box_to_edge(self, bbox1: tuple, course_bbox: tuple) -> float:
+        '''
+            Returns the distance from the closest point of bbox1 to the bbox of the course.
+
+            This assumes that bbox1 is contained within the course bbox.
+            Args:
+                bbox1: (x1, y1, x2, y2) coordinates of the first bounding box
+                course_bbox: (x1, y1, x2, y2) coordinates of the course bounding box
+
+            Returns:
+                float: distance from the closest point of bbox1 to the closest edge of the course bounding box
+        '''
+        x1a, y1a, x2a, y2a = bbox1
+        x1b, y1b, x2b, y2b = course_bbox
+
+        # Calculate the distances to the edges of the course bounding box
+        distances = [
+            x1a - x1b,  # Left edge
+            x2b - x2a,  # Right edge
+            y1a - y1b,  # Top edge
+            y2b - y2a   # Bottom edge
+        ]
+
+        # Filter out negative distances (which means bbox1 is outside the course bbox)
+        distances = [d for d in distances if d > 0]
+        if not distances:
+            return float('inf')
+        
+        # Return the minimum distance to the edges of the course bounding box
+        return min(distances)
+
+    def _calc_robot_size(self, robot: CourseObject) -> int:
+        """
+        Calculate the size of the robot based on its bounding box dimensions.
+        
+        Args:
+            robot: CourseObject representing the robot
+        Returns:
+            int: size of the robot (width or height, whichever is larger)
+        """
+        robot_width = robot.bbox[2] - robot.bbox[0]
+        robot_height = robot.bbox[3] - robot.bbox[1]
+        return max(robot_width, robot_height)
+    
+    def _get_parking_spot_candidates(self, ball: CourseObject, robo_size: int, step: int = 2):
+        """
+        Generate potential parking spots around the ball based on the robot's size.
+        
+        This function generates a list of potential parking spots around the ball's position,
+        spaced out by the size of the robot's bounding box. It checks in 360 degrees around the ball.
+        Args:
+            ball: CourseObject representing the ball to park
+            robo_size: int representing the size of the robot's bounding box
+        Returns:
+            list: A list of dictionaries with coordinates and distance to the closest obstacle
+        """
+        parking_spots = []
+        for angle in range(0, 360, step):
+            angle_rad = math.radians(angle)
+            x = int(ball.center[0] + robo_size * math.cos(angle_rad))
+            y = int(ball.center[1] + robo_size * math.sin(angle_rad))
+            parking_spots.append({
+                "coordinates": (x, y),
+                "distance_to_closest_obstacle": float('inf')  # Initialize with a large value
+            })
+        return parking_spots
+    
+    def __bbox_around_point(self, point: tuple, size: int) -> tuple:
+        """
+        Create a bounding box around a point with a given size.
+
+        Args:
+            point: (x, y) coordinates of the point
+            size: int representing the size of the bounding box
+        Returns:
+            tuple: (x1, y1, x2, y2) coordinates of the bounding box
+        """
+        x, y = point
+        half_size = size // 2
+        return (x - half_size, y - half_size, x + half_size, y + half_size)
 
     #todo make this function evaluate optimal spot on more conditions and assign scores to each
     def get_optimal_ball_parking_spot(self, ball: CourseObject, robot: CourseObject):
@@ -268,21 +353,10 @@ class Course:
         Returns:
             tuple: (x, y) coordinates of the optimal parking spot
         """
-        robot_width = robot.bbox[2] - robot.bbox[0]
-        robot_height = robot.bbox[3] - robot.bbox[1]
-
-        robot_size = max(robot_width, robot_height)  # Use the larger dimension for parking
+        robot_size = self._calc_robot_size(robot)
 
         # Generate potential parking spots around the ball
-        parking_spots = []
-        for angle in range(0, 360, 10):  # Check every 10 degrees
-            angle_rad = math.radians(angle)
-            x = int(ball.center[0] + robot_size * math.cos(angle_rad))
-            y = int(ball.center[1] + robot_size * math.sin(angle_rad))
-            parking_spots.append({
-                "coordinates": (x, y),
-                "distance_to_closest_obstacle": float('inf')  # Initialize with a large value
-            })
+        parking_spots =  self._get_parking_spot_candidates(ball, robot_size)
 
         # Check each parking spot for collisions with other objects
         for spot in parking_spots:
@@ -312,6 +386,11 @@ class Course:
                     distance_to_obstacle = self.distance_bboxes(bbox, obj.bbox)
                     if distance_to_obstacle < spot["distance_to_closest_obstacle"]:
                         spot["distance_to_closest_obstacle"] = distance_to_obstacle
+                    distance_to_course = self.distance_box_to_edge(bbox, course.bbox)
+                    if distance_to_course < spot["distance_to_closest_obstacle"]:
+                        spot["distance_to_closest_obstacle"] = distance_to_course
+
+                    
 
         # return the spot with the minimum "distance_to_closest_obstacle" 
         optimal_spot = min(parking_spots, key=lambda s: s["distance_to_closest_obstacle"], default=None)

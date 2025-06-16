@@ -21,7 +21,8 @@ class Server:
     def __init__(self, fakeEv3Connection=False):
         self.host = '0.0.0.0'
         self.port = 12346
-        self.SEND_CUSTOM_INSTRUCTIONS = True
+        self.SEND_CUSTOM_INSTRUCTIONS = False
+        self.CONTROL_CUSTOM = True
 
         if fakeEv3Connection:
             print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")
@@ -52,7 +53,10 @@ class Server:
 
         # if send_custom_instructions is true, we will be able to simply send instruction by entering
         # them in the console, otherwise we will have to use we will run the main_loop() method
-        self.custom_instruction_loop()
+        if self.SEND_CUSTOM_INSTRUCTIONS:
+            self.custom_instruction_loop()
+        elif self.CONTROL_CUSTOM:
+            self.control_custom_loop()
 
         cv2.destroyAllWindows()
 
@@ -88,6 +92,41 @@ class Server:
         while True:
              # do nothing for now
             pass
+
+    def control_custom_loop(self):
+        last_instruction =  {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+
+        while True:
+            key = cv2.waitKey(1) & 0xFF
+            
+            if key == ord('q'):
+                print("[SERVER] Quitting...")
+                break
+
+            if key == ord('e'):
+                last_instruction = {"cmd": "drive", "left_speed": 24, "right_speed": 24}
+                print(last_instruction)
+                self.send_instruction(last_instruction)
+            elif key == ord('s'):
+                last_instruction = {"cmd": "drive", "left_speed": -24, "right_speed": 24}
+                print(last_instruction)
+                self.send_instruction(last_instruction)
+            elif key == ord('d'):
+                last_instruction = {"cmd": "drive", "left_speed": -24, "right_speed": -24}
+                print(last_instruction)
+                self.send_instruction(last_instruction)
+            elif key == ord('f'):
+                last_instruction = {"cmd": "drive", "left_speed": 24, "right_speed": -24}
+                print(last_instruction)
+                self.send_instruction(last_instruction)
+            elif key == ord('r'):
+                last_instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                print(last_instruction)
+                self.send_instruction(last_instruction)
+
+
+            # show empty frame
+            cv2.imshow("view",  np.zeros((480, 640, 3), dtype=np.uint8))
 
     def send_instruction(self, instruction, wait_for_response=False):
         try:
