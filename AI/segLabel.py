@@ -8,13 +8,13 @@ FOLDER = "AI/images"
 CLASSES = [
     "orange_ball", "white_ball", "egg", "cross",
     "robot", "small_goal", "large_goal", "wall",
-    "yellow", 'green'
+    "blue", 'green'
 ]
 
 CLASS_COLORS = [
     (255, 128, 0), (255, 255, 255), (255, 255, 0), (255, 0, 255),
     (0, 255, 255), (0, 255, 0), (0, 128, 255), (128, 128, 128),
-    (0, 0, 255), (0, 128, 0)
+    (255,0,0), (0, 128, 0)
 ]
 
 images = sorted(glob(os.path.join(FOLDER, "*.jpg")))
