@@ -46,6 +46,8 @@ class AStarStrategy:
         grid: 2D numpy array where 0=free, >0=obstacle
         '''
         # Priority queue: elements are (f_score, count, node)
+        start = (int(start[0]), int(start[1]))
+        end = (int(end[0]), int(end[1]))
         open_set = []
         heapq.heappush(open_set, (0 + self._heuristic(start, end), 0, start))
         came_from = {}
@@ -124,6 +126,8 @@ class AStarStrategyOptimized:
         start, end: (x, y)
         grid: 2D numpy array where 0=free, >0=obstacle
         '''
+        start = (int(start[0]), int(start[1]))
+        end = (int(end[0]), int(end[1]))
         h, w = grid.shape
         # 1) Pre-inflate obstacles by OBJ_RADIUS
         #obstacles = (grid != 0).astype(np.uint8)

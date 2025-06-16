@@ -21,8 +21,8 @@ class Server:
     def __init__(self, fakeEv3Connection=False):
         self.host = '0.0.0.0'
         self.port = 12346
-        self.SEND_CUSTOM_INSTRUCTIONS = False
-        self.CONTROL_CUSTOM = True
+        self.SEND_CUSTOM_INSTRUCTIONS = True
+        self.CONTROL_CUSTOM = False
 
         if fakeEv3Connection:
             print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")
