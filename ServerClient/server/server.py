@@ -111,6 +111,7 @@ class Server:
         robot = None
         robot_direction = 0
         purse_pursuit_navigator = None
+    
 
         while True:
             ret, current_video_frame = self.cap.read()
@@ -162,9 +163,9 @@ class Server:
                 '''
                 purse_pursuit_navigator = PurePursuitNavigator(current_path, 
                                                                lookahead_distance=25, 
-                                                               max_speed=10, 
-                                                               true_max_speed=10, 
-                                                               kp=0.36, 
+                                                               max_speed=25, 
+                                                               true_max_speed=25, 
+                                                               kp=0.75, 
                                                                max_turn_slowdown=1)
 
             # Draw path if exists
