@@ -75,7 +75,7 @@ Wireless LAN adapter Wi-Fi:
    Default Gateway . . . . . . . . . : 192.168.0.1
 
 '''
-HOST = '192.168.208.72'
+HOST = '192.168.208.245'
 PORT = 12346
 
 robot = Robot()
