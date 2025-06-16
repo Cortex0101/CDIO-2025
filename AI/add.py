@@ -16,7 +16,7 @@ def capture_image():
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)   
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
 
-    image_count = 585
+    image_count = 684
 
 
     while True:
