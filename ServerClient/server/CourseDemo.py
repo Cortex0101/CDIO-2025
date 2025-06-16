@@ -68,31 +68,12 @@ def demo_visualize_nearest_ball():
     visualizer = CourseVisualizer(draw_walls=False, draw_boxes=True)
     img = cv2.imread("AI/images/image_138.jpg")
     img = visualizer.draw(img, course)
-    robot = course.get_robot()
-    if not robot:
-        print("No robot found in the course.")
-        return
-    
-    print("Course boundaries:", course.get_floor().bbox)
-    
-    # Assuming the robot has a 'center' attribute for its position
-    robot_center = robot.center
-    nearest_ball = course.get_nearest_ball(robot_center)  # Example point
-    
-    if nearest_ball:
-        img = visualizer.highlight_ball(img, nearest_ball)
 
     all_white_balls = course.get_white_balls()
-    ball = all_white_balls[3] if all_white_balls else None
-    img = visualizer.highlight_ball(img, ball)
-    #optimal_spot = course.get_optimal_ball_parking_spot(ball, robot)
-    #if optimal_spot:
-    #    print(f"Optimal parking spot for ball {optimal_spot}")
-    #    img = visualizer.highlight_point(img, optimal_spot)
     for ball in all_white_balls:
         random_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         img = visualizer.highlight_ball(img, ball, color=random_color)
-        optimal_spot = course.get_optimal_ball_parking_spot(ball, robot)
+        optimal_spot = course.get_optimal_ball_parking_spot(ball)
         if optimal_spot:
             print(f"Optimal parking spot for ball {random_color[0]}, {random_color[1]}, {random_color[2]}: {optimal_spot}")
             img = visualizer.highlight_point(img, optimal_spot, random_color)

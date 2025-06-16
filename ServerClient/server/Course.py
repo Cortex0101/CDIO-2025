@@ -175,11 +175,45 @@ class Course:
 
         Args:
             ball: CourseObject representing the ball to park
-            robot: CourseObject representing the robot
         Returns:
             tuple: (x, y) coordinates of the optimal parking spot
         """
-        pass # TODO: Implement this function to work
+        robot = self.get_robot()
+        if not robot:
+            raise ValueError("No robot found in the course. Cannot find optimal parking spot.")
+        
+        robot_size = (robot.bbox[2] - robot.bbox[0], robot.bbox[3] - robot.bbox[1])  # (width, height)
+        ball_center = ball.center
+
+        optimal_spot = None
+        min_distance = float('inf')
+        for angle in range(0, 360, 10):  # Check every 10 degrees
+            # Calculate the new position based on the angle and distance
+            distance = max(robot_size)  # Use the larger dimension of the robot as distance
+            x = ball_center[0] + distance * math.cos(math.radians(angle))
+            y = ball_center[1] + distance * math.sin(math.radians(angle))
+            new_spot = (x, y)
+
+            # Check if the new spot is within the course boundaries
+            if (0 <= x <= self.width and 0 <= y <= self.height):
+                # Check if the new spot is not occupied by any other object
+                is_occupied = False
+                for obj in self.objects:
+                    if obj.label != 'robot' and obj.label != 'wall':
+                        obj_bbox = obj.bbox
+                        if (obj_bbox[0] <= x <= obj_bbox[2] and
+                            obj_bbox[1] <= y <= obj_bbox[3]):
+                            is_occupied = True
+                            break
+
+                if not is_occupied:
+                    # Calculate distance to the robot
+                    distance_to_robot = np.linalg.norm(np.array(new_spot) - np.array(robot.center))
+                    if distance_to_robot < min_distance:
+                        min_distance = distance_to_robot
+                        optimal_spot = new_spot
+
+        return (float(optimal_spot[0]), float(optimal_spot[1])) if optimal_spot else None
 
     def get_nearest_ball(self, point: tuple, color: str = 'white'):
         """
@@ -347,5 +381,5 @@ class CourseVisualizer:
             np.ndarray: The modified image with the highlighted point.
         """
         canvas = image.copy()
-        cv2.circle(canvas, point, radius, color, -1)
+        cv2.circle(canvas, (int(point[0]), int(point[1])), radius, color, -1)
         return canvas
