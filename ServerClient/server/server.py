@@ -140,7 +140,7 @@ class Server:
                 x, y = self.mouse_clicked_coords[0]
                 self.mouse_clicked_coords[0] = None
                 
-                grid = self.path_planner.generate_grid(self.course, True)
+                grid = self.path_planner.generate_grid(self.course, True) # change to True if you want to drw floor
                 grid_img = self.path_planner_visualizer.draw_grid_objects(grid)
 
                 start = self.course.get_robot().center
@@ -152,11 +152,19 @@ class Server:
                 print(f"[SERVER] Path found: {len(current_path)} points.")
                 cv2.imshow("grid_visualization", grid_img)
                 following_path = True  # Start following the path
+                '''
                 purse_pursuit_navigator = PurePursuitNavigator(current_path, 
                                                                lookahead_distance=25, 
                                                                max_speed=20, 
                                                                true_max_speed=20, 
                                                                kp=0.6, 
+                                                               max_turn_slowdown=1)
+                '''
+                purse_pursuit_navigator = PurePursuitNavigator(current_path, 
+                                                               lookahead_distance=25, 
+                                                               max_speed=10, 
+                                                               true_max_speed=10, 
+                                                               kp=0.36, 
                                                                max_turn_slowdown=1)
 
             # Draw path if exists
