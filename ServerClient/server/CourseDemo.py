@@ -65,7 +65,7 @@ def demo_visualize_nearest_ball():
     model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
     course = model.generate_course("AI/images/image_138.jpg")  # Predict on an image
 
-    visualizer = CourseVisualizer(draw_walls=True, draw_boxes=False)
+    visualizer = CourseVisualizer(draw_walls=False, draw_boxes=True)
     img = cv2.imread("AI/images/image_138.jpg")
     img = visualizer.draw(img, course)
     robot = course.get_robot()
@@ -83,6 +83,12 @@ def demo_visualize_nearest_ball():
         img = visualizer.highlight_ball(img, nearest_ball)
 
     all_white_balls = course.get_white_balls()
+    ball = all_white_balls[3] if all_white_balls else None
+    img = visualizer.highlight_ball(img, ball)
+    #optimal_spot = course.get_optimal_ball_parking_spot(ball, robot)
+    #if optimal_spot:
+    #    print(f"Optimal parking spot for ball {optimal_spot}")
+    #    img = visualizer.highlight_point(img, optimal_spot)
     for ball in all_white_balls:
         random_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         img = visualizer.highlight_ball(img, ball, color=random_color)
