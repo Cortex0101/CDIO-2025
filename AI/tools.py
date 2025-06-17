@@ -31,12 +31,10 @@ def create_txt_file_for_each_image(folder):
             
 dataset_folder = 'AI/datasets'  # Replace with your dataset folder path
 
-def create_new_dataset_structure(name):
+def create_new_dataset_structure(name, dir_path="AI/datasets"):
     """
     Creates a new dataset structure with 'train' and 'val' folders.
     """
-    dir_path = "AI/datasets"
-
     # check if folder has folder with name
     if not os.path.exists(os.path.join(dir_path, name)):
         os.makedirs(os.path.join(dir_path, name))
@@ -240,5 +238,71 @@ def show_model_predictions_in_folder(folder_path, model_path):
 
     cv2.destroyAllWindows()
 
+image_folders = [
+    'AI/images',
+    'AI/images2',
+    'AI/images3',
+    'AI/images4'
+]
+
+def replace_backslashes_with_slashes(path):
+    """
+    Replaces backslashes with slashes in the given path.
+    This is useful for ensuring compatibility across different operating systems.
+    """
+    return path.replace('\\', '/')
+
+def print_image_labelled_info():
+    """
+        Goes thorough each image in each folder, finds its corresponding 
+        .txt file (if it exists) and checks if its contents are empty. 
+        If so, an image is counted as unlabelled.
+        Otherwise, it is counted as labelled.
+    """
+    # string with unlabelled images
+    unlabelled_images = []
+    # string with labelled images
+    labelled_images = []
+
+    labelled_images_relative_paths = []
+    labelled_txt_relative_paths = []
+
+    for folder in image_folders:
+        print(f"Checking folder: {folder}")
+        for filename in os.listdir(folder):
+            if filename.endswith(('.jpg', '.jpeg', '.png')):
+                txt_filename = os.path.splitext(filename)[0] + '.txt'
+                txt_file_path = os.path.join(folder, txt_filename)
+
+                if os.path.exists(txt_file_path):
+                    with open(txt_file_path, 'r') as file:
+                        content = file.read().strip()
+                        if content:
+                            labelled_images.append(filename)
+                            labelled_images_relative_paths.append(os.path.join(folder, filename))
+                            labelled_txt_relative_paths.append(txt_file_path)
+                        else:
+                            unlabelled_images.append(filename)
+                else:
+                    unlabelled_images.append(filename)
+
+    print(f"Total images: {len(unlabelled_images) + len(labelled_images)}")
+    print(f"Labelled images: {len(labelled_images)}")
+    print(f"Unlabelled images: {len(unlabelled_images)}")
+
+    # return list with paths to all labelled images
+    return (labelled_images_relative_paths, labelled_txt_relative_paths, unlabelled_images)
+
 if __name__ == "__main__":
-    visualize_model_on_image('AI/images/image_375.jpg', 'ball_detect/v8/weights/best.pt')
+    #visualize_model_on_image('AI/images/image_375.jpg', 'ball_detect/v8/weights/best.pt')
+    res = print_image_labelled_info()
+    
+    # replace backslashes with slashes in paths
+    res = (list(map(replace_backslashes_with_slashes, res[0])),
+           list(map(replace_backslashes_with_slashes, res[1])),
+              list(map(replace_backslashes_with_slashes, res[2])))
+
+    # print names of all unlabelled images
+    print("Unlabelled images:")
+    for img in res[2]:
+        print(img)
