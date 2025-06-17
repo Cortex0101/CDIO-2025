@@ -124,7 +124,7 @@ class Server:
 
             # Main algorithm
             if self.robot_state == RobotState.IDLE:
-                # find closest ball
+                # Work from balls closest to small goal?
                 pass
             
 
