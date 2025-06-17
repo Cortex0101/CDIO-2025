@@ -285,7 +285,35 @@ class Course:
                 return True
             
         return False
-                
+
+    def is_ball_near_cross(self, ball: CourseObject, threshold: int = 15):
+        """
+        Check if a ball is near the cross object.
+
+        Args:
+            ball: CourseObject representing the ball to check
+            threshold: distance threshold to consider as "near"
+        Returns:
+            bool: True if the ball is near the cross, False otherwise
+        """
+        cross = self.get_cross()
+        if not cross:
+            return False
+
+        return self._bbox_within_threshold_bbox(ball.bbox, cross.bbox, threshold)
+
+    def is_obj_overlapping_obj(self, obj1: CourseObject, obj2: CourseObject, threshold: int = 0) -> bool:
+        """
+        Check if two objects are overlapping or within a certain threshold distance from each other.
+
+        Args:
+            obj1: CourseObject representing the first object
+            obj2: CourseObject representing the second object
+            threshold: distance threshold to consider as "near"
+        Returns:
+            bool: True if the objects are overlapping or within threshold distance, False otherwise
+        """
+        return self._bbox_within_threshold_bbox(obj1.bbox, obj2.bbox, threshold)
 
     def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int) -> bool:
         """
