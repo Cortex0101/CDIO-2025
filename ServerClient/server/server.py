@@ -6,6 +6,7 @@ import sys
 import select
 import threading
 import queue
+from enum import Enum
 
 import cv2
 
@@ -16,6 +17,10 @@ from PurePursuit import *
 
 def distance(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
+
+class RobotState(Enum):
+    IDLE = 0
+    FOLLOWING_PATH = 1
 
 class Server:
     def __init__(self, fakeEv3Connection=False):
@@ -50,6 +55,17 @@ class Server:
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=50))
         self.path_planner_visualizer = PathPlannerVisualizer()
+
+        # extra 
+        self.pure_pursuit_navigator = PurePursuitNavigator(None, 
+                                                lookahead_distance=25, 
+                                                max_speed=25, 
+                                                true_max_speed=25, 
+                                                kp=0.75, 
+                                                max_turn_slowdown=1)
+        self.robot_state = RobotState.IDLE
+        self.robot = None           # For storing previous robot if needed
+        self.robot_direction = 0    # For storing previous robot direction if needed
 
         # if send_custom_instructions is true, we will be able to simply send instruction by entering
         # them in the console, otherwise we will have to use we will run the main_loop() method
@@ -88,10 +104,29 @@ class Server:
                     pass
                 print("[SERVER] Connection closed.")
 
-    def main_loop():
+    def main_loop(self):
         while True:
-             # do nothing for now
-            pass
+            # Read the current video frame
+            ret, current_video_frame = self.cap.read()
+            self.course = self.ai_model.generate_course(current_video_frame)
+            processed_img = self.course_visualizer.draw(current_video_frame, self.course)
+
+            # keyboard input handling
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                print("[SERVER] Quitting...")
+                break
+            elif key == ord('c'):
+                self.purse_pursuit_navigator.set_path(None)
+                self.robot_state = RobotState.IDLE
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
+
+            # Main algorithm
+            if self.robot_state == RobotState.IDLE:
+                # find closest ball
+                pass
+            
 
     def control_custom_loop(self):
         last_instruction =  {"cmd": "drive", "left_speed": 0, "right_speed": 0}
