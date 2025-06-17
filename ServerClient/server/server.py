@@ -18,10 +18,13 @@ from PurePursuit import *
 def distance(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
 
+def angle_to(src, dst):
+    return math.degrees(math.atan2(dst[1] - src[1], dst[0] - src[0]))
+
 class RobotState(Enum):
     IDLE = 0
-    FOLLOWING_PATH = 1
-    TURNING_TO_OBJECT = 2
+    FOLLOW_PATH = 1
+    TURN_TO_OBJECT = 2
 
 class Server:
     def __init__(self, fakeEv3Connection=False):
@@ -127,7 +130,7 @@ class Server:
             if self.robot_state == RobotState.IDLE:
                 # Work from balls closest to small goal?
                 pass
-            elif self.robot_state == RobotState.FOLLOWING_PATH:
+            elif self.robot_state == RobotState.FOLLOW_PATH:
                 pass
             
 
@@ -183,6 +186,100 @@ class Server:
             self.mouse_clicked_coords[0] = (x, y)
 
     def custom_instruction_loop(self):
+        current_state = RobotState.IDLE
+        purse_pursuit_navigator = PurePursuitNavigator(None, 
+                                                        lookahead_distance=25, 
+                                                        max_speed=25, 
+                                                        true_max_speed=25, 
+                                                        kp=0.75, 
+                                                        max_turn_slowdown=1)
+        robot = None
+        robot_direction = 0
+        angle_to_target = 0 # used when in RobotState.TURN_TO_OBJECT
+
+        while True:
+            ret, current_video_frame = self.cap.read()
+
+            if not ret:
+                print("[SERVER] Error: Could not read frame from camera.")
+                continue
+
+            self.course = self.ai_model.generate_course(current_video_frame)
+            current_video_frame_with_objs = self.course_visualizer.draw(current_video_frame, self.course)
+
+            # robot and direction
+            if self.course.get_robot() is None:
+                print("[SERVER] No robot detected in course, using previous position.")
+            else:
+                robot = self.course.get_robot()
+                if robot.direction is None:
+                    print("[SERVER] Robot direction is None, using previous value.")
+                else:
+                    robot_direction = robot.direction
+
+            key = cv2.waitKey(1) & 0xFF
+            
+            if key == ord('q'):
+                print("[SERVER] Quitting...")
+                break
+            elif key == ord('c'):
+                current_state = RobotState.IDLE
+                purse_pursuit_navigator.set_path(None)
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
+            # if key is number 1
+            elif key == ord('1'):
+                current_state = RobotState.FOLLOW_PATH
+                purse_pursuit_navigator.set_path(None)
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
+            elif key == ord('2'):
+                current_state = RobotState.TURN_TO_OBJECT
+                purse_pursuit_navigator.set_path(None)
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
+
+            # Handle mouse click to generate path
+            if self.mouse_clicked_coords[0] is not None:
+                x, y = self.mouse_clicked_coords[0]
+                self.mouse_clicked_coords[0] = None
+                
+                if current_state == RobotState.FOLLOW_PATH:
+                    grid = self.path_planner.generate_grid(self.course, True) # change to True if you want to drw floor
+                    grid_img = self.path_planner_visualizer.draw_grid_objects(grid)
+                    start = robot.center
+                    start = (int(start[0]), int(start[1]))
+                    end = (int(x), int(y))
+                    print(f"[SERVER] Generating path from {start} to {end}...")
+                    current_path = self.path_planner.find_path(start, end, grid)
+                    print(f"[SERVER] Path found: {len(current_path)} points.")
+                    cv2.imshow("grid_visualization", grid_img)
+                elif current_state == RobotState.TURN_TO_OBJECT:
+                    closest_obj = self.course.get_nearest_object((x, y))
+                    if closest_obj is not None:
+                        dst_point = closest_obj.center
+                        src_point = robot.center
+                        print(f"[SERVER] Turning to object at {dst_point} from {src_point}...")
+                        angle_to_target = angle_to(src_point, dst_point)
+
+            # If currently following a path
+            if purse_pursuit_navigator.path is not None and current_state == RobotState.FOLLOW_PATH:
+                current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)       
+                instruction = purse_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
+                self.send_instruction(instruction)
+                if distance(robot.center, current_path[-1]) < 30:
+                    print("[SERVER] Reached the end of the path.")
+                    purse_pursuit_navigator.set_path(None)
+                    instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                    self.send_instruction(instruction)
+
+            # draw current state string in top left of the frame
+            cv2.putText(current_video_frame_with_objs, f"State: {current_state.name}", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+            
+            cv2.imshow("view", current_video_frame_with_objs)
+
+    def custom_instruction_loop_old(self):
         current_path = None
         following_path = False
         robot = None

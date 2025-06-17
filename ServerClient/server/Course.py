@@ -266,6 +266,27 @@ class Course:
         nearest_goal = min(goals, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
         return nearest_goal
 
+    def get_nearest_object(self, point: tuple):
+        """
+        Find the nearest object to a given point, that is not robot, wall, or cross.
+
+        Args:
+            point: (x, y) coordinates of the point to search from
+        Returns:
+            CourseObject: the nearest object, or None if no objects found
+        """
+        if not self.objects:
+            return None
+        
+        # Filter out robot, wall, and cross objects
+        filtered_objects = [obj for obj in self.objects if obj.label not in ['robot', 'wall', 'cross']]
+
+        if not filtered_objects:
+            return None
+        
+        nearest_object = min(filtered_objects, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
+        return nearest_object
+
     def is_ball_near_wall(self, ball: CourseObject, threshold: int = 25):
         """
         Check if a ball is near the edge of the floor. 
