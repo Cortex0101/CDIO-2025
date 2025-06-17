@@ -3,7 +3,7 @@ import os
 import numpy as np
 from glob import glob
 
-FOLDER = "AI/images" # change this to "AI/images1" or "AI/images2" etc depending on where your range is
+FOLDER = "AI/images2" # change this to "AI/images1" or "AI/images2" etc depending on where your range is
 
 CLASSES = [
     "orange_ball", "white_ball", "egg", "cross",
