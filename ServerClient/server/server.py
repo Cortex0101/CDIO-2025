@@ -21,6 +21,7 @@ def distance(a, b):
 class RobotState(Enum):
     IDLE = 0
     FOLLOWING_PATH = 1
+    TURNING_TO_OBJECT = 2
 
 class Server:
     def __init__(self, fakeEv3Connection=False):
@@ -126,6 +127,8 @@ class Server:
             if self.robot_state == RobotState.IDLE:
                 # Work from balls closest to small goal?
                 pass
+            elif self.robot_state == RobotState.FOLLOWING_PATH:
+                pass
             
 
     def control_custom_loop(self):
@@ -185,7 +188,6 @@ class Server:
         robot = None
         robot_direction = 0
         purse_pursuit_navigator = None
-    
 
         while True:
             ret, current_video_frame = self.cap.read()

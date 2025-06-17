@@ -108,6 +108,11 @@ def demo_visualize_balls_near_corners():
             color = (75, 120, 25)
             print(f"Ball near cross: {ball}")
             img = visualizer.highlight_ball(img, ball, color=color)
+
+    nearest_goal = course.get_nearest_goal(course.get_robot().center)
+    if nearest_goal:
+        print(f"Nearest goal: {nearest_goal}")
+        visualizer.highlight_point(img, nearest_goal.center, (0, 255, 0))  # Highlight nearest goal in green
     
     cv2.imshow("Balls Near Corners Visualization", img)
     cv2.waitKey(0)

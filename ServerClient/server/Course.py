@@ -2,6 +2,16 @@ import math
 import numpy as np
 import cv2
 
+'''
+100 point pr bold der forlader banen gennem mål B
+150 point pr. bold der forlader banen gennem mål A
+200 points for at aflevere den orange bold først
+3 point pr. resterende sekund når boldene er afleveret. 
+-50 point hvis robotten berører banen/forhindringerne.
+-100 hvis robotten flytter forhindringen/banen over 1 cm.
+-300 for at flytte ægget mere end 1 cm.
+'''
+
 class CourseObject:
     """
     Represents a detected object on the course, including its mask, bounding box,
@@ -162,7 +172,6 @@ class Course:
     
     # TODO: functions for goals? Weird when they might be mixed up, or both small or both large
 
-        #todo make this function evaluate optimal spot on more conditions and assign scores to each
     def get_optimal_ball_parking_spot(self, ball: CourseObject):
         """
         Find the optimal parking spot for a ball based on its position and the robot's position.
@@ -240,6 +249,22 @@ class Course:
 
         nearest_ball = min(balls, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
         return nearest_ball
+
+    def get_nearest_goal(self, point: tuple):
+        """
+        Find the nearest goal to a given point.
+
+        Args:
+            point: (x, y) coordinates of the point to search from
+        Returns:
+            CourseObject: the nearest goal object, or None if none found
+        """
+        goals = self.get_by_label('small_goal') + self.get_by_label('big_goal')
+        if not goals:
+            return None
+
+        nearest_goal = min(goals, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
+        return nearest_goal
 
     def is_ball_near_wall(self, ball: CourseObject, threshold: int = 25):
         """
@@ -345,7 +370,6 @@ class Course:
         x, y = point
         return (x1 - threshold <= x <= x2 + threshold and
                 y1 - threshold <= y <= y2 + threshold)
-
 
     def __iter__(self):
         return iter(self.objects)
