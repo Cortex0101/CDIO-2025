@@ -241,6 +241,84 @@ class Course:
         nearest_ball = min(balls, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
         return nearest_ball
 
+    def is_ball_near_wall(self, ball: CourseObject, threshold: int = 25):
+        """
+        Check if a ball is near the edge of the floor. 
+        That is, a ball is considered near the wall if it is bbox lies within a certain threshold distance
+        from the wall's bounding box.
+
+        Args:
+            ball: CourseObject representing the ball to check
+        Returns:
+            bool: True if the ball is near the wall, False otherwise
+        """
+        wall = self.get_floor()
+        if not wall:
+            return False
+
+        return self._bbox_within_threshold_bbox(ball.bbox, wall.bbox, threshold)
+
+    def is_ball_near_corner(self, ball: CourseObject, threshold: int = 50):
+        """
+        Check if a ball is near the corner of the floor.
+
+        Args:
+            ball: CourseObject representing the ball to check
+        Returns:
+            bool: True if the ball is near the corner, False otherwise
+        """
+        wall = self.get_floor()
+        if not wall:
+            return False
+
+        # Define the corners of the wall
+        corners = [
+            (wall.bbox[0], wall.bbox[1]),  # Top-left
+            (wall.bbox[2], wall.bbox[1]),  # Top-right
+            (wall.bbox[0], wall.bbox[3]),  # Bottom-left
+            (wall.bbox[2], wall.bbox[3])   # Bottom-right
+        ]
+
+        # Check if the ball's bounding box is within threshold distance from any two corners
+        for corner in corners:
+            if self._bbox_within_threshold_point(ball.bbox, corner, threshold):
+                return True
+            
+        return False
+                
+
+    def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int) -> bool:
+        """
+        Check if the bounding box bbox1 is within a certain threshold distance from bbox2.
+
+        Args:
+            bbox1: (x1, y1, x2, y2) bounding box coordinates of the first object
+            bbox2: (x1, y1, x2, y2) bounding box coordinates of the second object
+            threshold: distance threshold to consider as "near"
+        Returns:
+            bool: True if some part of bbox1 is within threshold distance from bbox2, False otherwise
+        """
+        return (abs(bbox1[0] - bbox2[0]) <= threshold or
+                abs(bbox1[1] - bbox2[1]) <= threshold or
+                abs(bbox1[2] - bbox2[2]) <= threshold or
+                abs(bbox1[3] - bbox2[3]) <= threshold)
+    
+    def _bbox_within_threshold_point(self, bbox: tuple, point: tuple, threshold: int) -> bool:
+        """
+        Check if the bounding box is within a certain threshold distance from a point.
+        Args:
+            bbox: (x1, y1, x2, y2) bounding box coordinates of the object
+            point: (x, y) coordinates of the point to check against
+            threshold: distance threshold to consider as "near"
+        Returns:
+            bool: True if the bounding box is within threshold distance from the point, False otherwise
+        """
+        x1, y1, x2, y2 = bbox
+        x, y = point
+        return (x1 - threshold <= x <= x2 + threshold and
+                y1 - threshold <= y <= y2 + threshold)
+
+
     def __iter__(self):
         return iter(self.objects)
 

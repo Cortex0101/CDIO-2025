@@ -82,5 +82,32 @@ def demo_visualize_nearest_ball():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def demo_visualize_balls_near_corners():
+    """
+    Demo function to visualize balls near corners in a Course.
+    """
+    model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
+    course = model.generate_course("AI/images/image_170.jpg")  # Predict on an image
+
+    visualizer = CourseVisualizer(draw_walls=False, draw_boxes=True)
+    img = cv2.imread("AI/images/image_170.jpg")
+    img = visualizer.draw(img, course)
+
+    balls = course.get_white_balls()
+
+    for ball in balls:
+        if course.is_ball_near_corner(ball):
+            color = (25, 75, 120)  # Color for balls near corners
+            print(f"Ball near corner: {ball}")
+            img = visualizer.highlight_ball(img, ball, color=color)
+        elif course.is_ball_near_wall(ball, threshold=25):
+            color = (120, 75, 25)
+            print(f"Ball near wall: {ball}")
+            img = visualizer.highlight_ball(img, ball, color=color)
+    
+    cv2.imshow("Balls Near Corners Visualization", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 if __name__ == "__main__":
-    demo_visualize_nearest_ball()
+    demo_visualize_balls_near_corners()
