@@ -104,6 +104,10 @@ def demo_visualize_balls_near_corners():
             color = (120, 75, 25)
             print(f"Ball near wall: {ball}")
             img = visualizer.highlight_ball(img, ball, color=color)
+        elif course.is_ball_near_cross(ball):
+            color = (75, 120, 25)
+            print(f"Ball near cross: {ball}")
+            img = visualizer.highlight_ball(img, ball, color=color)
     
     cv2.imshow("Balls Near Corners Visualization", img)
     cv2.waitKey(0)
