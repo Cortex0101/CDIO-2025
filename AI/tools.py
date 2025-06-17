@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import shutil
 from ultralytics import YOLO
 
 def clear_txt_files_content(folder):
@@ -39,15 +40,15 @@ def create_new_dataset_structure(name, dir_path="AI/datasets"):
     if not os.path.exists(os.path.join(dir_path, name)):
         os.makedirs(os.path.join(dir_path, name))
 
-    train_folder = os.path.join(dataset_folder, name, 'train')
-    val_folder = os.path.join(dataset_folder, name, 'val')
+    train_folder = os.path.join(dir_path, name, 'train')
+    val_folder = os.path.join(dir_path, name, 'val')
 
     os.makedirs(os.path.join(train_folder, 'images'), exist_ok=True)
     os.makedirs(os.path.join(train_folder, 'labels'), exist_ok=True)
     os.makedirs(os.path.join(val_folder, 'images'), exist_ok=True)
     os.makedirs(os.path.join(val_folder, 'labels'), exist_ok=True)
 
-    print(f"Created dataset structure for {name} in {dataset_folder}")
+    print(f"Created dataset structure for {name} in {dir_path}")
 
 def copy_images_and_labels(source_folder, target_folder, distribution=0.3, first_n=0, last_n=250):
     """
@@ -293,7 +294,15 @@ def print_image_labelled_info():
     # return list with paths to all labelled images
     return (labelled_images_relative_paths, labelled_txt_relative_paths, unlabelled_images)
 
+def copy_images_and_labels_to_folder():
+    """
+    Copies all images and their corresponding labels from source_folder to target_folder.
+    """
+    target_folder="D:/dataset"
+    
+
 if __name__ == "__main__":
+    '''
     #visualize_model_on_image('AI/images/image_375.jpg', 'ball_detect/v8/weights/best.pt')
     res = print_image_labelled_info()
     
@@ -305,4 +314,46 @@ if __name__ == "__main__":
     # print names of all unlabelled images
     print("Unlabelled images:")
     for img in res[2]:
-        print(img)
+        print(img)D:\dataset
+        '''
+    #create_new_dataset_structure('V9', "D:/dataset")
+    res = print_image_labelled_info()
+    dict = [] # image: str, txt: str
+    for i in range(len(res[0])):
+        dict.append({
+            'image': res[0][i],
+            'txt': res[1][i]
+        })
+
+    # randomly shoffel the order of items in dict
+    np.random.shuffle(dict)
+
+    # split dict into two parts: 80% for training, 20% for validation
+    split_index = int(len(dict) * 0.8)
+    train_dict = dict[:split_index]
+    val_dict = dict[split_index:]
+
+    # print number of items in each part
+    print(f"Number of items in training set: {len(train_dict)}")
+    print(f"Number of items in validation set: {len(val_dict)}")
+
+    # use shutil to copy images and txt files to train and val folders in D:/dataset/V9
+    train_folder = 'D:/dataset/V9/train'
+    val_folder = 'D:/dataset/V9/val'
+
+    os.makedirs(train_folder, exist_ok=True)
+    os.makedirs(val_folder, exist_ok=True)
+    os.makedirs(os.path.join(train_folder, 'images'), exist_ok=True)
+    os.makedirs(os.path.join(train_folder, 'labels'), exist_ok=True)
+    os.makedirs(os.path.join(val_folder, 'images'), exist_ok=True)
+    os.makedirs(os.path.join(val_folder, 'labels'), exist_ok=True)
+
+    for item in train_dict:
+        shutil.copy(item['image'], os.path.join(train_folder, 'images', os.path.basename(item['image'])))
+        shutil.copy(item['txt'], os.path.join(train_folder, 'labels', os.path.basename(item['txt'])))
+
+    for item in val_dict:
+        shutil.copy(item['image'], os.path.join(val_folder, 'images', os.path.basename(item['image'])))
+        shutil.copy(item['txt'], os.path.join(val_folder, 'labels', os.path.basename(item['txt'])))
+
+    print(dict)
