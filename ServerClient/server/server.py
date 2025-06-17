@@ -195,7 +195,7 @@ class Server:
                                                         max_turn_slowdown=1)
         robot = None
         robot_direction = 0
-        angle_to_target = 0 # used when in RobotState.TURN_TO_OBJECT
+        angle_to_target = -1 # used when in RobotState.TURN_TO_OBJECT
 
         while True:
             ret, current_video_frame = self.cap.read()
@@ -259,7 +259,7 @@ class Server:
                     if closest_obj is not None:
                         dst_point = closest_obj.center
                         src_point = robot.center
-                        print(f"[SERVER] Turning to object at {dst_point} from {src_point}...")
+                        print(f"[SERVER] Turning to object {closest_obj} at {dst_point} from {src_point}...")
                         angle_to_target = angle_to(src_point, dst_point)
 
             # If currently following a path
@@ -272,6 +272,17 @@ class Server:
                     purse_pursuit_navigator.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
+            elif current_state == RobotState.TURN_TO_OBJECT and angle_to_target != -1:
+                # Compute turn command to face the target object
+                instruction = purse_pursuit_navigator.compute_turn_command(robot_direction, angle_to_target)
+                self.send_instruction(instruction)
+
+                # Check if the robot is facing the target object
+                if abs(angle_to_target - robot_direction) < 5:
+                    print("[SERVER] Robot is now facing the target object.")
+                    current_state = RobotState.IDLE
+                    angle_to_target = -1  # Reset angle to target
+
 
             # draw current state string in top left of the frame
             cv2.putText(current_video_frame_with_objs, f"State: {current_state.name}", (10, 30),
