@@ -19,6 +19,13 @@ class PurePursuitNavigator:
 
     def _normalize_angle(self, angle):
         return ((angle + 180) % 360) - 180
+    
+    def set_path(self, new_path):
+        """
+        Set a new path and reset the current index.
+        """
+        self.path = new_path
+        self.current_index = 0
 
     def find_lookahead_point(self, robot_pos):
         """
