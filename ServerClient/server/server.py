@@ -19,7 +19,11 @@ def distance(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
 
 def angle_to(src, dst):
-    return math.degrees(math.atan2(dst[1] - src[1], dst[0] - src[0]))
+    # clamped to 0-360 where 0 is right, 90 is up, 180 is left, 270 is down
+    angle = math.degrees(math.atan2(dst[1] - src[1], dst[0] - src[0]))
+    if angle < 0:
+        angle += 360
+    return angle  # returns angle in degrees, 0 is right, 90 is up, 180 is left, 270 is down
 
 class RobotState(Enum):
     IDLE = 0
@@ -56,7 +60,7 @@ class Server:
 
         self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
         self.course = Course()
-        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False)
+        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=50))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
@@ -187,15 +191,10 @@ class Server:
 
     def custom_instruction_loop(self):
         current_state = RobotState.IDLE
-        purse_pursuit_navigator = PurePursuitNavigator(None, 
-                                                        lookahead_distance=25, 
-                                                        max_speed=25, 
-                                                        true_max_speed=25, 
-                                                        kp=0.75, 
-                                                        max_turn_slowdown=1)
         robot = None
         robot_direction = 0
         angle_to_target = -1 # used when in RobotState.TURN_TO_OBJECT
+        spot = None
 
         while True:
             ret, current_video_frame = self.cap.read()
@@ -224,18 +223,25 @@ class Server:
                 break
             elif key == ord('c'):
                 current_state = RobotState.IDLE
-                purse_pursuit_navigator.set_path(None)
+                self.pure_pursuit_navigator.set_path(None)
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
+            elif key == ord('o'):
+                # open claw
+                instruction = {"cmd": "claw", "action": "open"}
+                self.send_instruction(instruction)
+            elif key == ord('p'):
+                instruction = {"cmd": "claw", "action": "close"}
                 self.send_instruction(instruction)
             # if key is number 1
             elif key == ord('1'):
                 current_state = RobotState.FOLLOW_PATH
-                purse_pursuit_navigator.set_path(None)
+                self.pure_pursuit_navigator.set_path(None)
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 self.send_instruction(instruction)
             elif key == ord('2'):
                 current_state = RobotState.TURN_TO_OBJECT
-                purse_pursuit_navigator.set_path(None)
+                self.pure_pursuit_navigator.set_path(None)
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 self.send_instruction(instruction)
 
@@ -243,15 +249,30 @@ class Server:
             if self.mouse_clicked_coords[0] is not None:
                 x, y = self.mouse_clicked_coords[0]
                 self.mouse_clicked_coords[0] = None
-                
+
+                ball = self.course.get_nearest_ball((x, y))
+                print("Bboxs:", ball.bbox if ball else "No ball found")
+                print("Nearest ball:", ball)
+                clicked_ball = self.course._bbox_within_threshold_point(ball.bbox, (x, y)) # true or false
+                if clicked_ball:
+                    print(f"[SERVER] Mouse clicked on a ball at ({x}, {y}) with confidence {ball.confidence}")
+                    x, y = self.course.get_optimal_ball_parking_spot(ball)
+                else:
+                    print(f"[SERVER] Mouse clicked at ({x}, {y}), not on a ball.")
+
                 if current_state == RobotState.FOLLOW_PATH:
-                    grid = self.path_planner.generate_grid(self.course, True) # change to True if you want to drw floor
+                    grid = self.path_planner.generate_grid(self.course, False) # change to True if you want to drw floor
                     grid_img = self.path_planner_visualizer.draw_grid_objects(grid)
                     start = robot.center
                     start = (int(start[0]), int(start[1]))
                     end = (int(x), int(y))
                     print(f"[SERVER] Generating path from {start} to {end}...")
                     current_path = self.path_planner.find_path(start, end, grid)
+                    if current_path is None or len(current_path) == 0:
+                        print("[SERVER] No path found, please try again.")
+                        self.pure_pursuit_navigator.set_path(None)
+                        continue
+                    self.pure_pursuit_navigator.set_path(current_path)
                     print(f"[SERVER] Path found: {len(current_path)} points.")
                     cv2.imshow("grid_visualization", grid_img)
                 elif current_state == RobotState.TURN_TO_OBJECT:
@@ -263,25 +284,33 @@ class Server:
                         angle_to_target = angle_to(src_point, dst_point)
 
             # If currently following a path
-            if purse_pursuit_navigator.path is not None and current_state == RobotState.FOLLOW_PATH:
-                current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)       
-                instruction = purse_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
+            if (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.FOLLOW_PATH:
+                if len(self.pure_pursuit_navigator.path) == 0:
+                    print("[SERVER] No path to follow, please generate a path first.")
+                    continue
+                if spot is not None:
+                    self.course_visualizer.highlight_point(current_video_frame_with_objs, spot, color=(0, 255, 0), radius=10)
+                current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
+                instruction = self.pure_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
                 self.send_instruction(instruction)
                 if distance(robot.center, current_path[-1]) < 30:
                     print("[SERVER] Reached the end of the path.")
-                    purse_pursuit_navigator.set_path(None)
+                    self.pure_pursuit_navigator.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
             elif current_state == RobotState.TURN_TO_OBJECT and angle_to_target != -1:
                 # Compute turn command to face the target object
-                instruction = purse_pursuit_navigator.compute_turn_command(robot_direction, angle_to_target)
+                instruction = self.pure_pursuit_navigator.compute_turn_command(robot_direction, angle_to_target, newKp=0.9)
                 self.send_instruction(instruction)
 
                 # Check if the robot is facing the target object
-                if abs(angle_to_target - robot_direction) < 5:
+                print(f"[SERVER] Robot direction: {robot_direction}, angle to target: {angle_to_target}")
+                print(f"[SERVER] Angle difference: {abs(angle_to_target - robot_direction)}")
+                if abs(angle_to_target - robot_direction) < 3:
                     print("[SERVER] Robot is now facing the target object.")
                     current_state = RobotState.IDLE
                     angle_to_target = -1  # Reset angle to target
+                    self.send_instruction({"cmd": "drive", "left_speed": 0, "right_speed": 0})
 
 
             # draw current state string in top left of the frame

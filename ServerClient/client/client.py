@@ -14,8 +14,8 @@ class Robot:
     WHEEL_CIRCUMFERENCE = math.pi * WHEEL_DIAMETER  # cm per full wheel rotation
     AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
 
-    CLAW_OPEN_POS = 0
-    CLAW_CLOSED_POS = 90
+    CLAW_CLOSED_POS = 0
+    CLAW_OPEN_POS = 90
     
     def __init__(self):
         self.left_motor = LargeMotor(OUTPUT_C)
@@ -23,7 +23,7 @@ class Robot:
         self.claw_motor = MediumMotor(OUTPUT_B)
         self.tank_drive = MoveTank(OUTPUT_C, OUTPUT_D)
 
-        self.claw_motor.position = self.CLAW_OPEN_POS  # Initialize claw position to open
+        self.claw_motor.on_to_position(speed=20, position=self.CLAW_OPEN_POS)
 
     def move_forward(self, left_speed, right_speed):
         self.tank_drive.on(left_speed, right_speed)
@@ -43,10 +43,10 @@ class Robot:
             sleep(0.1)
 
     def open_claw(self):
-        self.claw_motor.on_to_position(speed=20, position_sp=self.CLAW_OPEN_POS)
+        self.claw_motor.on_to_position(speed=20, position=self.CLAW_OPEN_POS)
 
     def close_claw(self):
-        self.claw_motor.on_to_position(speed=20, position_sp=self.CLAW_CLOSED_POS)
+        self.claw_motor.on_to_position(speed=20, position=self.CLAW_CLOSED_POS)
 
     def deliver_ball(self, cm_amount=4):
         self.move_in_cm(cm_amount)
