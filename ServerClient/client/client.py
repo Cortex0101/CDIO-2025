@@ -28,9 +28,10 @@ class Robot:
     def move_forward(self, left_speed, right_speed):
         self.tank_drive.on(left_speed, right_speed)
 
-    # just use negative values for backwards
-    def move_in_cm(self, distance_cm):
-        self.tank_drive.on_for_distance(left_speed=distance_cm, right_speed=distance_cm, distance=distance_cm)
+    def move_forward_for_seconds(self, seconds):
+        self.tank_drive.on_for_seconds(left_speed=50, right_speed=50, seconds=seconds)
+    def move_backwards_for_seconds(self, seconds):
+        self.tank_drive.on_for_seconds(left_speed=-50, right_speed=-50, seconds=seconds)
 
     def perform_jiggle(self, number_of_jiggles=2, jiggle_degrees=4):
         """
@@ -48,18 +49,16 @@ class Robot:
     def close_claw(self):
         self.claw_motor.on_to_position(speed=20, position=self.CLAW_CLOSED_POS)
 
-    def deliver_ball(self, cm_amount=4):
-        self.move_in_cm(cm_amount)
-        sleep(0.5)
+    def deliver_ball(self, seconds=1):
         self.open_claw()
         sleep(0.5)
-        self.move_in_cm(-cm_amount)
+        self.move_forward_for_seconds(seconds)
         sleep(0.5)
-        # maybe jiggle here if the ball is stuck
-        #self.perform_jiggle(2, 46)
-        self.move_in_cm(cm_amount)
+        self.move_backwards_for_seconds(seconds)
         sleep(0.5)
-        self.move_in_cm(-cm_amount)
+        self.move_forward_for_seconds(seconds)
+        sleep(0.5)
+        self.move_backwards_for_seconds(seconds)    
 
     def emergency_stop(self):
         self.tank_drive.off()
