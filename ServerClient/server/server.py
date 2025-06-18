@@ -61,7 +61,7 @@ class Server:
         self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True)
-        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=50))
+        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=24))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
         # extra 
@@ -234,6 +234,10 @@ class Server:
                 instruction = {"cmd": "claw", "action": "close"}
                 self.send_instruction(instruction)
             # if key is number 1
+            elif key == ord('d'):
+                last_instruction = {"cmd": "deliver", "cm_amount": 4}
+                print(last_instruction)
+                self.send_instruction(last_instruction)
             elif key == ord('1'):
                 current_state = RobotState.FOLLOW_PATH
                 self.pure_pursuit_navigator.set_path(None)
@@ -253,7 +257,9 @@ class Server:
                 ball = self.course.get_nearest_ball((x, y))
                 print("Bboxs:", ball.bbox if ball else "No ball found")
                 print("Nearest ball:", ball)
-                clicked_ball = self.course._bbox_within_threshold_point(ball.bbox, (x, y)) # true or false
+                clicked_ball = None
+                if ball is not None:
+                    clicked_ball = self.course._bbox_within_threshold_point(ball.bbox, (x, y)) # true or false
                 if clicked_ball:
                     print(f"[SERVER] Mouse clicked on a ball at ({x}, {y}) with confidence {ball.confidence}")
                     x, y = self.course.get_optimal_ball_parking_spot(ball)
@@ -293,7 +299,7 @@ class Server:
                 current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
                 instruction = self.pure_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
                 self.send_instruction(instruction)
-                if distance(robot.center, current_path[-1]) < 30:
+                if distance(robot.center, current_path[-1]) < 10:
                     print("[SERVER] Reached the end of the path.")
                     self.pure_pursuit_navigator.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
