@@ -14,8 +14,8 @@ class Robot:
     WHEEL_CIRCUMFERENCE = math.pi * WHEEL_DIAMETER  # cm per full wheel rotation
     AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
 
-    CLAW_OPEN_POS = 0
-    CLAW_CLOSED_POS = 90
+    CLAW_CLOSED_POS = 0
+    CLAW_OPEN_POS = 60
     
     def __init__(self):
         self.left_motor = LargeMotor(OUTPUT_C)
@@ -23,14 +23,15 @@ class Robot:
         self.claw_motor = MediumMotor(OUTPUT_B)
         self.tank_drive = MoveTank(OUTPUT_C, OUTPUT_D)
 
-        self.claw_motor.position = self.CLAW_OPEN_POS  # Initialize claw position to open
+        self.claw_motor.on_to_position(speed=20, position=self.CLAW_OPEN_POS)
 
     def move_forward(self, left_speed, right_speed):
         self.tank_drive.on(left_speed, right_speed)
 
-    # just use negative values for backwards
-    def move_in_cm(self, distance_cm):
-        self.tank_drive.on_for_distance(left_speed=distance_cm, right_speed=distance_cm, distance=distance_cm)
+    def move_forward_for_seconds(self, seconds):
+        self.tank_drive.on_for_seconds(left_speed=50, right_speed=50, seconds=seconds)
+    def move_backwards_for_seconds(self, seconds):
+        self.tank_drive.on_for_seconds(left_speed=-50, right_speed=-50, seconds=seconds)
 
     def perform_jiggle(self, number_of_jiggles=2, jiggle_degrees=4):
         """
@@ -43,23 +44,21 @@ class Robot:
             sleep(0.1)
 
     def open_claw(self):
-        self.claw_motor.on_to_position(speed=20, position_sp=self.CLAW_OPEN_POS)
+        self.claw_motor.on_to_position(speed=20, position=self.CLAW_OPEN_POS)
 
     def close_claw(self):
-        self.claw_motor.on_to_position(speed=20, position_sp=self.CLAW_CLOSED_POS)
+        self.claw_motor.on_to_position(speed=20, position=self.CLAW_CLOSED_POS)
 
-    def deliver_ball(self, cm_amount=4):
-        self.move_in_cm(cm_amount)
-        sleep(0.5)
+    def deliver_ball(self, seconds=1):
         self.open_claw()
         sleep(0.5)
-        self.move_in_cm(-cm_amount)
+        self.move_forward_for_seconds(seconds)
         sleep(0.5)
-        # maybe jiggle here if the ball is stuck
-        #self.perform_jiggle(2, 46)
-        self.move_in_cm(cm_amount)
+        self.move_backwards_for_seconds(seconds)
         sleep(0.5)
-        self.move_in_cm(-cm_amount)
+        self.move_forward_for_seconds(seconds)
+        sleep(0.5)
+        self.move_backwards_for_seconds(seconds)    
 
     def emergency_stop(self):
         self.tank_drive.off()
@@ -81,7 +80,7 @@ Wireless LAN adapter Wi-Fi:
    Default Gateway . . . . . . . . . : 192.168.0.1
 
 '''
-HOST = '192.168.208.72'
+HOST = '192.168.208.245'
 PORT = 12346
 
 robot = Robot()
@@ -111,9 +110,9 @@ def execute_instruction(instr):
         jiggle_degrees = instr.get("jiggle_degrees", 46)
         robot.perform_jiggle(number_of_jiggles, jiggle_degrees)
     elif cmd == "deliver":
-        cm_amount = instr.get("cm_amount", 4)
-        if cm_amount is not None:
-            robot.deliver_ball(cm_amount)
+        seconds_amount = instr.get("seconds", 1)
+        if seconds_amount is not None:
+            robot.deliver_ball(seconds_amount)
         else:
             print("[CLIENT] Invalid deliver command: " + str(instr))
             return False
@@ -166,6 +165,7 @@ def main():
                 pass
             print("[CLIENT] Connection closed. Retrying in 3 seconds...")
             time.sleep(3)
+            robot.close_claw()
 
 if __name__ == '__main__':
     main()
