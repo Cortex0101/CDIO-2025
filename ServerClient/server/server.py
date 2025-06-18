@@ -54,7 +54,7 @@ class Server:
         cv2.setMouseCallback("view", self.mouse_callback)
         cv2.namedWindow("grid_visualization")
 
-        self.ai_model = AIModel("ball_detect/v8/weights/best.pt")
+        self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=50))
