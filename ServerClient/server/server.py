@@ -194,6 +194,7 @@ class Server:
         robot = None
         robot_direction = 0
         angle_to_target = -1 # used when in RobotState.TURN_TO_OBJECT
+        spot = None
 
         while True:
             ret, current_video_frame = self.cap.read()
@@ -248,7 +249,17 @@ class Server:
             if self.mouse_clicked_coords[0] is not None:
                 x, y = self.mouse_clicked_coords[0]
                 self.mouse_clicked_coords[0] = None
-                
+
+                ball = self.course.get_nearest_ball((x, y))
+                print("Bboxs:", ball.bbox if ball else "No ball found")
+                print("Nearest ball:", ball)
+                clicked_ball = self.course._bbox_within_threshold_point(ball.bbox, (x, y)) # true or false
+                if clicked_ball:
+                    print(f"[SERVER] Mouse clicked on a ball at ({x}, {y}) with confidence {ball.confidence}")
+                    x, y = self.course.get_optimal_ball_parking_spot(ball)
+                else:
+                    print(f"[SERVER] Mouse clicked at ({x}, {y}), not on a ball.")
+
                 if current_state == RobotState.FOLLOW_PATH:
                     grid = self.path_planner.generate_grid(self.course, False) # change to True if you want to drw floor
                     grid_img = self.path_planner_visualizer.draw_grid_objects(grid)
@@ -277,6 +288,8 @@ class Server:
                 if len(self.pure_pursuit_navigator.path) == 0:
                     print("[SERVER] No path to follow, please generate a path first.")
                     continue
+                if spot is not None:
+                    self.course_visualizer.highlight_point(current_video_frame_with_objs, spot, color=(0, 255, 0), radius=10)
                 current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
                 instruction = self.pure_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
                 self.send_instruction(instruction)
