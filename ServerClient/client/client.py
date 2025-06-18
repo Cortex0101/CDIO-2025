@@ -14,16 +14,14 @@ class Robot:
     WHEEL_CIRCUMFERENCE = math.pi * WHEEL_DIAMETER  # cm per full wheel rotation
     AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
 
+    CLAW_OPEN_POS = 80
     CLAW_CLOSED_POS = 0
-    CLAW_OPEN_POS = 60
     
     def __init__(self):
         self.left_motor = LargeMotor(OUTPUT_C)
         self.right_motor = LargeMotor(OUTPUT_D)
         self.claw_motor = MediumMotor(OUTPUT_B)
         self.tank_drive = MoveTank(OUTPUT_C, OUTPUT_D)
-
-        self.claw_motor.on_to_position(speed=20, position=self.CLAW_OPEN_POS)
 
     def move_forward(self, left_speed, right_speed):
         self.tank_drive.on(left_speed, right_speed)
@@ -159,6 +157,7 @@ def main():
         finally:
             try:
                 client.close()
+                robot.emergency_stop()
             except Exception:
                 pass
             print("[CLIENT] Connection closed. Retrying in 3 seconds...")

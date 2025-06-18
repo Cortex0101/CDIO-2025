@@ -74,6 +74,14 @@ class Server:
                                                 true_max_speed=25, 
                                                 kp=0.75, 
                                                 max_turn_slowdown=1)
+        
+        self.pure_pursuit_navigator_slow = PurePursuitNavigator(None,
+                                                lookahead_distance=10, 
+                                                max_speed=5, 
+                                                true_max_speed=5, 
+                                                kp=0.75, 
+                                                max_turn_slowdown=1)
+
         self.robot_state = RobotState.IDLE
         self.robot = None           # For storing previous robot if needed
         self.robot_direction = 0    # For storing previous robot direction if needed
@@ -348,7 +356,7 @@ class Server:
                         # Set the path to the clicked ball
                         current_path = self.path_planner.find_path(robot.center, clicked_ball.center, self.path_planner.generate_grid(self.course, excluded_objects=[clicked_ball]))
                         if current_path is not None and len(current_path) > 0:
-                            self.pure_pursuit_navigator.set_path(current_path)
+                            self.pure_pursuit_navigator_slow.set_path(current_path)
                             print(f"[SERVER] Path found: {len(current_path)} points.")
                         else:
                             print("[SERVER] No path found to collect the ball.")
@@ -410,18 +418,18 @@ class Server:
                     self.pure_pursuit_navigator.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
-            elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.COLLECT_BALL:
-                if len(self.pure_pursuit_navigator.path) == 0:
+            elif (self.pure_pursuit_navigator_slow.path is not None) and current_state == RobotState.COLLECT_BALL:
+                if len(self.pure_pursuit_navigator_slow.path) == 0:
                     print("[SERVER] No path to follow, please generate a path first.")
                     continue
                 current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
-                instruction = self.pure_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
+                instruction = self.pure_pursuit_navigator_slow.compute_drive_command(robot.center, robot_direction)
                 self.send_instruction(instruction)
-                if distance(robot.center, current_path[-1]) < 25:
+                if distance(robot.center, current_path[-1]) < 10:
                     print("[SERVER] Reached the end of the path.")
                     instruction = {"cmd": "claw", "action": "close"}
                     self.send_instruction(instruction)
-                    self.pure_pursuit_navigator.set_path(None)
+                    self.pure_pursuit_navigator_slow.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
             elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.DELIVER_BALL:
