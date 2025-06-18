@@ -30,7 +30,8 @@ class RobotState(Enum):
     FOLLOW_PATH = 1
     TURN_TO_OBJECT = 2,
     DRIVE_TO_OPTIMAL_POSITION = 3,
-    COLLECT_BALL = 4
+    COLLECT_BALL = 4,
+    DELIVER_BALL = 5
 
 class Server:
     def __init__(self, fakeEv3Connection=False):
@@ -201,6 +202,17 @@ class Server:
             
         print(f"[SERVER] No ball found at ({x}, {y})")
         return None
+    
+    def get_clicked_goal(self, x, y):
+        # returns the goal that is clicked on, or None if no goal is clicked
+        all_goals = self.course.get_goals()
+        for goal in all_goals:
+            if self.course._bbox_within_threshold_point(goal.bbox, (x, y), threshold=0):
+                print(f"[SERVER] Found goal at {goal.center}, clicked at ({x}, {y})")
+                return goal
+            
+        print(f"[SERVER] No goal found at ({x}, {y})")
+        return None
 
     def custom_instruction_loop(self):
         current_state = RobotState.IDLE
@@ -241,14 +253,14 @@ class Server:
                 self.send_instruction(instruction)
             elif key == ord('o'):
                 # open claw
-                instruction = {"cmd": "claw", "action": "open"}
+                instruction = {"cmd": "claw", "action": "open", "speed": 5}
                 self.send_instruction(instruction)
             elif key == ord('p'):
-                instruction = {"cmd": "claw", "action": "close"}
+                instruction = {"cmd": "claw", "action": "close", "speed": 5}
                 self.send_instruction(instruction)
             # if key is number 1
             elif key == ord('d'):
-                last_instruction = {"cmd": "deliver", "cm_amount": 4}
+                last_instruction = {"cmd": "deliver", "speed": 75}
                 print(last_instruction)
                 self.send_instruction(last_instruction)
             elif key == ord('1'):
@@ -268,6 +280,11 @@ class Server:
                 self.send_instruction(instruction)
             elif key == ord('4'):
                 current_state = RobotState.COLLECT_BALL
+                self.pure_pursuit_navigator.set_path(None)
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
+            elif key == ord('5'):
+                current_state = RobotState.DELIVER_BALL
                 self.pure_pursuit_navigator.set_path(None)
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 self.send_instruction(instruction)
@@ -337,6 +354,18 @@ class Server:
                             print("[SERVER] No path found to collect the ball.")
                     else:
                         print("[SERVER] No ball found at the clicked position.")
+                elif current_state == RobotState.DELIVER_BALL:
+                    # Find the clicked goal
+                    #clicked_goal = self.get_clicked_goal(x, y)
+                    spot = (x, y)
+                    excluded_ball = self.course.get_nearest_ball(self.course.get_robot().center)
+                    current_path = self.path_planner.find_path(robot.center, (x,y), self.path_planner.generate_grid(self.course, excluded_objects=[excluded_ball]))
+                    if current_path is not None and len(current_path) > 0:
+                        self.pure_pursuit_navigator.set_path(current_path)
+                        print(f"[SERVER] Path found: {len(current_path)} points.")
+                    else:
+                        print("[SERVER] No path found to deliver the ball.")
+
 
 
             # If currently following a path
@@ -392,6 +421,20 @@ class Server:
                     print("[SERVER] Reached the end of the path.")
                     instruction = {"cmd": "claw", "action": "close"}
                     self.send_instruction(instruction)
+                    self.pure_pursuit_navigator.set_path(None)
+                    instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                    self.send_instruction(instruction)
+            elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.DELIVER_BALL:
+                if len(self.pure_pursuit_navigator.path) == 0:
+                    print("[SERVER] No path to follow, please generate a path first.")
+                    continue
+                if spot is not None:
+                    self.course_visualizer.highlight_point(current_video_frame_with_objs, spot, color=(0, 255, 0), radius=10)
+                current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
+                instruction = self.pure_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
+                self.send_instruction(instruction)
+                if distance(robot.center, current_path[-1]) < 25:
+                    print("[SERVER] Reached the end of the path.")
                     self.pure_pursuit_navigator.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)

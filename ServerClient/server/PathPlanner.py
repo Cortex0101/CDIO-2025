@@ -277,16 +277,21 @@ class PathPlanner:
         for obj in course.objects:
             if obj.label == 'wall' or obj.label == 'green' or obj.label == 'yellow':
                 continue
-
+            
+            should_skip = False
             for excluded in (excluded_objects or []):
                 if obj is excluded:
-                    continue
-                else:
-                    pts = np.rint(obj.mask).astype(np.int32).reshape(-1, 2)
-                    coords_inside = self._polygon_fill_points(pts)
-                    for x, y in coords_inside:
-                        if 0 <= x < course.width and 0 <= y < course.height:
-                            grid[y, x] = self.OBJECT_NUMS[obj.label]
+                    should_skip = True
+                    break
+            
+            if should_skip:
+                continue
+            else:
+                pts = np.rint(obj.mask).astype(np.int32).reshape(-1, 2)
+                coords_inside = self._polygon_fill_points(pts)
+                for x, y in coords_inside:
+                    if 0 <= x < course.width and 0 <= y < course.height:
+                        grid[y, x] = self.OBJECT_NUMS[obj.label]
 
         return grid
     
