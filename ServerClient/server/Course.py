@@ -361,7 +361,7 @@ class Course:
         """
         return self._bbox_within_threshold_bbox(obj1.bbox, obj2.bbox, threshold)
 
-    def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int) -> bool:
+    def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int = 0) -> bool:
         """
         Check if the bounding box bbox1 is within a certain threshold distance from bbox2.
 
@@ -377,7 +377,7 @@ class Course:
                 abs(bbox1[2] - bbox2[2]) <= threshold or
                 abs(bbox1[3] - bbox2[3]) <= threshold)
     
-    def _bbox_within_threshold_point(self, bbox: tuple, point: tuple, threshold: int) -> bool:
+    def _bbox_within_threshold_point(self, bbox: tuple, point: tuple, threshold: int = 0) -> bool:
         """
         Check if the bounding box is within a certain threshold distance from a point.
         Args:

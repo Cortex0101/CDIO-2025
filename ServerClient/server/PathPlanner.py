@@ -119,7 +119,7 @@ class AStarStrategyOptimized:
         dy = abs(a[1] - b[1])
         return (dx + dy) + (np.sqrt(2) - 2) * min(dx, dy)
 
-    def find_path(self, start, end, grid, exlude_obstacle_types=[0, 5]): #wall, robot, yellow, green
+    def find_path(self, start, end, grid, exlude_obstacle_types=[0, 1, 2, 5]): #wall, robot, yellow, green
         '''
         Find path from start to end using A*.
 
