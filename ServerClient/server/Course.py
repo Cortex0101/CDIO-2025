@@ -199,6 +199,7 @@ class Course:
         for angle in range(0, 360, 10):  # Check every 10 degrees
             # Calculate the new position based on the angle and distance
             distance = max(robot_size)  # Use the larger dimension of the robot as distance
+            distance -= 69
             x = ball_center[0] + distance * math.cos(math.radians(angle))
             y = ball_center[1] + distance * math.sin(math.radians(angle))
             new_spot = (x, y)

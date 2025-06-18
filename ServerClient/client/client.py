@@ -15,7 +15,7 @@ class Robot:
     AXLE_TRACK = 16.5  # cm (distance between left and right wheels)
 
     CLAW_CLOSED_POS = 0
-    CLAW_OPEN_POS = 90
+    CLAW_OPEN_POS = 60
     
     def __init__(self):
         self.left_motor = LargeMotor(OUTPUT_C)
@@ -81,7 +81,7 @@ Wireless LAN adapter Wi-Fi:
    Default Gateway . . . . . . . . . : 192.168.0.1
 
 '''
-HOST = '192.168.208.72'
+HOST = '192.168.208.245'
 PORT = 12346
 
 robot = Robot()
@@ -166,6 +166,7 @@ def main():
                 pass
             print("[CLIENT] Connection closed. Retrying in 3 seconds...")
             time.sleep(3)
+            robot.close_claw()
 
 if __name__ == '__main__':
     main()
