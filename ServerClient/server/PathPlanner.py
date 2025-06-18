@@ -119,7 +119,7 @@ class AStarStrategyOptimized:
         dy = abs(a[1] - b[1])
         return (dx + dy) + (np.sqrt(2) - 2) * min(dx, dy)
 
-    def find_path(self, start, end, grid, exlude_obstacle_types=[0, 1, 2, 5]): #wall, robot, yellow, green
+    def find_path(self, start, end, grid, exlude_obstacle_types=[0, 5]): #wall, robot, yellow, green
         '''
         Find path from start to end using A*.
 
@@ -256,7 +256,7 @@ class PathPlanner:
                 inside.extend((x, y) for x in range(x_start, x_end+1))
         return inside
 
-    def generate_grid(self, course: Course, makeFloorEntireImage: bool = False):
+    def generate_grid(self, course: Course, excluded_objects: list = None, makeFloorEntireImage: bool = False):
         # fill grid with 8's (outside course area)
         grid = np.full((course.height, course.width), self.OBJECT_NUMS['outside_course'], dtype=np.uint8)
         
@@ -278,12 +278,15 @@ class PathPlanner:
             if obj.label == 'wall' or obj.label == 'green' or obj.label == 'yellow':
                 continue
 
-            pts = np.rint(obj.mask).astype(np.int32).reshape(-1, 2)
-
-            coords_inside = self._polygon_fill_points(pts)
-            for x, y in coords_inside:
-                if 0 <= x < course.width and 0 <= y < course.height:
-                    grid[y, x] = self.OBJECT_NUMS[obj.label]
+            for excluded in (excluded_objects or []):
+                if obj is excluded:
+                    continue
+                else:
+                    pts = np.rint(obj.mask).astype(np.int32).reshape(-1, 2)
+                    coords_inside = self._polygon_fill_points(pts)
+                    for x, y in coords_inside:
+                        if 0 <= x < course.width and 0 <= y < course.height:
+                            grid[y, x] = self.OBJECT_NUMS[obj.label]
 
         return grid
     
