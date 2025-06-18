@@ -110,9 +110,9 @@ def execute_instruction(instr):
         jiggle_degrees = instr.get("jiggle_degrees", 46)
         robot.perform_jiggle(number_of_jiggles, jiggle_degrees)
     elif cmd == "deliver":
-        cm_amount = instr.get("cm_amount", 4)
-        if cm_amount is not None:
-            robot.deliver_ball(cm_amount)
+        seconds_amount = instr.get("seconds", 1)
+        if seconds_amount is not None:
+            robot.deliver_ball(seconds_amount)
         else:
             print("[CLIENT] Invalid deliver command: " + str(instr))
             return False
