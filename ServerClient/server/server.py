@@ -28,7 +28,7 @@ def angle_to(src, dst):
 class RobotState(Enum):
     IDLE = 0
     FOLLOW_PATH = 1
-    TURN_TO_OBJECT = 2,
+    TURN_TO_OBJECT_OR_POINT = 2,
     DRIVE_TO_OPTIMAL_POSITION = 3,
     COLLECT_BALL = 4,
     DELIVER_BALL = 5
@@ -277,7 +277,7 @@ class Server:
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 self.send_instruction(instruction)
             elif key == ord('2'):
-                current_state = RobotState.TURN_TO_OBJECT
+                current_state = RobotState.TURN_TO_OBJECT_OR_POINT
                 self.pure_pursuit_navigator.set_path(None)
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 self.send_instruction(instruction)
@@ -317,12 +317,12 @@ class Server:
                     self.pure_pursuit_navigator.set_path(current_path)
                     print(f"[SERVER] Path found: {len(current_path)} points.")
                     cv2.imshow("grid_visualization", grid_img)
-                elif current_state == RobotState.TURN_TO_OBJECT:
-                    closest_obj = self.course.get_nearest_object((x, y))
-                    if closest_obj is not None:
-                        dst_point = closest_obj.center
+                elif current_state == RobotState.TURN_TO_OBJECT_OR_POINT:
+                    #closest_obj = self.course.get_nearest_object((x, y))
+                    #if closest_obj is not None:
+                        dst_point = (x, y)
                         src_point = robot.center
-                        print(f"[SERVER] Turning to object {closest_obj} at {dst_point} from {src_point}...")
+                        print(f"[SERVER] Turning to object {(x,y)} at {dst_point} from {src_point}...")
                         angle_to_target = angle_to(src_point, dst_point)
                 elif current_state == RobotState.DRIVE_TO_OPTIMAL_POSITION:
                     # Find the optimal position to drive to
@@ -391,7 +391,7 @@ class Server:
                     self.pure_pursuit_navigator.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
-            elif current_state == RobotState.TURN_TO_OBJECT and angle_to_target != -1:
+            elif current_state == RobotState.TURN_TO_OBJECT_OR_POINT and angle_to_target != -1:
                 # Compute turn command to face the target object
                 instruction = self.pure_pursuit_navigator.compute_turn_command(robot_direction, angle_to_target, newKp=0.9)
                 self.send_instruction(instruction)
@@ -401,7 +401,6 @@ class Server:
                 print(f"[SERVER] Angle difference: {abs(angle_to_target - robot_direction)}")
                 if abs(angle_to_target - robot_direction) < 3:
                     print("[SERVER] Robot is now facing the target object.")
-                    current_state = RobotState.IDLE
                     angle_to_target = -1  # Reset angle to target
                     self.send_instruction({"cmd": "drive", "left_speed": 0, "right_speed": 0})
             elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.DRIVE_TO_OPTIMAL_POSITION:

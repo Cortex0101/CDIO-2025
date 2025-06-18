@@ -163,6 +163,7 @@ def main():
             print("[CLIENT] Connection closed. Retrying in 3 seconds...")
             time.sleep(3)
             robot.close_claw()
+            
 
 if __name__ == '__main__':
     main()
