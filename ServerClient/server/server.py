@@ -225,6 +225,13 @@ class Server:
                 self.pure_pursuit_navigator.set_path(None)
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 self.send_instruction(instruction)
+            elif key == ord('o'):
+                # open claw
+                instruction = {"cmd": "claw", "action": "open"}
+                self.send_instruction(instruction)
+            elif key == ord('p'):
+                instruction = {"cmd": "claw", "action": "close"}
+                self.send_instruction(instruction)
             # if key is number 1
             elif key == ord('1'):
                 current_state = RobotState.FOLLOW_PATH
