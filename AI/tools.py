@@ -142,7 +142,7 @@ def visualize_model_on_image(img_path, model_path):
         return
 
     # Run inference
-    results = model.predict(source=img, conf=0.3, iou=0.5)
+    results = model.predict(source=img, conf=0.35)
     r = results[0]
 
     # Loop over masks
@@ -357,4 +357,4 @@ if __name__ == "__main__":
         shutil.copy(item['txt'], os.path.join(val_folder, 'labels', os.path.basename(item['txt'])))
         '''
     
-    visualize_model_on_image('AI/images4/image_1015.jpg', 'ball_detect/v10_t/weights/best.pt')
+    visualize_model_on_image('AI/images4/image_1016.jpg', 'ball_detect/v12/weights/best.pt')
