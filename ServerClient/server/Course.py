@@ -170,6 +170,13 @@ class Course:
         """ Returns all eggs in the course. Might be more than one? """
         return self.get_by_label('egg')
     
+    def get_goals(self):
+        """
+        Returns all goals in the course, both small and big.
+        If there are no goals, returns an empty list.
+        """
+        return self.get_by_label('small_goal') + self.get_by_label('big_goal')
+
     # TODO: functions for goals? Weird when they might be mixed up, or both small or both large
 
     def get_optimal_ball_parking_spot(self, ball: CourseObject):

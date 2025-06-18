@@ -43,22 +43,19 @@ class Robot:
             self.tank_drive.on_for_degrees(left_speed=20, right_speed=-20, degrees=jiggle_degrees)
             sleep(0.1)
 
-    def open_claw(self):
-        self.claw_motor.on_to_position(speed=20, position=self.CLAW_OPEN_POS)
+    def open_claw(self, speed=20):
+        self.claw_motor.on_to_position(speed=speed, position=self.CLAW_OPEN_POS)
 
-    def close_claw(self):
-        self.claw_motor.on_to_position(speed=20, position=self.CLAW_CLOSED_POS)
+    def close_claw(self, speed=20):
+        self.claw_motor.on_to_position(speed=speed, position=self.CLAW_CLOSED_POS)
 
-    def deliver_ball(self, seconds=1):
-        self.open_claw()
+    def deliver_ball(self, speed=75):
+        # opens the claw, then moves forward 1 rotation with speed and then back 1 rotation
+        self.open_claw(5)
         sleep(0.5)
-        self.move_forward_for_seconds(seconds)
+        self.tank_drive.on_for_degrees(left_speed=speed, right_speed=speed,  degrees=90)
         sleep(0.5)
-        self.move_backwards_for_seconds(seconds)
-        sleep(0.5)
-        self.move_forward_for_seconds(seconds)
-        sleep(0.5)
-        self.move_backwards_for_seconds(seconds)    
+        self.tank_drive.on_for_degrees(left_speed=-10, right_speed=-10,  degrees=90)
 
     def emergency_stop(self):
         self.tank_drive.off()
@@ -97,11 +94,12 @@ def execute_instruction(instr):
             return False
     elif cmd == "claw":
         action = instr.get("action")
+        speed = instr.get("speed", 20)
         if action == "open":
             print("[CLIENT] Opening claw")
-            robot.open_claw()
+            robot.open_claw(speed)
         elif action == "close":
-            robot.close_claw()
+            robot.close_claw(speed)
         else:
             print("[CLIENT] Unknown claw action: " + str(action))
             return False
@@ -110,9 +108,9 @@ def execute_instruction(instr):
         jiggle_degrees = instr.get("jiggle_degrees", 46)
         robot.perform_jiggle(number_of_jiggles, jiggle_degrees)
     elif cmd == "deliver":
-        seconds_amount = instr.get("seconds", 1)
-        if seconds_amount is not None:
-            robot.deliver_ball(seconds_amount)
+        speed = instr.get("speed", 75)
+        if speed is not None:
+            robot.deliver_ball(speed)
         else:
             print("[CLIENT] Invalid deliver command: " + str(instr))
             return False
