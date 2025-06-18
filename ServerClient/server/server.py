@@ -33,6 +33,9 @@ class RobotState(Enum):
     COLLECT_BALL = 4,
     DELIVER_BALL = 5
 
+LARGE_OBJECT_RADIUS = 40  # radius in pixels for large objects like balls
+SMALL_OBJECT_RADIUS = 10  # radius in pixels for small objects like balls when collecting
+
 class Server:
     def __init__(self, fakeEv3Connection=False):
         self.host = '0.0.0.0'
@@ -64,7 +67,7 @@ class Server:
         self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True)
-        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=40))
+        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=LARGE_OBJECT_RADIUS))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
         # extra 
@@ -228,6 +231,7 @@ class Server:
         robot_direction = 0
         angle_to_target = -1 # used when in RobotState.TURN_TO_OBJECT
         spot = None
+        is_edge_ball = False  # used to determine if the clicked ball is an edge ball
 
         while True:
             ret, current_video_frame = self.cap.read()
@@ -354,6 +358,8 @@ class Server:
                     if clicked_ball is not None:
                         print(f"[SERVER] Collecting ball at {clicked_ball.center}...")
                         # Set the path to the clicked ball
+                        is_edge_ball = self.course.is_ball_near_wall(clicked_ball)
+                        self.path_planner.set_object_radius(SMALL_OBJECT_RADIUS)
                         current_path = self.path_planner.find_path(robot.center, clicked_ball.center, self.path_planner.generate_grid(self.course, excluded_objects=[clicked_ball]))
                         if current_path is not None and len(current_path) > 0:
                             self.pure_pursuit_navigator_slow.set_path(current_path)
@@ -424,13 +430,17 @@ class Server:
                 current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
                 instruction = self.pure_pursuit_navigator_slow.compute_drive_command(robot.center, robot_direction)
                 self.send_instruction(instruction)
-                if distance(robot.center, current_path[-1]) < 10:
+                stop_dist = 10 if is_edge_ball else 32  # Stop distance for edge balls is smaller
+                print("Is edge ball:", is_edge_ball)
+                if distance(robot.center, current_path[-1]) < stop_dist:
                     print("[SERVER] Reached the end of the path.")
                     instruction = {"cmd": "claw", "action": "close"}
                     self.send_instruction(instruction)
                     self.pure_pursuit_navigator_slow.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
+                    self.path_planner.set_object_radius(LARGE_OBJECT_RADIUS)  # Reset to large object radius for next path
+                    is_edge_ball = False  # Reset edge ball flag
             elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.DELIVER_BALL:
                 if len(self.pure_pursuit_navigator.path) == 0:
                     print("[SERVER] No path to follow, please generate a path first.")

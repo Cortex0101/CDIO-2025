@@ -113,6 +113,13 @@ class AStarStrategyOptimized:
         # Radius of the object (in grid cells)
         self.OBJ_RADIUS = obj_radius
 
+    def set_object_radius(self, radius):
+        '''
+        Set the radius of the object for pathfinding.
+        This is used to ensure the path stays at least OBJ_RADIUS away from obstacles.
+        '''
+        self.OBJ_RADIUS = radius
+
     def _heuristic(self, a, b):
         # Octile distance for 8-directional grid
         dx = abs(a[0] - b[0])
@@ -294,6 +301,19 @@ class PathPlanner:
                         grid[y, x] = self.OBJECT_NUMS[obj.label]
 
         return grid
+    
+    def set_object_radius(self, radius):
+        """
+        Set the radius of the object for pathfinding.
+        This is used to ensure the path stays at least OBJ_RADIUS away from obstacles.
+        
+        Args:
+            radius: int, radius of the object in grid cells
+        """
+        if self.strategy is not None:
+            self.strategy.set_object_radius(radius)
+        else:
+            raise ValueError("No path planning strategy defined.")
     
     def find_path(self, start, end, grid):
         """
