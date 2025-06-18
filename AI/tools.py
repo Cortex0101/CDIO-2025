@@ -300,7 +300,6 @@ def copy_images_and_labels_to_folder():
     """
     target_folder="D:/dataset"
     
-
 if __name__ == "__main__":
     '''
     #visualize_model_on_image('AI/images/image_375.jpg', 'ball_detect/v8/weights/best.pt')
@@ -316,6 +315,7 @@ if __name__ == "__main__":
     for img in res[2]:
         print(img)D:\dataset
         '''
+    '''
     create_new_dataset_structure('V9', "D:/dataset")
     res = print_image_labelled_info()
     dict = [] # image: str, txt: str
@@ -355,3 +355,6 @@ if __name__ == "__main__":
     for item in val_dict:
         shutil.copy(item['image'], os.path.join(val_folder, 'images', os.path.basename(item['image'])))
         shutil.copy(item['txt'], os.path.join(val_folder, 'labels', os.path.basename(item['txt'])))
+        '''
+    
+    visualize_model_on_image('AI/images4/image_1015.jpg', 'ball_detect/v10_t/weights/best.pt')
