@@ -40,8 +40,8 @@ class Server:
         self.host = '0.0.0.0'
         self.port = 12346
 
-        self.SEND_CUSTOM_INSTRUCTIONS = False # Start instruction testing loop
-        self.CONTROL_CUSTOM = True # Start custom control loop
+        self.SEND_CUSTOM_INSTRUCTIONS = True # Start instruction testing loop
+        self.CONTROL_CUSTOM = False# Start custom control loop
         self.USE_PRE_MARKED_WALL = False # Launch window to mark walls on the course and use those.
 
         if fakeEv3Connection:
@@ -67,8 +67,8 @@ class Server:
 
         self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
         self.course = Course()
-        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=True, draw_walls=True, draw_direction_markers=True)
-        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=LARGE_OBJECT_RADIUS))
+        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True, draw_direction_markers=True)
+        self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=config.LARGE_OBJECT_RADIUS))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
         # extra 
@@ -102,9 +102,10 @@ class Server:
         }
         self._active_key = None
         # hook events
-        for k in self._key_map:
-            keyboard.on_press_key(k,   lambda e, k=k: self._activate(k))
-            keyboard.on_release_key(k, lambda e, k=k: self._deactivate(k))
+        if self.CONTROL_CUSTOM:
+            for k in self._key_map:
+                keyboard.on_press_key(k,   lambda e, k=k: self._activate(k))
+                keyboard.on_release_key(k, lambda e, k=k: self._deactivate(k))
 
         #####################
 
@@ -432,7 +433,7 @@ class Server:
                         print(f"[SERVER] Collecting ball at {clicked_ball.center}...")
                         # Set the path to the clicked ball
                         is_edge_ball = self.course.is_ball_near_wall(clicked_ball)
-                        self.path_planner.set_object_radius(SMALL_OBJECT_RADIUS)
+                        self.path_planner.set_object_radius(config.SMALL_OBJECT_RADIUS)
                         current_path = self.path_planner.find_path(robot.center, clicked_ball.center, self.path_planner.generate_grid(self.course, excluded_objects=[clicked_ball]))
                         if current_path is not None and len(current_path) > 0:
                             self.pure_pursuit_navigator_slow.set_path(current_path)
@@ -472,7 +473,7 @@ class Server:
                     self.send_instruction(instruction)
             elif current_state == RobotState.TURN_TO_OBJECT_OR_POINT and angle_to_target != -1:
                 # Compute turn command to face the target object
-                instruction = self.pure_pursuit_navigator.compute_turn_command(robot_direction, angle_to_target, newKp=0.9)
+                instruction = self.pure_pursuit_navigator.compute_turn_command(robot_direction, angle_to_target, newKp=0.9, new_max_speed=10)
                 self.send_instruction(instruction)
 
                 # Check if the robot is facing the target object
@@ -512,7 +513,7 @@ class Server:
                     self.pure_pursuit_navigator_slow.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
-                    self.path_planner.set_object_radius(LARGE_OBJECT_RADIUS)  # Reset to large object radius for next path
+                    self.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)  # Reset to large object radius for next path
                     is_edge_ball = False  # Reset edge ball flag
             elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.DELIVER_BALL:
                 if len(self.pure_pursuit_navigator.path) == 0:
