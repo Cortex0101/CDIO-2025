@@ -46,6 +46,23 @@ class StateRotateToObject(StateBase):
     def on_exit(self):
         pass
 
+    def on_click(self, event, x, y):
+        """
+        Handle click events. Default implementation does nothing.
+        Override in subclasses if needed.
+        """
+        pass
+
+    def on_key_press(self, key):
+        """
+        Handle key press events. Default implementation does nothing.
+        Override in subclasses if needed.
+        """
+        if key == ord('x'):
+            # If 'g' is pressed, go back to idle state
+            from .StateIdle import StateIdle
+            self.server.set_state(StateIdle(self.server))
+
 '''
 elif current_state == RobotState.TURN_TO_OBJECT_OR_POINT and angle_to_target != -1:
                 # Compute turn command to face the target object

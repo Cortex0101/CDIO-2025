@@ -64,11 +64,10 @@ class StateCollectBall(StateBase):
         pass
 
     def on_key_press(self, key):
-        if key == ord('g'):
-            # Start StateGotoNearestBall
-            from .StateGoToNearestBall import StateGoToNearestBall
-            self.server.set_state(StateGoToNearestBall(self.server))
-        pass
+        if key == ord('x'):
+            # If 'g' is pressed, go back to idle state
+            from .StateIdle import StateIdle
+            self.server.set_state(StateIdle(self.server))
 
     def _distance(self, a, b):
         """
