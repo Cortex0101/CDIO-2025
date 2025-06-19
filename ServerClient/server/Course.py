@@ -73,6 +73,10 @@ class Course:
         Returns:
             Course: populated with CourseObject instances
         """
+        if not result or not cls:
+            print("[Course] No results to process, returning empty Course.")
+            return cls()
+
         course = cls()
         masks = result.masks.xy 
         boxes = result.boxes.xyxy.cpu().numpy()  
