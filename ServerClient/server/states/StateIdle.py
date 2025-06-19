@@ -23,4 +23,9 @@ class StateIdle(StateBase):
             # Start StateGotoNearestBall
             from .StateGoToNearestBall import StateGoToNearestBall
             self.server.set_state(StateGoToNearestBall(self.server))
-        pass
+        
+        elif key == ord('b'):
+            nearest_ball = self.server.course.get_nearest_ball(self.server.course.get_robot().center, color='white')
+            if nearest_ball is not None:
+                from .StateCollectBall import StateCollectBall
+                self.server.set_state(StateCollectBall(self.server, target_object=nearest_ball))

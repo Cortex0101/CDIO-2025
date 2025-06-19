@@ -12,10 +12,21 @@ class StateCollectBall(StateBase):
         self.robot_direction = self.server.course.get_robot().direction
         self.robot_center = self.server.course.get_robot().center
         self.is_edge_ball = self.server.course.is_ball_near_wall(self.target_object)
+
+        ### quick fix, as it does not recognize the target object, passed from earlier ###
+        new_target = self.server.course.get_nearest_ball(self.robot_center, color='white')
+        if new_target is not None:
+            self.target_object = new_target
+        ###################
+
         if self.is_edge_ball:
             self.server.path_planner.set_object_radius(config.SMALL_OBJECT_RADIUS)
         else:
             self.server.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)
+
+        # open claw 
+        instruction = {"cmd": "claw", "action": "open"}
+        self.server.send_instruction(instruction)
 
         grid = self.server.path_planner.generate_grid(self.server.course, excluded_objects=[self.target_object])
         current_path = self.server.path_planner.find_path(self.robot_center, self.target_object.center, grid)
@@ -30,12 +41,13 @@ class StateCollectBall(StateBase):
     def update(self, frame):
         if self.server.course.get_robot() is not None:
             robot = self.server.course.get_robot()
-            self.robot_center = robot.center
-            self.robot_direction = robot.direction
+            self.robot_center = robot.center if robot.center is not None else self.robot_center
+            self.robot_direction = robot.direction if robot.direction is not None else self.robot_direction
         else:
             print("[SERVER] No robot found in the course, using previous position.")
 
         instruction = self.server.pure_pursuit_navigator_slow.compute_drive_command(self.robot_center, self.robot_direction)
+        self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator_slow.path)
         self.server.send_instruction(instruction)
         stop_dist = 10 if self.is_edge_ball else 20
 
@@ -51,8 +63,9 @@ class StateCollectBall(StateBase):
                 instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
                 self.server.send_instruction(instruction)
                 time.sleep(2)  # Back off a bit for edge balls
-                from .StateIdle import StateIdle
-                self.server.set_state(StateIdle(self.server))
+            
+            from .StateIdle import StateIdle
+            self.server.set_state(StateIdle(self.server))
 
     def on_exit(self):
         self.server.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)  # Reset to
