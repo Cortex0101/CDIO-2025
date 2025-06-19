@@ -33,7 +33,8 @@ class RobotState(Enum):
     TURN_TO_OBJECT_OR_POINT = 2,
     DRIVE_TO_OPTIMAL_POSITION = 3,
     COLLECT_BALL = 4,
-    DELIVER_BALL = 5
+    DELIVER_BALL = 5,
+    SELECT_GOAL_CENTERS = 6 # for debugging at home
 
 class Server:
     def __init__(self, fakeEv3Connection=False):
@@ -308,6 +309,9 @@ class Server:
         spot = None
         is_edge_ball = False  # used to determine if the clicked ball is an edge ball
 
+        # remove later
+        clicked_goal_center = None
+
         while True:
             ret, current_video_frame = self.cap.read()
 
@@ -317,6 +321,11 @@ class Server:
 
             self.course = self.ai_model.generate_course(current_video_frame)
             current_video_frame_with_objs = self.course_visualizer.draw(current_video_frame, self.course)
+
+            # remove later
+            if clicked_goal_center is not None:
+                # Highlight the clicked goal center
+                self.course_visualizer.highlight_point(current_video_frame_with_objs, clicked_goal_center, color=(0, 255, 0), radius=10)
 
             # robot and direction
             if self.course.get_robot() is None:
@@ -375,11 +384,24 @@ class Server:
                 self.pure_pursuit_navigator.set_path(None)
                 instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 self.send_instruction(instruction)
+            elif key == ord('6'):
+                current_state = RobotState.SELECT_GOAL_CENTERS
+                self.pure_pursuit_navigator.set_path(None)
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.send_instruction(instruction)
 
             # Handle mouse click to generate path
             if self.mouse_clicked_coords[0] is not None:
                 x, y = self.mouse_clicked_coords[0]
                 self.mouse_clicked_coords[0] = None
+
+                # remove late ##################
+                if current_state == RobotState.SELECT_GOAL_CENTERS:
+                    # For debugging at home, select goal centers
+                    print(f"[SERVER] Selected goal center at ({x}, {y})")
+                    clicked_goal_center = (x, y)
+                ################################
+
 
                 if current_state == RobotState.FOLLOW_PATH:
                     grid = self.path_planner.generate_grid(self.course) # change to True if you want to drw floor
@@ -443,12 +465,12 @@ class Server:
                             print("[SERVER] No path found to collect the ball.")
                     else:
                         print("[SERVER] No ball found at the clicked position.")
-                elif current_state == RobotState.DELIVER_BALL:
+                elif current_state == RobotState.DELIVER_BALL and clicked_goal_center is not None:
                     # Find the clicked goal
                     #clicked_goal = self.get_clicked_goal(x, y)
-                    spot = (x, y)
+                    spot = self.course.get_optimal_goal_parking_spot(clicked_goal_center)
                     excluded_ball = self.course.get_nearest_ball(self.course.get_robot().center, 'either')
-                    current_path = self.path_planner.find_path(robot.center, (x,y), self.path_planner.generate_grid(self.course, excluded_objects=[excluded_ball]))
+                    current_path = self.path_planner.find_path(robot.center, spot, self.path_planner.generate_grid(self.course, excluded_objects=[excluded_ball]))
                     if current_path is not None and len(current_path) > 0:
                         self.pure_pursuit_navigator.set_path(current_path)
                         print(f"[SERVER] Path found: {len(current_path)} points.")
@@ -527,8 +549,6 @@ class Server:
                 if len(self.pure_pursuit_navigator.path) == 0:
                     print("[SERVER] No path to follow, please generate a path first.")
                     continue
-                if spot is not None:
-                    self.course_visualizer.highlight_point(current_video_frame_with_objs, spot, color=(0, 255, 0), radius=10)
                 current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
                 instruction = self.pure_pursuit_navigator.compute_drive_command(robot.center, robot_direction)
                 self.send_instruction(instruction)

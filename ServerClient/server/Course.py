@@ -291,6 +291,33 @@ class Course:
 
         return (-1, -1) # If no valid spot is found, return (0, 0) or None
 
+    def get_optimal_goal_parking_spot(self, goal_center: tuple): # should be a CourseObject but for debugging
+        # for now just returns a spot that is 50 pixels to the side of the goal
+        # in future should look for obstacles and use proper goal.
+        floor = self.get_floor()
+        wall_distances = {
+                'left': abs(goal_center[0] - floor.bbox[0]),  # left wall
+                'right': abs(goal_center[0] - floor.bbox[2]),  # right wall
+                'top': abs(goal_center[1] - floor.bbox[1]),  # top wall
+                'bottom': abs(goal_center[1] - floor.bbox[3])  # bottom wall
+        }
+        closest_wall = min(wall_distances, key=wall_distances.get)
+        distance = 50  # Distance to park the goal away from the wall
+        optimal_spot = None
+        if closest_wall == 'left':
+            # Calculate the optimal spot to the left of the goal
+            optimal_spot = (goal_center[0] + distance, goal_center[1])
+        elif closest_wall == 'right':
+            # Calculate the optimal spot to the right of the goal
+            optimal_spot = (goal_center[0] - distance, goal_center[1])
+        elif closest_wall == 'top':
+            # Calculate the optimal spot above the goal
+            optimal_spot = (goal_center[0], goal_center[1] + distance)
+        elif closest_wall == 'bottom':
+            # Calculate the optimal spot below the goal
+            optimal_spot = (goal_center[0], goal_center[1] - distance)
+
+        return (int(optimal_spot[0]), int(optimal_spot[1])) if optimal_spot else None
 
     
 
