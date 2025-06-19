@@ -44,7 +44,7 @@ class StateRotateToObject(StateBase):
         return angle  # returns angle in degrees, 0 is right, 90 is up, 180 is left, 270 is down
 
     def on_exit(self):
-        pass
+        self.angle_has_been_correct_for_x_frame = 0
 
     def on_click(self, event, x, y):
         """
