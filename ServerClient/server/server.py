@@ -66,7 +66,7 @@ class Server:
 
         self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
         self.course = Course()
-        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True)
+        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=True, draw_walls=True)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=LARGE_OBJECT_RADIUS))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
