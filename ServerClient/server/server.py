@@ -28,7 +28,7 @@ from logging.handlers import RotatingFileHandler
 
 def configure_logging():
     # Root logger configuration: log INFO+ to console, DEBUG+ to file
-    fmt = "%(asctime)s %(levelname)-8s [%(name)s] %(message)s"
+    fmt = "%(asctime)s %(levelname)-8s %(funcName)s():%(lineno)s [%(name)s] %(message)s"
     datefmt = "%Y-%m-%d %H:%M:%S"
 
     # 1) Console handler
