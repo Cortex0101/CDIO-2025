@@ -304,6 +304,7 @@ class Server:
         robot = None
         robot_direction = 0
         angle_to_target = -1 # used when in RobotState.TURN_TO_OBJECT
+        angle_has_been_correct_for_x_frame = 0 # used to determine if the robot is facing the target object
         spot = None
         is_edge_ball = False  # used to determine if the clicked ball is an edge ball
 
@@ -479,8 +480,12 @@ class Server:
                 print(f"[SERVER] Angle difference: {abs(angle_to_target - robot_direction)}")
                 if abs(angle_to_target - robot_direction) < 3:
                     print("[SERVER] Robot is now facing the target object.")
-                    angle_to_target = -1  # Reset angle to target
-                    self.send_instruction({"cmd": "drive", "left_speed": 0, "right_speed": 0})
+                    angle_has_been_correct_for_x_frame += 1
+                    if angle_has_been_correct_for_x_frame > 5:  # Wait for 5 frames to ensure it's stable
+                        print("[SERVER] Angle has been stable for 5 frames, switching to next state.")
+                        angle_to_target = -1  # Reset angle to target
+                        angle_has_been_correct_for_x_frame = 0
+                        self.send_instruction({"cmd": "drive", "left_speed": 0, "right_speed": 0})
             elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.DRIVE_TO_OPTIMAL_POSITION:
                 if len(self.pure_pursuit_navigator.path) == 0:
                     print("[SERVER] No path to follow, please generate a path first.")
