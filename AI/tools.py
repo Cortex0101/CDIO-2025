@@ -301,22 +301,23 @@ def copy_images_and_labels_to_folder():
     target_folder="D:/dataset"
     
 if __name__ == "__main__":
-    '''
     #visualize_model_on_image('AI/images/image_375.jpg', 'ball_detect/v8/weights/best.pt')
+    '''
     res = print_image_labelled_info()
+    
     
     # replace backslashes with slashes in paths
     res = (list(map(replace_backslashes_with_slashes, res[0])),
            list(map(replace_backslashes_with_slashes, res[1])),
               list(map(replace_backslashes_with_slashes, res[2])))
+              
 
     # print names of all unlabelled images
     print("Unlabelled images:")
     for img in res[2]:
-        print(img)D:\dataset
-        '''
-    '''
-    create_new_dataset_structure('V9', "D:/dataset")
+        print(img)
+
+    create_new_dataset_structure('V14', "D:/dataset")
     res = print_image_labelled_info()
     dict = [] # image: str, txt: str
     for i in range(len(res[0])):
@@ -355,6 +356,5 @@ if __name__ == "__main__":
     for item in val_dict:
         shutil.copy(item['image'], os.path.join(val_folder, 'images', os.path.basename(item['image'])))
         shutil.copy(item['txt'], os.path.join(val_folder, 'labels', os.path.basename(item['txt'])))
-        '''
-    
-    visualize_model_on_image('AI/images4/image_1016.jpg', 'ball_detect/v12/weights/best.pt')
+'''
+    visualize_model_on_image('AI/images4/image_1115.jpg', 'ball_detect/v13/weights/best.pt')
