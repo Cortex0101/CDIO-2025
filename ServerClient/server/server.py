@@ -46,6 +46,8 @@ def configure_logging():
     root.addHandler(console)
     root.addHandler(file_handler)
 
+logger = logging.getLogger(__name__)
+
 def distance(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
 
@@ -76,7 +78,7 @@ class Server:
 
         self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         if not self.cap.isOpened():
-            print("[SERVER] Error: Could not open camera.")
+            logger.critical("Could not open camera, exiting.")
             exit()
 
         self.mouse_clicked_coords = [None]
@@ -138,12 +140,11 @@ class Server:
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((self.host, self.port))
         self.server.listen(1)
-        print(f"[SERVER] Listening on {self.host}:{self.port}... Waiting for EV3 connection.")
+        logger.info(f"Server started on {self.host}:{self.port}, waiting for EV3 connection.")
 
         while True:
-            print("[SERVER] Waiting for a new EV3 connection...")
             self.conn, addr = self.server.accept()
-            print(f"[SERVER] Connected to EV3 at {addr}")
+            logger.info(f"Connected to EV3 at {addr}")
             try:
                 if self.SEND_CUSTOM_INSTRUCTIONS:
                     self.custom_instruction_loop()
@@ -152,20 +153,20 @@ class Server:
                 else:
                     self.main_loop()
             except Exception as e:
-                print(f"[SERVER] Connection lost or error: {e}")
+                logger.error(f"Error in main loop: {e}")
             finally:
                 try:
                     self.conn.close()
                 except Exception:
                     pass
-                print("[SERVER] Connection closed.")
+                logger.info("Connection closed, waiting for new EV3 connection.")
 
     def _activate(self, key):
-        print(f"[SERVER] Activated key: {key}")
+        logger.info(f"Activated key: {key}")
         self._active_key = key
 
     def _deactivate(self, key):
-        print(f"[SERVER] Deactivated key: {key}")
+        logger.info(f"Deactivated key: {key}")
         if self._active_key == key:
             self._active_key = None
 
@@ -207,12 +208,12 @@ class Server:
                 response = json.loads(data.decode())
                 return response
         except Exception as e:
-            print(f"[SERVER] Error sending instruction: {e}")
+            logger.error(f"Error sending instruction: {e}")
             return {"status": "error", "msg": str(e)}
 
     def mouse_callback(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
-            print(f"[SERVER] Mouse clicked at ({x}, {y})")
+            logger.info(f"Mouse clicked at ({x}, {y})")
             self.mouse_clicked_coords[0] = (x, y)
 
     def get_clicked_ball(self, x, y):
@@ -220,10 +221,10 @@ class Server:
         all_balls = self.course.get_white_balls() + self.course.get_orange_balls()
         for ball in all_balls:
             if self.course._bbox_within_threshold_point(ball.bbox, (x, y), threshold=0):
-                print(f"[SERVER] Found ball at {ball.center}, clicked at ({x}, {y})")
+                logger.info(f"Found ball at {ball.center}, clicked at ({x}, {y})")
                 return ball
             
-        print(f"[SERVER] No ball found at ({x}, {y})")
+        logger.info(f"No ball found at ({x}, {y})")
         return None
     
     def get_clicked_goal(self, x, y):
@@ -231,10 +232,10 @@ class Server:
         all_goals = self.course.get_goals()
         for goal in all_goals:
             if self.course._bbox_within_threshold_point(goal.bbox, (x, y), threshold=0):
-                print(f"[SERVER] Found goal at {goal.center}, clicked at ({x}, {y})")
+                logger.info(f"Found goal at {goal.center}, clicked at ({x}, {y})")
                 return goal
             
-        print(f"[SERVER] No goal found at ({x}, {y})")
+        logger.info(f"No goal found at ({x}, {y})")
         return None
 
     def custom_instruction_loop(self):
@@ -253,7 +254,7 @@ class Server:
             ret, current_video_frame = self.cap.read()
 
             if not ret:
-                print("[SERVER] Error: Could not read frame from camera.")
+                logger.error("Could not read frame from camera.")
                 continue
 
             self.course = self.ai_model.generate_course(current_video_frame)
@@ -266,18 +267,18 @@ class Server:
 
             # robot and direction
             if self.course.get_robot() is None:
-                print("[SERVER] No robot detected in course, using previous position.")
+                logger.warning("No robot detected in course, using previous position.")
             else:
                 robot = self.course.get_robot()
                 if robot.direction is None:
-                    print("[SERVER] Robot direction is None, using previous value.")
+                    logger.warning("Robot direction is None, using previous value.")
                 else:
                     robot_direction = robot.direction
 
             key = cv2.waitKey(1) & 0xFF
             
             if key == ord('q'):
-                print("[SERVER] Quitting...")
+                logger.info("Quitting server.")
                 break
             elif key == ord('c'):
                 current_state = RobotState.IDLE
@@ -512,12 +513,12 @@ class Server:
     def _capture_frame(self):
         ret, frame = self.cap.read()
         if not ret:
-            print("[SERVER] Frame error.")
+            logger.error("Failed to capture frame from camera.")
             return None
         return frame
 
     def _quit(self):
-        print("[SERVER] Quitting…")
+        logger.info("Quitting server.")
         cv2.destroyAllWindows()
         sys.exit(0)
 
