@@ -357,4 +357,4 @@ if __name__ == "__main__":
         shutil.copy(item['image'], os.path.join(val_folder, 'images', os.path.basename(item['image'])))
         shutil.copy(item['txt'], os.path.join(val_folder, 'labels', os.path.basename(item['txt'])))
 '''
-    visualize_model_on_image('AI/images4/image_1115.jpg', 'ball_detect/v13/weights/best.pt')
+    visualize_model_on_image('AI/images4/image_1115.jpg', 'ball_detect/FINAL_XL/weights/best.pt')
