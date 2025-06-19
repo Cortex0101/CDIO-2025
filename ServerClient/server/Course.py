@@ -254,8 +254,40 @@ class Course:
                 if not overlaps_obstacle:
                     # If the spot is valid, return it
                     return (int(spot[0]), int(spot[1]))
-                        
-        return (0, 0)  # If no valid spot is found, return (0, 0) or None
+
+        # if robot is near a wall, but not near a corner or cross, find a a spot that is directly perpendicular to the wall the ball is near
+        if is_near_wall and not (is_near_corner or is_near_cross):
+            # ball: (np.float32(575.7888), np.float32(185.29161), np.float32(590.77075), np.float32(198.9276))
+            # wall: (np.float32(69.766785), np.float32(39.335754), np.float32(589.8566), np.float32(417.1231))
+            wall = self.get_floor()
+            optimal_spot = None
+            # Find which wall the ball is near
+            wall_distances = {
+                'left': abs(ball.bbox[0] - wall.bbox[0]),  # left wall
+                'right': abs(ball.bbox[2] - wall.bbox[2]),  # right wall
+                'top': abs(ball.bbox[1] - wall.bbox[1]),  # top wall
+                'bottom': abs(ball.bbox[3] - wall.bbox[3])  # bottom wall
+            }
+            # Determine the closest wall
+            closest_wall = min(wall_distances, key=wall_distances.get)
+            distance = max(robot_size)  # Use the maximum dimension of the robot's bounding box
+            if closest_wall == 'left':
+                # Calculate the optimal spot to the left of the ball
+                optimal_spot = (ball.center[0] + distance, ball.center[1])
+            elif closest_wall == 'right':
+                # Calculate the optimal spot to the right of the ball
+                optimal_spot = (ball.center[0] - distance, ball.center[1])
+            elif closest_wall == 'top':
+                # Calculate the optimal spot above the ball
+                optimal_spot = (ball.center[0], ball.center[1] + distance)
+            elif closest_wall == 'bottom':
+                # Calculate the optimal spot below the ball
+                optimal_spot = (ball.center[0], ball.center[1] - distance)
+
+            if optimal_spot:
+                return (int(optimal_spot[0]), int(optimal_spot[1]))
+
+        return (-1, -1) # If no valid spot is found, return (0, 0) or None
 
 
     
@@ -387,7 +419,7 @@ class Course:
         nearest_object = min(filtered_objects, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
         return nearest_object
 
-    def is_ball_near_wall(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
+    def is_ball_near_wall(self, ball: CourseObject, threshold: int = config.LARGE_OBJECT_RADIUS):
         """
         Check if a ball is near the edge of the floor. 
         That is, a ball is considered near the wall if it is bbox lies within a certain threshold distance
@@ -404,7 +436,7 @@ class Course:
 
         return self._bbox_within_threshold_bbox(ball.bbox, wall.bbox, threshold)
 
-    def is_ball_near_corner(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
+    def is_ball_near_corner(self, ball: CourseObject, threshold: int = config.LARGE_OBJECT_RADIUS):
         """
         Check if a ball is near the corner of the floor.
 
@@ -432,7 +464,7 @@ class Course:
             
         return False
 
-    def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
+    def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.LARGE_OBJECT_RADIUS):
         """
         Check if a ball is near the cross object.
 
