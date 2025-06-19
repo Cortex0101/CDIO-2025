@@ -31,7 +31,7 @@ class StateCollectBall(StateBase):
         if self.server.course.get_robot() is not None:
             robot = self.server.course.get_robot()
             self.robot_center = robot.center
-            self.robot_direction = robot.direction6
+            self.robot_direction = robot.direction
         else:
             print("[SERVER] No robot found in the course, using previous position.")
 
