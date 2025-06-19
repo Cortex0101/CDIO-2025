@@ -1,4 +1,5 @@
 import math
+import logging
 import numpy as np
 import cv2
 
@@ -13,6 +14,8 @@ import config
 -100 hvis robotten flytter forhindringen/banen over 1 cm.
 -300 for at flytte ægget mere end 1 cm.
 '''
+
+logger = logging.getLogger(__name__)
 
 class CourseObject:
     """
@@ -76,7 +79,7 @@ class Course:
             Course: populated with CourseObject instances
         """
         if not result or not cls:
-            print("[Course] No results to process, returning empty Course.")
+            logger.warning("No results to process, returning empty Course.")
             return cls()
 
         course = cls()
@@ -206,7 +209,7 @@ class Course:
             DEFAULT_ROBOT_SIZE = (90, 50)  # Default size if robot is not found (estimate from example image)
             robot = self.get_robot()
             if not robot:
-                print("[Course] No robot found, using default robot size.")
+                logger.warning("No robot found, using default robot size of %s.", DEFAULT_ROBOT_SIZE)
                 return DEFAULT_ROBOT_SIZE
                 
             return (robot.bbox[2] - robot.bbox[0], robot.bbox[3] - robot.bbox[1])
@@ -347,7 +350,7 @@ class Course:
             DEFAULT_ROBOT_SIZE = (90, 50)  # Default size if robot is not found (estimate from example image)
             robot = self.get_robot()
             if not robot:
-                print("[Course] No robot found, using default robot size.")
+                logger.warning("No robot found, using default robot size of %s.", DEFAULT_ROBOT_SIZE)
                 return DEFAULT_ROBOT_SIZE
                 
             return (robot.bbox[2] - robot.bbox[0], robot.bbox[3] - robot.bbox[1])
