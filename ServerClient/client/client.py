@@ -26,20 +26,8 @@ class Robot:
     def move_forward(self, left_speed, right_speed):
         self.tank_drive.on(left_speed, right_speed)
 
-    def move_forward_for_seconds(self, seconds):
-        self.tank_drive.on_for_seconds(left_speed=50, right_speed=50, seconds=seconds)
-    def move_backwards_for_seconds(self, seconds):
-        self.tank_drive.on_for_seconds(left_speed=-50, right_speed=-50, seconds=seconds)
-
-    def perform_jiggle(self, number_of_jiggles=2, jiggle_degrees=4):
-        """
-        Jiggles the robot left and right by first turning left wheel backswards and right wheel forwards, then right wheel backwards and left wheel forwards.
-        """
-        for _ in range(number_of_jiggles):
-            self.tank_drive.on_for_degrees(left_speed=-20, right_speed=20, degrees=jiggle_degrees)
-            sleep(0.1)
-            self.tank_drive.on_for_degrees(left_speed=20, right_speed=-20, degrees=jiggle_degrees)
-            sleep(0.1)
+    def move_seconds(self, seconds=1, speed=15):
+        self.tank_drive.on_for_seconds(left_speed=speed, right_speed=speed, seconds=seconds)
 
     def open_claw(self, speed=20):
         self.claw_motor.on_to_position(speed=speed, position=self.CLAW_OPEN_POS)
@@ -88,6 +76,10 @@ def execute_instruction(instr):
         else:
             print("[CLIENT] Invalid drive command: " + str(instr))
             return False
+    if cmd == "drive_seconds":
+        seconds = instr.get("seconds", 1)
+        speed = instr.get("speed", 15)
+        robot.move_seconds(seconds, speed)
     elif cmd == "claw":
         action = instr.get("action")
         speed = instr.get("speed", 20)
