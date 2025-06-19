@@ -1,5 +1,9 @@
 from .StateBase import StateBase
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class StateGoToNearestBall(StateBase):
     def __init__(self, server):
         super().__init__(server)
@@ -13,8 +17,14 @@ class StateGoToNearestBall(StateBase):
         all_balls = self._sort_balls_by_distance(self.robot_center, all_balls)
 
         for ball in all_balls:
-            if self.server.course.is_ball_near_corner(ball) or self.server.course.is_ball_near_cross(ball):
+            near_cross = self.server.course.is_ball_near_cross(ball)
+            near_corner = self.server.course.is_ball_near_corner(ball)
+            if near_corner:
+                logger.info(f"[SERVER] Skipping ball {ball} as it is near a corner: {near_corner}")
                 continue  # Skip balls that are near corners or crosses
+            if near_cross:
+                logger.info(f"[SERVER] Skipping ball {ball} as it is near a cross: {near_cross}")
+                continue
 
             # check if a path can be generated to this ball
             optimal_spot = self.server.course.get_optimal_ball_parking_spot(ball)

@@ -499,7 +499,7 @@ class Course:
             
         return False
 
-    def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.LARGE_OBJECT_RADIUS):
+    def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
         """
         Check if a ball is near the cross object.
 

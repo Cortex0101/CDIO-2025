@@ -47,6 +47,8 @@ class PurePursuitNavigator:
 
         # Angle from robot to lookahead
         angle_to_target = self._angle_to(robot_pos, lookahead)
+        logger.debug(f"Angle to target: {angle_to_target}")
+        logger.debug(f"Robot Position: {robot_pos}, Lookahead: {lookahead}, Robot Heading: {robot_heading}")
         heading_error = self._normalize_angle(angle_to_target - robot_heading)
 
         # Steering control

@@ -6,6 +6,7 @@ import sys
 import select
 import threading
 import queue
+import traceback
 from enum import Enum
 
 import cv2
@@ -19,6 +20,8 @@ import config
 
 from states.StateIdle import StateIdle
 from states.StateGoToNearestBall import StateGoToNearestBall
+from states.StateCollectBall import StateCollectBall
+from states.StateRotateToObject import StateRotateToObject
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -154,6 +157,12 @@ class Server:
                     self.main_loop()
             except Exception as e:
                 logger.error(f"Error in main loop: {e}")
+                # more info
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                logger.error(f"Exception type: {exc_type}")
+                logger.error(f"Exception value: {exc_value}")
+                logger.error("Traceback:")
+                traceback.print_exception(exc_type, exc_value, exc_traceback)
             finally:
                 try:
                     self.conn.close()
@@ -528,6 +537,10 @@ class Server:
         if key == ord('q'):
             self._quit()
 
+        if key == ord('d'):
+            instruction = {"cmd": "deliver", "speed": 75}
+            self.send_instruction(instruction)
+
         self.current_state.on_key_press(key)
 
     def _on_click(self, event, x, y, flags, param):
@@ -544,7 +557,12 @@ class Server:
             frame = self.course_visualizer.draw(frame, self.course)
 
             self._on_key_press() # send key press to current state
-            self.current_state.update(frame) # update current state
+            try:
+                self.current_state.update(frame)  # update current state
+            except Exception as e:
+                # log error with traceback
+                logger.error(f"Error in current state update: {e}")
+                logger.error(traceback.format_exc())
 
             cv2.imshow("view", frame)
 
