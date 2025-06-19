@@ -1,5 +1,8 @@
 import math
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 class PurePursuitNavigator:
     def __init__(self, path, lookahead_distance=25, max_speed=120, true_max_speed=90, kp=0.3, max_turn_slowdown=0.7):
@@ -58,11 +61,10 @@ class PurePursuitNavigator:
         # Clamp motor speeds to true physical max
         left_speed = max(-self.true_max_speed, min(self.true_max_speed, left_speed))
         right_speed = max(-self.true_max_speed, min(self.true_max_speed, right_speed))
-
-        print(f"[DEBUG] Robot Position: {robot_pos}, Lookahead: {lookahead}, "
-              f"Robot Heading: {robot_heading}, "
-              f"Angle to Target: {angle_to_target}, Heading Error: {heading_error}, " 
-              f"Left Speed: {left_speed}, Right Speed: {right_speed}")
+        logger.debug(f"Robot Position: {robot_pos}, Lookahead: {lookahead}, "
+                     f"Robot Heading: {robot_heading}, "
+                        f"Angle to Target: {angle_to_target}, Heading Error: {heading_error}, "
+                        f"Left Speed: {left_speed}, Right Speed: {right_speed}")
 
         return {"cmd": "drive", "left_speed": left_speed, "right_speed": right_speed}
     
@@ -90,9 +92,10 @@ class PurePursuitNavigator:
         left_speed  = int(-turn_speed)
         right_speed = int( turn_speed)
 
-        print(f"[DEBUG] Heading Error: {heading_error:.1f}°, "
-              f"Turn Speed: {turn_speed:.1f}, "
-              f"→ Left: {left_speed}, Right: {right_speed}")
+        logger.debug(f"Turn Command: Left Speed: {left_speed}, Right Speed: {right_speed}, "
+                     f"Heading Error: {heading_error}, "
+                        f"Turn Speed: {turn_speed}, "
+                        f"New Kp: {newKp}, New Max Speed: {new_max_speed}")
 
         return {"cmd": "drive",
                 "left_speed": left_speed,
