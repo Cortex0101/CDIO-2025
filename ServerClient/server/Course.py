@@ -155,6 +155,8 @@ class Course:
         if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get cross object.")
         
+        if not self.get_by_label('cross'):
+            return None
         return self.get_by_label('cross')[0]
     
     def get_floor(self):

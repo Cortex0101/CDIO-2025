@@ -66,7 +66,7 @@ class PurePursuitNavigator:
 
         return {"cmd": "drive", "left_speed": left_speed, "right_speed": right_speed}
     
-    def compute_turn_command(self, robot_heading, target_heading, newKp = None):
+    def compute_turn_command(self, robot_heading, target_heading, newKp = None, new_max_speed = None):
         """
         Turn in place to face target_heading (degrees),
         without any forward/backward motion.
@@ -75,14 +75,16 @@ class PurePursuitNavigator:
         heading_error = self._normalize_angle(target_heading - robot_heading)
 
         # 2) P-control law for turning
-        if newKp is None:
-            turn_speed = -self.kp * heading_error
-        else:
+        turn_speed = -self.kp * heading_error
+        if newKp is not None:
             turn_speed = -newKp * heading_error
 
         # 3) Clamp to physical wheel limits
         turn_speed = max(-self.true_max_speed,
-                         min(self.true_max_speed, turn_speed))
+                        min(self.true_max_speed, turn_speed))
+        if new_max_speed is not None:
+            turn_speed = max(-new_max_speed,
+                            min(new_max_speed, turn_speed))
 
         # 4) Opposite wheel speeds for in-place rotation
         left_speed  = int(-turn_speed)
