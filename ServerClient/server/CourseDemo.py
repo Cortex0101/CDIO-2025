@@ -17,11 +17,11 @@ def demo_visualize_course():
     """
     Demo function to visualize a Course on an image.
     """
-    model = AIModel("ball_detect/v8/weights/best.pt")  # Load your YOLO model
-    course = model.generate_course("AI/images/image_432.jpg")  # Predict on an image
+    model = AIModel("ball_detect/v13/weights/best.pt")  # Load your YOLO model
+    course = model.generate_course("AI/images2/image_614.jpg")  # Predict on an image
 
-    visualizer = CourseVisualizer()
-    img = cv2.imread("AI/images/image_432.jpg")
+    visualizer = CourseVisualizer(draw_walls=True, draw_boxes=True, draw_labels=True, draw_centers=True)  # Adjust parameters as needed
+    img = cv2.imread("AI/images2/image_614.jpg")
     result_img = visualizer.draw(img, course)
 
     cv2.imshow("Course Visualization", result_img)
@@ -119,4 +119,4 @@ def demo_visualize_balls_near_corners():
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    demo_visualize_balls_near_corners()
+    demo_visualize_course()
