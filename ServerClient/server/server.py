@@ -20,6 +20,32 @@ import config
 from states.StateIdle import StateIdle
 from states.StateGoToNearestBall import StateGoToNearestBall
 
+import logging
+from logging.handlers import RotatingFileHandler
+
+def configure_logging():
+    # Root logger configuration: log INFO+ to console, DEBUG+ to file
+    fmt = "%(asctime)s %(levelname)-8s [%(name)s] %(message)s"
+    datefmt = "%Y-%m-%d %H:%M:%S"
+
+    # 1) Console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(logging.Formatter(fmt, datefmt))
+
+    # 2) Rotating file handler
+    file_handler = RotatingFileHandler(
+        "robot.log", maxBytes=5*1024*1024, backupCount=3
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter(fmt, datefmt))
+
+    # 3) Root logger
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+    root.addHandler(console)
+    root.addHandler(file_handler)
+
 def distance(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
 
@@ -40,7 +66,7 @@ class RobotState(Enum):
     SELECT_GOAL_CENTERS = 6 # for debugging at home
 
 class Server:
-    def __init__(self, fakeEv3Connection=False):
+    def __init__(self):
         self.host = '0.0.0.0'
         self.port = 12346
 
@@ -522,4 +548,5 @@ class Server:
             cv2.imshow("view", frame)
 
 if __name__ == "__main__":
-    server = Server(fakeEv3Connection=False)  # Set to True for fake EV3 connection
+    configure_logging()
+    server = Server()  # Set to True for fake EV3 connection
