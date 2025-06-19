@@ -17,6 +17,9 @@ from PathPlanner import *
 from PurePursuit import *
 import config
 
+from states.StateIdle import StateIdle
+from states.StateGoToNearestBall import StateGoToNearestBall
+
 def distance(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
 
@@ -41,20 +44,9 @@ class Server:
         self.host = '0.0.0.0'
         self.port = 12346
 
-        self.SEND_CUSTOM_INSTRUCTIONS = True # Start instruction testing loop
+        self.SEND_CUSTOM_INSTRUCTIONS = False # Start instruction testing loop
         self.CONTROL_CUSTOM = False# Start custom control loop
         self.USE_PRE_MARKED_WALL = False # Launch window to mark walls on the course and use those.
-
-        if fakeEv3Connection:
-            print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")
-            self.conn = None
-        else: 
-            self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.server.bind((self.host, self.port))
-            self.server.listen(1)
-            print(f"[SERVER] Listening on {self.host}:{self.port}... Waiting for EV3 connection.")
-            self.conn, addr = self.server.accept()
-            print(f"[SERVER] Connected to EV3 at {addr}")
 
         self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         if not self.cap.isOpened():
@@ -63,7 +55,7 @@ class Server:
 
         self.mouse_clicked_coords = [None]
         cv2.namedWindow("view")
-        cv2.setMouseCallback("view", self.mouse_callback)
+        cv2.setMouseCallback("view", self._on_click)
         cv2.namedWindow("grid_visualization")
 
         self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
@@ -90,7 +82,6 @@ class Server:
         self.robot_state = RobotState.IDLE
         self.robot = None           # For storing previous robot if needed
         self.robot_direction = 0    # For storing previous robot direction if needed
-
         #####################
         self._key_map = {
             'e': ( 24,  24),
@@ -112,20 +103,11 @@ class Server:
 
         # if send_custom_instructions is true, we will be able to simply send instruction by entering
         # them in the console, otherwise we will have to use we will run the main_loop() method
-        if self.SEND_CUSTOM_INSTRUCTIONS:
-            self.custom_instruction_loop()
-        elif self.CONTROL_CUSTOM:
-            self.control_custom_loop()
+        self.accept_connections_loop()
 
         cv2.destroyAllWindows()
 
     def accept_connections_loop(self):
-        if self.fakeEv3Connection:
-            print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")
-            self.conn = None
-            self.custom_instruction_loop()
-            return
-
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((self.host, self.port))
@@ -137,7 +119,12 @@ class Server:
             self.conn, addr = self.server.accept()
             print(f"[SERVER] Connected to EV3 at {addr}")
             try:
-                self.custom_instruction_loop()
+                if self.SEND_CUSTOM_INSTRUCTIONS:
+                    self.custom_instruction_loop()
+                elif self.CONTROL_CUSTOM:
+                    self.control_custom_loop()
+                else:
+                    self.main_loop()
             except Exception as e:
                 print(f"[SERVER] Connection lost or error: {e}")
             finally:
@@ -147,32 +134,6 @@ class Server:
                     pass
                 print("[SERVER] Connection closed.")
 
-    def main_loop(self):
-        while True:
-            # Read the current video frame
-            ret, current_video_frame = self.cap.read()
-            self.course = self.ai_model.generate_course(current_video_frame)
-            processed_img = self.course_visualizer.draw(current_video_frame, self.course)
-
-            # keyboard input handling
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'):
-                print("[SERVER] Quitting...")
-                break
-            elif key == ord('c'):
-                self.purse_pursuit_navigator.set_path(None)
-                self.robot_state = RobotState.IDLE
-                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-                self.send_instruction(instruction)
-
-            # Main algorithm
-            if self.robot_state == RobotState.IDLE:
-                # Work from balls closest to small goal?
-                pass
-            elif self.robot_state == RobotState.FOLLOW_PATH:
-                pass
-    
-    ###########
     def _activate(self, key):
         print(f"[SERVER] Activated key: {key}")
         self._active_key = key
@@ -516,97 +477,49 @@ class Server:
             
             cv2.imshow("view", current_video_frame_with_objs)
 
-    def custom_instruction_loop_old(self):
-        current_path = None
-        following_path = False
-        robot = None
-        robot_direction = 0
-        purse_pursuit_navigator = None
+    def set_state(self, new_state):
+        if hasattr(self, 'current_state') and self.current_state is not None:
+            self.current_state.on_exit()
+        self.current_state = new_state
+        self.current_state.on_enter()
+
+    def _capture_frame(self):
+        ret, frame = self.cap.read()
+        if not ret:
+            print("[SERVER] Frame error.")
+            return None
+        return frame
+
+    def _quit(self):
+        print("[SERVER] Quitting…")
+        cv2.destroyAllWindows()
+        sys.exit(0)
+
+    def _on_key_press(self):
+        key = cv2.waitKey(1) & 0xFF
+
+        if key == ord('q'):
+            self._quit()
+
+        self.current_state.on_key_press(key)
+
+    def _on_click(self, event, x, y, flags, param):
+        self.current_state.on_click(event, x, y)
+
+    def main_loop(self):
+        self.set_state(StateIdle(self))  # Initialize the state
 
         while True:
-            ret, current_video_frame = self.cap.read()
+            frame = self._capture_frame()
+            if frame is None: continue
 
-            if not ret:
-                print("[SERVER] Error: Could not read frame from camera.")
-                continue
+            self.course = self.ai_model.generate_course(frame)
+            frame = self.course_visualizer.draw(frame, self.course)
 
-            self.course = self.ai_model.generate_course(current_video_frame)
-            current_video_frame_with_objs = self.course_visualizer.draw(current_video_frame, self.course)
+            self._on_key_press() # send key press to current state
+            self.current_state.update(frame) # update current state
 
-            key = cv2.waitKey(1) & 0xFF
-            
-            if key == ord('q'):
-                print("[SERVER] Quitting...")
-                break
-
-            if key == ord('c'):
-                following_path = False
-                current_path = None
-                purse_pursuit_navigator = None
-                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-                self.send_instruction(instruction)
-
-            # Handle mouse click to generate path
-            if self.mouse_clicked_coords[0] is not None:
-                x, y = self.mouse_clicked_coords[0]
-                self.mouse_clicked_coords[0] = None
-                
-                grid = self.path_planner.generate_grid(self.course, True) # change to True if you want to drw floor
-                grid_img = self.path_planner_visualizer.draw_grid_objects(grid)
-
-                start = self.course.get_robot().center
-                start = (int(start[0]), int(start[1]))
-                end = (int(x), int(y))
-                print(f"[SERVER] Generating path from {start} to {end}...")
-
-                current_path = self.path_planner.find_path(start, end, grid)
-                print(f"[SERVER] Path found: {len(current_path)} points.")
-                cv2.imshow("grid_visualization", grid_img)
-                following_path = True  # Start following the path
-                '''
-                purse_pursuit_navigator = PurePursuitNavigator(current_path, 
-                                                               lookahead_distance=25, 
-                                                               max_speed=20, 
-                                                               true_max_speed=20, 
-                                                               kp=0.6, 
-                                                               max_turn_slowdown=1)
-                '''
-                purse_pursuit_navigator = PurePursuitNavigator(current_path, 
-                                                               lookahead_distance=25, 
-                                                               max_speed=25, 
-                                                               true_max_speed=25, 
-                                                               kp=0.75, 
-                                                               max_turn_slowdown=1)
-
-            # Draw path if exists
-            if current_path is not None:
-                current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
-
-            # Path following logic
-            if following_path and current_path is not None and len(current_path) > 1:
-                if self.course.get_robot() is None:
-                    print("[SERVER] No robot detected in course, use previous position.")
-                else: 
-                    robot = self.course.get_robot()
-                if robot is not None:
-                    robot_pos = robot.center
-                    if robot.direction is not None:
-                        robot_direction = robot.direction
-                    else:
-                        print("[SERVER] Robot direction is None, use previous value.")
-                    
-                instruction = purse_pursuit_navigator.compute_drive_command(robot_pos, robot_direction)
-                self.send_instruction(instruction)
-
-                if distance(robot_pos, current_path[-1]) < 30:
-                    print("[SERVER] Reached the end of the path.")
-                    following_path = False
-                    current_path = None
-                    purse_pursuit_navigator = None
-                    instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-                    self.send_instruction(instruction)
-
-            cv2.imshow("view", current_video_frame_with_objs)
+            cv2.imshow("view", frame)
 
 if __name__ == "__main__":
     server = Server(fakeEv3Connection=False)  # Set to True for fake EV3 connection
