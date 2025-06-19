@@ -135,12 +135,21 @@ def demo_visualize_optimal(img_path="AI/images/image_208.jpg"):
         random_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         optimal_spot = course.get_optimal_ball_parking_spot(ball)
         if optimal_spot:
-            if optimal_spot == (0, 0):
+            if optimal_spot == (-1, -1):
                 print(f"Optimal parking spot for ball {ball} is not available.")
             else:
                 print(f"Optimal parking spot for ball {ball}: {optimal_spot}")
                 img = visualizer.highlight_ball(img, ball, color=random_color)
                 img = visualizer.highlight_point(img, optimal_spot, random_color)
+
+    goal = course.get_nearest_goal(course.get_robot().center)
+    if goal:
+        print(f"Nearest goal: {goal}")
+        img = visualizer.highlight_point(img, goal.center, (0, 255, 0))
+        optimal_spot = course.get_optimal_ball_parking_spot(goal)
+        if optimal_spot:
+            print(f"Optimal parking spot for goal {goal}: {optimal_spot}")
+            img = visualizer.highlight_point(img, optimal_spot, (0, 255, 0))
 
     cv2.imshow("Optimal Parking Spot Visualization", img)
     cv2.waitKey(0)
@@ -148,6 +157,7 @@ def demo_visualize_optimal(img_path="AI/images/image_208.jpg"):
 
 if __name__ == "__main__":
     img_162 = "AI/images/image_162.jpg"
+    img_175 = "AI/images/image_175.jpg"
     img_208 = "AI/images/image_208.jpg"
     img_1002 = "AI/images4/image_1002.jpg"
-    demo_visualize_optimal(img_162)
+    demo_visualize_optimal(img_175)
