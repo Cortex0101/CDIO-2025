@@ -15,6 +15,7 @@ from AImodel import *
 from Course import *
 from PathPlanner import *
 from PurePursuit import *
+import config
 
 def distance(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
@@ -34,9 +35,6 @@ class RobotState(Enum):
     COLLECT_BALL = 4,
     DELIVER_BALL = 5
 
-LARGE_OBJECT_RADIUS = 40  # radius in pixels for large objects like balls
-SMALL_OBJECT_RADIUS = 10  # radius in pixels for small objects like balls when collecting
-
 class Server:
     def __init__(self, fakeEv3Connection=False):
         self.host = '0.0.0.0'
@@ -44,7 +42,7 @@ class Server:
 
         self.SEND_CUSTOM_INSTRUCTIONS = False # Start instruction testing loop
         self.CONTROL_CUSTOM = True # Start custom control loop
-        self.USE_PRE_MARKED_WALL = True # Launch window to mark walls on the course and use those.
+        self.USE_PRE_MARKED_WALL = False # Launch window to mark walls on the course and use those.
 
         if fakeEv3Connection:
             print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")

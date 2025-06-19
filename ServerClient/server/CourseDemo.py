@@ -118,5 +118,36 @@ def demo_visualize_balls_near_corners():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def demo_visualize_optimal(img_path="AI/images/image_208.jpg"):
+    """
+    Demo function to visualize the optimal parking spot for a ball.
+    """
+    model = AIModel("ball_detect/v13/weights/best.pt")  # Load your YOLO model
+    course = model.generate_course(img_path)  # Predict on an image
+
+    visualizer = CourseVisualizer(draw_walls=False, draw_boxes=True, draw_labels=True)
+    img = cv2.imread(img_path)
+    img = visualizer.draw(img, course)
+
+    # print robot width and height
+    all_white_balls = course.get_white_balls() + course.get_orange_balls()
+    for ball in all_white_balls:
+        random_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        optimal_spot = course.get_optimal_ball_parking_spot(ball)
+        if optimal_spot:
+            if optimal_spot == (0, 0):
+                print(f"Optimal parking spot for ball {ball} is not available.")
+            else:
+                print(f"Optimal parking spot for ball {ball}: {optimal_spot}")
+                img = visualizer.highlight_ball(img, ball, color=random_color)
+                img = visualizer.highlight_point(img, optimal_spot, random_color)
+
+    cv2.imshow("Optimal Parking Spot Visualization", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 if __name__ == "__main__":
-    demo_visualize_course()
+    img_162 = "AI/images/image_162.jpg"
+    img_208 = "AI/images/image_208.jpg"
+    img_1002 = "AI/images4/image_1002.jpg"
+    demo_visualize_optimal(img_162)
