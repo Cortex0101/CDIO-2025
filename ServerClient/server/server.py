@@ -212,56 +212,6 @@ class Server:
             cv2.imshow("view", vis)
             cv2.waitKey(1)
 
-    '''
-    def control_custom_loop(self):
-        last_instruction =  {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-
-        while True:
-            ret, current_video_frame = self.cap.read()
-
-            if not ret:
-                print("[SERVER] Error: Could not read frame from camera.")
-                continue
-
-            self.course = self.ai_model.generate_course(current_video_frame)
-            current_video_frame_with_objs = self.course_visualizer.draw(current_video_frame, self.course)
-
-            key = cv2.waitKey(1) & 0xFF
-            
-            if key == ord('q'):
-                print("[SERVER] Quitting...")
-                break
-
-            if key == ord('e'):
-                last_instruction = {"cmd": "drive", "left_speed": 24, "right_speed": 24}
-                print(last_instruction)
-                self.send_instruction(last_instruction)
-            elif key == ord('s'):
-                last_instruction = {"cmd": "drive", "left_speed": -24, "right_speed": 24}
-                print(last_instruction)
-                self.send_instruction(last_instruction)
-            elif key == ord('d'):
-                last_instruction = {"cmd": "drive", "left_speed": -24, "right_speed": -24}
-                print(last_instruction)
-                self.send_instruction(last_instruction)
-            elif key == ord('f'):
-                last_instruction = {"cmd": "drive", "left_speed": 24, "right_speed": -24}
-                print(last_instruction)
-                self.send_instruction(last_instruction)
-            elif key == ord('r'):
-                last_instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-                print(last_instruction)
-                self.send_instruction(last_instruction)
-            else:
-                last_instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-                # send the last instruction
-                self.send_instruction(last_instruction)
-
-
-            # show empty frame
-            cv2.imshow("view",  current_video_frame_with_objs)
-    '''
-
     def send_instruction(self, instruction, wait_for_response=False):
         try:
             self.conn.sendall((json.dumps(instruction) + '\n').encode())
