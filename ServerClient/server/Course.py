@@ -2,6 +2,8 @@ import math
 import numpy as np
 import cv2
 
+import config
+
 '''
 100 point pr bold der forlader banen gennem mål B
 150 point pr. bold der forlader banen gennem mål A
@@ -186,6 +188,81 @@ class Course:
     def get_optimal_ball_parking_spot(self, ball: CourseObject):
         """
         Find the optimal parking spot for a ball based on its position and the robot's position.
+        Args:
+            ball: CourseObject representing the ball to park
+        Returns:
+            tuple: (x, y) coordinates of the optimal parking spot
+        """
+        def _get_robot_size():
+            """
+            Get the size of the robot based on its bounding box.
+
+            If a robot object is not found, it will return a default size.
+            Returns:
+                tuple: (width, height) of the robot
+            """
+            DEFAULT_ROBOT_SIZE = (90, 50)  # Default size if robot is not found (estimate from example image)
+            robot = self.get_robot()
+            if not robot:
+                print("[Course] No robot found, using default robot size.")
+                return DEFAULT_ROBOT_SIZE
+                
+            return (robot.bbox[2] - robot.bbox[0], robot.bbox[3] - robot.bbox[1])
+        
+        robot_size = _get_robot_size()
+
+        # determine if the balls is near a wall, corner or cross
+        is_near_wall = self.is_ball_near_wall(ball)
+        is_near_corner = self.is_ball_near_corner(ball)
+        is_near_cross = self.is_ball_near_cross(ball)
+
+        # if none are true, create a list of all points around the ball with a radius of max(robot_size)
+        if not (is_near_wall or is_near_corner or is_near_cross):
+            all_spots = []
+            for angle in range(0, 360, 10):
+                distance = max(robot_size) # using max in case the claw is closed or some weird situation, to ensure it can freely spin on the optimal spot
+                # Calculate the new position based on the angle and distance
+                circle_point = (ball.center[0] + distance * math.cos(math.radians(angle)),
+                                ball.center[1] + distance * math.sin(math.radians(angle)))
+                all_spots.append(circle_point)
+
+            # sort the spots by distance to the robot
+            all_spots.sort(key=lambda spot: np.linalg.norm(np.array(spot) - np.array(self.get_robot().center)))
+
+            for spot in all_spots:
+                # Get robot's bounding box at the circle point
+                robot_bbox_at_circle_point = ( 
+                    spot[0] - distance / 2, # using distance to avoid considering the robots rotation
+                    spot[1] - distance / 2,
+                    spot[0] + distance / 2,
+                    spot[1] + distance / 2
+                )
+                # check if the robot's bounding box at the circle point lies within the course's floor bounding box
+                if not self._bbox_lies_within_bbox(robot_bbox_at_circle_point, self.get_floor().bbox):
+                    # if not, this point is not valid, continue to the next angle
+                    continue
+                # Check if the new spots bbox does not intersect with any other object
+                overlaps_obstacle = False
+                for obj in self.objects:
+                    if obj.label != 'robot' and obj.label != 'wall' and obj is not ball:  # Exclude robot, wall and the ball itself
+                        obj_bbox = obj.bbox
+                        # Check if the robot's bounding box at the circle point intersects with the object's bounding box
+                        if self._bbox_overlaps_bbox(robot_bbox_at_circle_point, obj_bbox):
+                            overlaps_obstacle = True
+                            break
+
+                if not overlaps_obstacle:
+                    # If the spot is valid, return it
+                    return (int(spot[0]), int(spot[1]))
+                        
+        return (0, 0)  # If no valid spot is found, return (0, 0) or None
+
+
+    
+
+    def prev_get_optimal_ball_parking_spot(self, ball: CourseObject):
+        """
+        Find the optimal parking spot for a ball based on its position and the robot's position.
         
         This functions looks in 360 degrees around the balls position (at a distance of the size of the robots bounding box), and checks if there is a spot, the size
         of the robots bounding box, that is not occupied by any other object (minimizing the possibility of collisions).
@@ -198,11 +275,23 @@ class Course:
         Returns:
             tuple: (x, y) coordinates of the optimal parking spot
         """
-        robot = self.get_robot()
-        if not robot:
-            raise ValueError("No robot found in the course. Cannot find optimal parking spot.")
-        
-        robot_size = (robot.bbox[2] - robot.bbox[0], robot.bbox[3] - robot.bbox[1])  # (width, height)
+        def _get_robot_size():
+            """
+            Get the size of the robot based on its bounding box.
+
+            If a robot object is not found, it will return a default size.
+            Returns:
+                tuple: (width, height) of the robot
+            """
+            DEFAULT_ROBOT_SIZE = (90, 50)  # Default size if robot is not found (estimate from example image)
+            robot = self.get_robot()
+            if not robot:
+                print("[Course] No robot found, using default robot size.")
+                return DEFAULT_ROBOT_SIZE
+                
+            return (robot.bbox[2] - robot.bbox[0], robot.bbox[3] - robot.bbox[1])
+
+        robot_size = _get_robot_size()
         ball_center = ball.center
 
         optimal_spot = None
@@ -298,7 +387,7 @@ class Course:
         nearest_object = min(filtered_objects, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
         return nearest_object
 
-    def is_ball_near_wall(self, ball: CourseObject, threshold: int = 25):
+    def is_ball_near_wall(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
         """
         Check if a ball is near the edge of the floor. 
         That is, a ball is considered near the wall if it is bbox lies within a certain threshold distance
@@ -315,7 +404,7 @@ class Course:
 
         return self._bbox_within_threshold_bbox(ball.bbox, wall.bbox, threshold)
 
-    def is_ball_near_corner(self, ball: CourseObject, threshold: int = 50):
+    def is_ball_near_corner(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
         """
         Check if a ball is near the corner of the floor.
 
@@ -343,7 +432,7 @@ class Course:
             
         return False
 
-    def is_ball_near_cross(self, ball: CourseObject, threshold: int = 15):
+    def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
         """
         Check if a ball is near the cross object.
 
@@ -359,18 +448,33 @@ class Course:
 
         return self._bbox_within_threshold_bbox(ball.bbox, cross.bbox, threshold)
 
-    def is_obj_overlapping_obj(self, obj1: CourseObject, obj2: CourseObject, threshold: int = 0) -> bool:
+    def _bbox_lies_within_bbox(self, inner_bbox: tuple, outer_bbox: tuple) -> bool:
         """
-        Check if two objects are overlapping or within a certain threshold distance from each other.
+        Check if the CourseObject's bounding box lies within a given bounding box.
 
         Args:
-            obj1: CourseObject representing the first object
-            obj2: CourseObject representing the second object
-            threshold: distance threshold to consider as "near"
+            obj: CourseObject to check
+            bbox: (x1, y1, x2, y2) bounding box coordinates to check against
         Returns:
-            bool: True if the objects are overlapping or within threshold distance, False otherwise
+            bool: True if the object's bbox lies within the given bbox, False otherwise
         """
-        return self._bbox_within_threshold_bbox(obj1.bbox, obj2.bbox, threshold)
+        return (outer_bbox[0] <= inner_bbox[1] <= outer_bbox[2] and
+                outer_bbox[1] <= inner_bbox[1] <= outer_bbox[3] and
+                outer_bbox[0] <= inner_bbox[1] <= outer_bbox[2] and
+                outer_bbox[1] <= inner_bbox[1] <= outer_bbox[3])
+
+    def _bbox_overlaps_bbox(self, bbox1: tuple, bbox2: tuple) -> bool:
+        """
+        Check if two bounding boxes overlap.
+
+        Args:
+            bbox1: (x1, y1, x2, y2) bounding box coordinates of the first object
+            bbox2: (x1, y1, x2, y2) bounding box coordinates of the second object
+        Returns:
+            bool: True if the bounding boxes overlap, False otherwise
+        """
+        return not (bbox1[0] > bbox2[2] or bbox1[2] < bbox2[0] or
+                    bbox1[1] > bbox2[3] or bbox1[3] < bbox2[1])
 
     def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int = 0) -> bool:
         """
