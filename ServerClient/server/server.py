@@ -446,15 +446,13 @@ class Server:
                     # Find the clicked goal
                     #clicked_goal = self.get_clicked_goal(x, y)
                     spot = (x, y)
-                    excluded_ball = self.course.get_nearest_ball(self.course.get_robot().center)
+                    excluded_ball = self.course.get_nearest_ball(self.course.get_robot().center, 'either')
                     current_path = self.path_planner.find_path(robot.center, (x,y), self.path_planner.generate_grid(self.course, excluded_objects=[excluded_ball]))
                     if current_path is not None and len(current_path) > 0:
                         self.pure_pursuit_navigator.set_path(current_path)
                         print(f"[SERVER] Path found: {len(current_path)} points.")
                     else:
                         print("[SERVER] No path found to deliver the ball.")
-
-
 
             # If currently following a path
             if (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.FOLLOW_PATH:
@@ -504,7 +502,7 @@ class Server:
                 current_video_frame_with_objs = self.path_planner_visualizer.draw_path(current_video_frame_with_objs, current_path)
                 instruction = self.pure_pursuit_navigator_slow.compute_drive_command(robot.center, robot_direction)
                 self.send_instruction(instruction)
-                stop_dist = 10 if is_edge_ball else 32  # Stop distance for edge balls is smaller
+                stop_dist = 10 if is_edge_ball else 20  # Stop distance for edge balls is smaller
                 print("Is edge ball:", is_edge_ball)
                 if distance(robot.center, current_path[-1]) < stop_dist:
                     print("[SERVER] Reached the end of the path.")
@@ -513,6 +511,11 @@ class Server:
                     self.pure_pursuit_navigator_slow.set_path(None)
                     instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                     self.send_instruction(instruction)
+                    time.sleep(0.5)  # Wait for claw to close
+                    if is_edge_ball:
+                        instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
+                        self.send_instruction(instruction)  # Back off a bit for edge balls
+                        time.sleep(2)
                     self.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)  # Reset to large object radius for next path
                     is_edge_ball = False  # Reset edge ball flag
             elif (self.pure_pursuit_navigator.path is not None) and current_state == RobotState.DELIVER_BALL:
