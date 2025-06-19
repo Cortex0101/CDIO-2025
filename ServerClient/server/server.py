@@ -41,8 +41,10 @@ class Server:
     def __init__(self, fakeEv3Connection=False):
         self.host = '0.0.0.0'
         self.port = 12346
-        self.SEND_CUSTOM_INSTRUCTIONS = False
-        self.CONTROL_CUSTOM = True
+
+        self.SEND_CUSTOM_INSTRUCTIONS = False # Start instruction testing loop
+        self.CONTROL_CUSTOM = True # Start custom control loop
+        self.USE_PRE_MARKED_WALL = True # Launch window to mark walls on the course and use those.
 
         if fakeEv3Connection:
             print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")
