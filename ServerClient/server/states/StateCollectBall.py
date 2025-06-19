@@ -51,6 +51,8 @@ class StateCollectBall(StateBase):
                 instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
                 self.server.send_instruction(instruction)
                 time.sleep(2)  # Back off a bit for edge balls
+                from .StateIdle import StateIdle
+                self.server.set_state(StateIdle(self.server))
 
     def on_exit(self):
         self.server.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)  # Reset to
