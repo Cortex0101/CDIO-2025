@@ -7,6 +7,9 @@ import cv2
 import numpy as np
 import math
 import heapq
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AStarStrategy:
     '''
@@ -200,7 +203,7 @@ class AStarStrategyOptimized:
                     heapq.heappush(open_set, (f_score[ny, nx], counter, (nx, ny)))
 
         # No path found
-        print("No path found from start to end.")
+        logger.warning("A* pathfinding failed to find a path from %s to %s", start, end)
         return []
 
 '''
