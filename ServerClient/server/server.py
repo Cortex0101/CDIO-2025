@@ -9,6 +9,7 @@ import queue
 from enum import Enum
 
 import cv2
+import keyboard
 
 from AImodel import *
 from Course import *
@@ -40,8 +41,8 @@ class Server:
     def __init__(self, fakeEv3Connection=False):
         self.host = '0.0.0.0'
         self.port = 12346
-        self.SEND_CUSTOM_INSTRUCTIONS = True
-        self.CONTROL_CUSTOM = False
+        self.SEND_CUSTOM_INSTRUCTIONS = False
+        self.CONTROL_CUSTOM = True
 
         if fakeEv3Connection:
             print("[SERVER] Fake EV3 connection enabled. No actual socket connection will be established.")
@@ -66,7 +67,7 @@ class Server:
 
         self.ai_model = AIModel("ball_detect/v10_t/weights/best.pt")
         self.course = Course()
-        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=True, draw_walls=True)
+        self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=True, draw_walls=True, draw_direction_markers=True)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=LARGE_OBJECT_RADIUS))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
@@ -88,6 +89,24 @@ class Server:
         self.robot_state = RobotState.IDLE
         self.robot = None           # For storing previous robot if needed
         self.robot_direction = 0    # For storing previous robot direction if needed
+
+        #####################
+        self._key_map = {
+            'e': ( 24,  24),
+            's': (-24,  24),
+            'd': (-24, -24),
+            'f': ( 24, -24),
+            'r': (  0,   0),
+            'o': (  0,   0),  # open claw
+            'p': (  0,   0),  # close claw
+        }
+        self._active_key = None
+        # hook events
+        for k in self._key_map:
+            keyboard.on_press_key(k,   lambda e, k=k: self._activate(k))
+            keyboard.on_release_key(k, lambda e, k=k: self._deactivate(k))
+
+        #####################
 
         # if send_custom_instructions is true, we will be able to simply send instruction by entering
         # them in the console, otherwise we will have to use we will run the main_loop() method
@@ -150,12 +169,61 @@ class Server:
                 pass
             elif self.robot_state == RobotState.FOLLOW_PATH:
                 pass
-            
+    
+    ###########
+    def _activate(self, key):
+        print(f"[SERVER] Activated key: {key}")
+        self._active_key = key
 
+    def _deactivate(self, key):
+        print(f"[SERVER] Deactivated key: {key}")
+        if self._active_key == key:
+            self._active_key = None
+
+    def control_custom_loop(self):
+        stop_instr = {"cmd":"drive","left_speed":0,"right_speed":0}
+        instr = stop_instr
+
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                continue
+
+            self.course = self.ai_model.generate_course(frame)
+            vis = self.course_visualizer.draw(frame, self.course)
+
+            if keyboard.is_pressed('q'):
+                break
+
+            if self._active_key:
+                if self._active_key == 'o':
+                    instr = {"cmd":"claw","action":"open","speed":5}
+                elif self._active_key == 'p':
+                    instr = {"cmd":"claw","action":"close","speed":5}
+                else:
+                    ls, rs = self._key_map[self._active_key]
+                    instr = {"cmd":"drive","left_speed":ls,"right_speed":rs}
+            else:
+                instr = stop_instr
+
+            self.send_instruction(instr)
+            cv2.imshow("view", vis)
+            cv2.waitKey(1)
+
+    '''
     def control_custom_loop(self):
         last_instruction =  {"cmd": "drive", "left_speed": 0, "right_speed": 0}
 
         while True:
+            ret, current_video_frame = self.cap.read()
+
+            if not ret:
+                print("[SERVER] Error: Could not read frame from camera.")
+                continue
+
+            self.course = self.ai_model.generate_course(current_video_frame)
+            current_video_frame_with_objs = self.course_visualizer.draw(current_video_frame, self.course)
+
             key = cv2.waitKey(1) & 0xFF
             
             if key == ord('q'):
@@ -182,10 +250,15 @@ class Server:
                 last_instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
                 print(last_instruction)
                 self.send_instruction(last_instruction)
+            else:
+                last_instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                # send the last instruction
+                self.send_instruction(last_instruction)
 
 
             # show empty frame
-            cv2.imshow("view",  np.zeros((480, 640, 3), dtype=np.uint8))
+            cv2.imshow("view",  current_video_frame_with_objs)
+    '''
 
     def send_instruction(self, instruction, wait_for_response=False):
         try:

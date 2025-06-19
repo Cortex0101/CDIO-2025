@@ -56,10 +56,8 @@ class Robot:
         self.tank_drive.on_for_degrees(left_speed=-10, right_speed=-10,  degrees=90)
 
     def emergency_stop(self):
-        self.tank_drive.off()
-        self.claw_motor.off()
-        self.left_motor.off()
-        self.right_motor.off()
+        self.move_forward(0, 0)
+        self.close_claw()
         
 
 
@@ -157,12 +155,11 @@ def main():
         finally:
             try:
                 client.close()
-                robot.emergency_stop()
             except Exception:
                 pass
             print("[CLIENT] Connection closed. Retrying in 3 seconds...")
+            robot.emergency_stop()
             time.sleep(3)
-            robot.close_claw()
             
 
 if __name__ == '__main__':
