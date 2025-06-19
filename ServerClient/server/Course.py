@@ -385,7 +385,7 @@ class Course:
 
         return (float(optimal_spot[0]), float(optimal_spot[1])) if optimal_spot else None
 
-    def get_nearest_ball(self, point: tuple, color: str = 'white'):
+    def get_nearest_ball(self, point: tuple, excluded=[], color: str = 'white'):
         """
         Find the nearest white ball to a given point.
 
@@ -407,6 +407,9 @@ class Course:
 
         if not balls:
             return None
+        
+        # Filter out excluded balls
+        balls = [ball for ball in balls if ball not in excluded]
 
         nearest_ball = min(balls, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
         return nearest_ball
