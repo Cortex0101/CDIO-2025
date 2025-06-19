@@ -33,8 +33,8 @@ class StateRotateToObject(StateBase):
             self.angle_has_been_correct_for_x_frame += 1
             if self.angle_has_been_correct_for_x_frame > 10:
                 print("[SERVER] Angle has been stable for 10 frames, switching to next state.")
-                from .StateIdle import StateIdle
-                self.server.set_state(StateIdle(self.server))
+                from .StateCollectBall import StateCollectBall
+                self.server.set_state(StateCollectBall(self.server, self.target_object))
 
     def _angle_to(self, src, dst):
         # clamped to 0-360 where 0 is right, 90 is up, 180 is left, 270 is down
