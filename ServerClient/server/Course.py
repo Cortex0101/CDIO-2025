@@ -111,6 +111,21 @@ class Course:
 
         return course
     
+    def is_robot_valid(self):
+        """
+        Check if the robot object is valid.
+        A robot is considered valid if it has a direction and a bounding box.
+        """
+        robot = self.get_robot()
+        if not robot:
+            return False, None
+        if robot.direction is None:
+            return False, None
+        if robot.center is None:
+            return False, None
+        else:
+            return True, robot
+
     def is_complete(self):
         """
         Used to determine if the course is complete.

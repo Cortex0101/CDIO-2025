@@ -95,6 +95,8 @@ class Server:
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=config.LARGE_OBJECT_RADIUS))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
+        self.last_valid_robot = None  # For storing the last valid robot position
+
         # extra 
         self.pure_pursuit_navigator = PurePursuitNavigator(None, 
                                                 lookahead_distance=25, 
@@ -554,6 +556,8 @@ class Server:
             if frame is None: continue
 
             self.course = self.ai_model.generate_course(frame)
+            if self.course.is_robot_valid():
+                self.last_valid_robot = self.course.get_robot()
             frame = self.course_visualizer.draw(frame, self.course)
 
             self._on_key_press() # send key press to current state
