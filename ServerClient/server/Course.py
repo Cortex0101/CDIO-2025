@@ -39,6 +39,32 @@ class CourseObject:
     def __repr__(self):
         return (f"<CourseObject label={self.label!r} "
                 f"conf={self.confidence:.2f} center={self.center}>")
+    
+    def __eq__(self, value):
+        MAX_CENTER_DIFFERENCE_THRESHOLD = 1.0
+        MAX_BBOX_DIFFERENCE_THRESHOLD = 10.0
+        logger.debug(f"Comparing if {self} == {value} with threshold {MAX_CENTER_DIFFERENCE_THRESHOLD}")
+        if not isinstance(value, CourseObject):
+            return False
+            
+        if self.label != value.label:
+            logger.debug(f"Labels do not match: {self.label} != {value.label}")
+            return False
+        
+        # objects are equal if their centers are within a certain threshold
+        if np.linalg.norm(np.array(self.center) - np.array(value.center)) > MAX_CENTER_DIFFERENCE_THRESHOLD:
+            logger.debug(f"Centers do not match: {self.center} != {value.center} with threshold {MAX_CENTER_DIFFERENCE_THRESHOLD}")
+            return False
+        
+        # and their bounding boxes are within a certain threshold
+        bbox_dif = np.array(self.bbox) - np.array(value.bbox)
+        if np.linalg.norm(bbox_dif) > MAX_BBOX_DIFFERENCE_THRESHOLD:
+            logger.debug(f"BBoxes do not match: {self.bbox} != {value.bbox} as difference is {np.linalg.norm(bbox_dif)} which is greater than {MAX_BBOX_DIFFERENCE_THRESHOLD}")
+            return False
+        
+        logger.debug(f"Objects are equal: {self} == {value} as centers and bboxes are within thresholds.")
+        return True
+        
 
 
 class Course:

@@ -302,7 +302,10 @@ class PathPlanner:
             should_skip = False
             for excluded in (excluded_objects or []):
                 logger.debug("Checking if object %s is excluded: %s", obj, excluded)
-                if obj is excluded:
+                # use == instead of is, to invoke __eq__ method
+                # This is because the new obj found is from the previous frame than the excluded one
+                # Thus the values might be slightly different and is accounted for in __eq__
+                if obj == excluded: 
                     logger.debug("Skipping object %s as it is excluded", obj)
                     should_skip = True
                     break
