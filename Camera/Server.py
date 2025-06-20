@@ -9,6 +9,8 @@ if __name__ == "__main__":
 
 global_robot_size = (15, 15) # bad practice robot size
 
+# used for mocking in get_robot_angle, remove later
+global_mock_angle = 0
 
 def choose_next_ball(white_balls, orange_balls, current_position):
     # Replace with actual logic to choose the next ball based on proximity
@@ -30,16 +32,16 @@ def get_instructions_to_ball(start_position, ball, obstacles=None, obstacle_radi
     ballX, ballY = ball
     start_position
     startX, startY = start_position
-    # this makes sense, trust
     startpos = (startX, startY)
+
+    current_angle = get_robot_angle()
 
     avoidance_route = avoid_obstacles(startpos, ball, obstacles)
 
     avoidance_route.insert(0, startpos)
 
     for i in range(1, len(avoidance_route)):
-
-        current_angle = get_robot_angle
+        
         current_route = avoidance_route[i]
 
         routeX, routeY = current_route
@@ -62,6 +64,13 @@ def position_close_enough(actual, expected, threshold=10):
     dx = abs(actual[0] - expected[0])
     dy = abs(actual[1] - expected[1])
     return dx <= threshold and dy <= threshold
+
+def get_motor_speeds(distance, speed=100):
+    # Calculate the time it takes to cover the distance at the given speed
+    time_to_move = distance / speed
+    # Assuming a simple model where both motors run at the same speed
+    left_speed = right_speed = speed
+    return left_speed, right_speed
 
 # Server code wrapped inside the `if __name__ == "__main__":` block
 if __name__ == "__main__":
@@ -93,7 +102,7 @@ if __name__ == "__main__":
             print(f"[SERVER] Next ball to move towards: {next_ball}")
 
             # Get instructions to move towards the chosen ball
-            instructions = get_instructions_to_ball(get_robot_position(), next_ball)
+            instructions = get_motor_speeds(calculate_distance(rbt_pos, next_ball))
 
             # Send instructions to EV3 robot
             cmds = json.dumps(instructions).encode('utf-8')
