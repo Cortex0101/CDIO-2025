@@ -22,10 +22,8 @@ class StateGoToNearestBall(StateBase):
         logger.debug(f"Balls sorted by distance: {[ball.center for ball in all_balls]}")
 
         for ball in all_balls:
-            logger.debug(f"Checking ball at {ball.center} is near a cross")
             near_cross = self.server.course.is_ball_near_cross(ball)
             near_corner = self.server.course.is_ball_near_corner(ball)
-            logger.debug(f"Checking ball at {ball.center}: near_corner={near_corner}, near_cross={near_cross}")
             if near_corner:
                 logger.info(f"Skipping ball {ball} as it is near a corner.")
                 continue  # Skip balls that are near corners or crosses
@@ -35,10 +33,11 @@ class StateGoToNearestBall(StateBase):
 
             # check if a path can be generated to this ball
             optimal_spot = self.server.course.get_optimal_ball_parking_spot(ball)
-            logger.debug(f"Optimal parking spot for ball {ball}: {optimal_spot}")
-            if optimal_spot is None:
+            if optimal_spot == (-1, -1):
                 logger.warning(f"No optimal parking spot found for ball: {ball}. Trying next ball...")
                 continue
+            logger.debug(f"Optimal parking spot for ball {ball}: {optimal_spot}")
+
             
             # try to generate a path to the ball
             grid = self.server.path_planner.generate_grid(self.server.course)

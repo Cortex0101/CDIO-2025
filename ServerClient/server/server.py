@@ -543,6 +543,14 @@ class Server:
             instruction = {"cmd": "deliver", "speed": 75}
             self.send_instruction(instruction)
 
+        if key == ord('o'):
+            instruction = {"cmd": "claw", "action": "open", "speed": 5}
+            self.send_instruction(instruction)
+
+        if key == ord('p'):
+            instruction = {"cmd": "claw", "action": "close", "speed": 5}
+            self.send_instruction(instruction)
+
         self.current_state.on_key_press(key)
 
     def _on_click(self, event, x, y, flags, param):

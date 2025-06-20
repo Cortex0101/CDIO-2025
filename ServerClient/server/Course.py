@@ -300,7 +300,8 @@ class Course:
                 # Check if the new spots bbox does not intersect with any other object
                 overlaps_obstacle = False
                 for obj in self.objects:
-                    if obj.label != 'robot' and obj.label != 'wall' and obj is not ball:  # Exclude robot, wall and the ball itself
+                    obj_is_target_ball = obj == ball
+                    if obj.label != 'robot' and obj.label != 'wall' and obj.label != 'green' and obj.label != 'yellow' and not obj_is_target_ball:
                         obj_bbox = obj.bbox
                         # Check if the robot's bounding box at the circle point intersects with the object's bounding box'
                         logger.debug(f"Checking overlap between robot bbox {robot_bbox_at_circle_point} and object bbox {obj_bbox}")
@@ -532,11 +533,12 @@ class Course:
         """
         wall = self.get_floor()
         if not wall:
-            logger.warning("No wall object found in the course, cannot check if ball is near wall.")
+            logger.warning("No wall object found in the course, assuming ball is not near wall.")
             return False
 
+        logger.debug(f"Checking if ball {ball} is near wall {wall}")
         res = self._bbox_within_threshold_bbox(ball.bbox, wall.bbox, threshold)
-        logger.debug(f"Checking if ball {ball} is near wall {wall}: {res}")
+        logger.debug(f"Ball {ball} near wall {wall}: {res}")
         return res
 
     def is_ball_near_corner(self, ball: CourseObject, threshold: int = config.LARGE_OBJECT_RADIUS):
@@ -550,7 +552,7 @@ class Course:
         """
         wall = self.get_floor()
         if not wall:
-            logger.warning("No wall object found in the course, cannot check if ball is near corner.")
+            logger.warning("No wall object found in the course, assume ball is not near corner.")
             return False
 
         # Define the corners of the wall
@@ -563,8 +565,9 @@ class Course:
 
         # Check if the ball's bounding box is within threshold distance from any two corners
         for corner in corners:
+            logger.debug(f"Checking if ball {ball} is near corner {corner}")
             res = self._bbox_within_threshold_point(ball.bbox, corner, threshold)
-            logger.debug(f"Checking if ball {ball} is near corner {corner}: {res}")
+            logger.debug(f"Ball {ball} near corner {corner}: {res}")
             if res:
                 return True
             
@@ -583,11 +586,12 @@ class Course:
         """
         cross = self.get_cross()
         if not cross:
-            logger.warning("No cross object found in the course, cannot check if ball is near cross.")
+            logger.warning("No cross object found in the course, assume ball is not near cross.")
             return False
 
+        logger.debug(f"Checking if ball {ball} is near cross {cross}")
         res = self._bbox_within_threshold_bbox(ball.bbox, cross.bbox, threshold)
-        logger.debug(f"Checking if ball {ball} is near cross {cross}: {res}")
+        logger.debug(f"Ball {ball} near cross {cross}: {res}")
         return res
 
     def _bbox_lies_within_bbox(self, inner_bbox: tuple, outer_bbox: tuple) -> bool:
@@ -655,6 +659,7 @@ class Course:
         res = (x1 - threshold <= x <= x2 + threshold and
                 y1 - threshold <= y <= y2 + threshold)
         logger.debug(f"Checking if bbox {bbox} is within threshold {threshold} of point {point}: {res}")
+        return res
 
     def __iter__(self):
         return iter(self.objects)
