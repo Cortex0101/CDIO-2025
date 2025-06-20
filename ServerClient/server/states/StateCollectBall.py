@@ -74,7 +74,6 @@ class StateCollectBall(StateBase):
             self.server.pure_pursuit_navigator_slow.set_path(None)
             instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
             self.server.send_instruction(instruction)
-            time.sleep(0.5)  # Wait for claw to close
             if self.is_edge_ball:
                 instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
                 self.server.send_instruction(instruction)
