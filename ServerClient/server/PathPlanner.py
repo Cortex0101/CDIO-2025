@@ -139,13 +139,28 @@ class AStarStrategyOptimized:
         start = (int(start[0]), int(start[1]))
         end = (int(end[0]), int(end[1]))
         h, w = grid.shape
+
         # 1) Pre-inflate obstacles by OBJ_RADIUS
-        #obstacles = (grid != 0).astype(np.uint8)
         obstacles = np.isin(grid, exlude_obstacle_types, invert=True).astype(np.uint8)
         kernel_size = 2 * self.OBJ_RADIUS + 1
         kernel = np.ones((kernel_size, kernel_size), dtype=np.uint8)
         inflated = cv2.dilate(obstacles, kernel)
         passable = (inflated == 0)
+
+        # Log passable stats
+        logger.debug(f"Passable cells after inflation: {np.sum(passable)} / {passable.size}")
+        if not (0 <= start[0] < w and 0 <= start[1] < h):
+            logger.warning(f"Start {start} is out of bounds.")
+            return []
+        if not (0 <= end[0] < w and 0 <= end[1] < h):
+            logger.warning(f"End {end} is out of bounds.")
+            return []
+        if not passable[start[1], start[0]]:
+            logger.warning(f"Start {start} is not passable after inflation.")
+            return []
+        if not passable[end[1], end[0]]:
+            logger.warning(f"End {end} is not passable after inflation.")
+            return []
 
         # 2) Initialize score arrays and visited mask
         inf = float('inf')
@@ -188,10 +203,13 @@ class AStarStrategyOptimized:
             for dx, dy, cost in dirs:
                 nx, ny = cx + dx, cy + dy
                 if not (0 <= nx < w and 0 <= ny < h):
+                    logger.debug(f"Neighbor {(nx, ny)} out of bounds.")
                     continue
                 if not passable[ny, nx]:
+                    logger.debug(f"Neighbor {(nx, ny)} not passable.")
                     continue
                 if visited[ny, nx]:
+                    logger.debug(f"Neighbor {(nx, ny)} already visited.")
                     continue
 
                 tentative_g = g_score[cy, cx] + cost
@@ -203,7 +221,10 @@ class AStarStrategyOptimized:
                     heapq.heappush(open_set, (f_score[ny, nx], counter, (nx, ny)))
 
         # No path found
-        logger.warning("A* pathfinding failed to find a path from %s to %s", start, end)
+        logger.warning(f"A* pathfinding failed from {start} to {end}. "
+                       f"Start passable: {passable[start[1], start[0]]}, "
+                       f"End passable: {passable[end[1], end[0]]}, "
+                       f"Total passable: {np.sum(passable)} / {passable.size}")
         return []
 
 '''
