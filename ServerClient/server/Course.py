@@ -232,6 +232,7 @@ class Course:
         robot_size = _get_robot_size()
 
         # determine if the balls is near a wall, corner or cross
+        logger.debug(f"Checking if ball {ball} is near wall, corner or cross.")
         is_near_wall = self.is_ball_near_wall(ball)
         is_near_corner = self.is_ball_near_corner(ball)
         is_near_cross = self.is_ball_near_cross(ball)
@@ -258,6 +259,7 @@ class Course:
                     spot[1] + distance / 2
                 )
                 # check if the robot's bounding box at the circle point lies within the course's floor bounding box
+                logger.debug(f"Checking if robot bbox at circle point {robot_bbox_at_circle_point} lies within floor bbox {self.get_floor().bbox}")
                 if not self._bbox_lies_within_bbox(robot_bbox_at_circle_point, self.get_floor().bbox):
                     # if not, this point is not valid, continue to the next angle
                     continue
@@ -266,12 +268,14 @@ class Course:
                 for obj in self.objects:
                     if obj.label != 'robot' and obj.label != 'wall' and obj is not ball:  # Exclude robot, wall and the ball itself
                         obj_bbox = obj.bbox
-                        # Check if the robot's bounding box at the circle point intersects with the object's bounding box
+                        # Check if the robot's bounding box at the circle point intersects with the object's bounding box'
+                        logger.debug(f"Checking overlap between robot bbox {robot_bbox_at_circle_point} and object bbox {obj_bbox}")
                         if self._bbox_overlaps_bbox(robot_bbox_at_circle_point, obj_bbox):
                             overlaps_obstacle = True
                             break
 
                 if not overlaps_obstacle:
+                    logger.debug(f"Found valid parking spot at {spot} for ball {ball.label} with bbox {robot_bbox_at_circle_point}")
                     # If the spot is valid, return it
                     return (int(spot[0]), int(spot[1]))
 
@@ -424,12 +428,17 @@ class Course:
             raise ValueError(f"Unknown color: {color}. Use 'white', 'orange', or 'either'.")
 
         if not balls:
+            logger.warning(f"No {color} balls found in the course.")
             return None
         
+        logger.debug(f"Finding nearest {color} ball to point {point} among from balls: {balls}")
+
         # Filter out excluded balls
         balls = [ball for ball in balls if ball not in excluded]
 
         nearest_ball = min(balls, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
+        distance = np.linalg.norm(np.array(nearest_ball.center) - np.array(point))
+        logger.debug(f"Nearest {color} ball to point {point} is {nearest_ball} with distance {distance}")
         return nearest_ball
 
     def get_nearest_goal(self, point: tuple):
@@ -443,9 +452,13 @@ class Course:
         """
         goals = self.get_by_label('small_goal') + self.get_by_label('big_goal')
         if not goals:
+            logger.warning("No goals found in the course.")
             return None
 
+        logger.debug(f"Finding nearest goal to point {point} among from goals: {goals}")
+
         nearest_goal = min(goals, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
+        logger.debug(f"Nearest goal to point {point} is {nearest_goal} with distance {np.linalg.norm(np.array(nearest_goal.center) - np.array(point))}")
         return nearest_goal
 
     def get_nearest_object(self, point: tuple):
@@ -466,7 +479,10 @@ class Course:
         if not filtered_objects:
             return None
         
+        logger.debug(f"Finding nearest object to point {point} among from objects: {filtered_objects}")
+        
         nearest_object = min(filtered_objects, key=lambda obj: np.linalg.norm(np.array(obj.center) - np.array(point)))
+        logger.debug(f"Nearest object to point {point} is {nearest_object} with distance {np.linalg.norm(np.array(nearest_object.center) - np.array(point))}")
         return nearest_object
 
     def is_ball_near_wall(self, ball: CourseObject, threshold: int = config.LARGE_OBJECT_RADIUS):
@@ -482,9 +498,12 @@ class Course:
         """
         wall = self.get_floor()
         if not wall:
+            logger.warning("No wall object found in the course, cannot check if ball is near wall.")
             return False
 
-        return self._bbox_within_threshold_bbox(ball.bbox, wall.bbox, threshold)
+        res = self._bbox_within_threshold_bbox(ball.bbox, wall.bbox, threshold)
+        logger.debug(f"Checking if ball {ball} is near wall {wall}: {res}")
+        return res
 
     def is_ball_near_corner(self, ball: CourseObject, threshold: int = config.LARGE_OBJECT_RADIUS):
         """
@@ -509,9 +528,12 @@ class Course:
 
         # Check if the ball's bounding box is within threshold distance from any two corners
         for corner in corners:
-            if self._bbox_within_threshold_point(ball.bbox, corner, threshold):
+            res = self._bbox_within_threshold_point(ball.bbox, corner, threshold):
+            logger.debug(f"Checking if ball {ball} is near corner {corner}: {res}")
+            if res:
                 return True
             
+        logger.debug(f"Ball {ball} is not near any corner of the wall {wall}.")
         return False
 
     def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
@@ -528,7 +550,9 @@ class Course:
         if not cross:
             return False
 
-        return self._bbox_within_threshold_bbox(ball.bbox, cross.bbox, threshold)
+        res = self._bbox_within_threshold_bbox(ball.bbox, cross.bbox, threshold)
+        logger.debug(f"Checking if ball {ball} is near cross {cross}: {res}")
+        return res
 
     def _bbox_lies_within_bbox(self, inner_bbox: tuple, outer_bbox: tuple) -> bool:
         """
@@ -540,10 +564,12 @@ class Course:
         Returns:
             bool: True if the object's bbox lies within the given bbox, False otherwise
         """
-        return (outer_bbox[0] <= inner_bbox[1] <= outer_bbox[2] and
+        res = (outer_bbox[0] <= inner_bbox[1] <= outer_bbox[2] and
                 outer_bbox[1] <= inner_bbox[1] <= outer_bbox[3] and
                 outer_bbox[0] <= inner_bbox[1] <= outer_bbox[2] and
                 outer_bbox[1] <= inner_bbox[1] <= outer_bbox[3])
+        logger.debug(f"Checking if bbox {inner_bbox} lies within bbox {outer_bbox}: {res}")
+        return res
 
     def _bbox_overlaps_bbox(self, bbox1: tuple, bbox2: tuple) -> bool:
         """
@@ -555,8 +581,10 @@ class Course:
         Returns:
             bool: True if the bounding boxes overlap, False otherwise
         """
-        return not (bbox1[0] > bbox2[2] or bbox1[2] < bbox2[0] or
+        res = not (bbox1[0] > bbox2[2] or bbox1[2] < bbox2[0] or
                     bbox1[1] > bbox2[3] or bbox1[3] < bbox2[1])
+        logger.debug(f"Checking overlap between bbox {bbox1} and bbox {bbox2}: {res}")
+        return res
 
     def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int = 0) -> bool:
         """
@@ -569,10 +597,12 @@ class Course:
         Returns:
             bool: True if some part of bbox1 is within threshold distance from bbox2, False otherwise
         """
-        return (abs(bbox1[0] - bbox2[0]) <= threshold or
+        res = (abs(bbox1[0] - bbox2[0]) <= threshold or
                 abs(bbox1[1] - bbox2[1]) <= threshold or
                 abs(bbox1[2] - bbox2[2]) <= threshold or
                 abs(bbox1[3] - bbox2[3]) <= threshold)
+        logger.debug(f"Checking if bbox {bbox1} is within threshold {threshold} of bbox {bbox2}: {res}")
+        return res
     
     def _bbox_within_threshold_point(self, bbox: tuple, point: tuple, threshold: int = 0) -> bool:
         """
@@ -586,8 +616,9 @@ class Course:
         """
         x1, y1, x2, y2 = bbox
         x, y = point
-        return (x1 - threshold <= x <= x2 + threshold and
+        res = (x1 - threshold <= x <= x2 + threshold and
                 y1 - threshold <= y <= y2 + threshold)
+        logger.debug(f"Checking if bbox {bbox} is within threshold {threshold} of point {point}: {res}")
 
     def __iter__(self):
         return iter(self.objects)
