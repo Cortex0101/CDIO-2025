@@ -29,6 +29,13 @@ class PurePursuitNavigator:
         logger.debug(f"Normalized angle: {angle} to {res}")
         return res
     
+    def set_true_max_speed(self, new_max_speed):
+        """
+        Set a new maximum speed for the robot.
+        """
+        self.true_max_speed = new_max_speed
+        logger.debug(f"True max speed set to: {self.true_max_speed}")
+    
     def set_path(self, new_path):
         """
         Set a new path and reset the current index.

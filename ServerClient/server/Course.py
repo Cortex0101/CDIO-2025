@@ -95,6 +95,11 @@ class Course:
         dx = point2[0] - point1[0]
         dy = point2[1] - point1[1]
         angle = (math.degrees(math.atan2(dy, dx)) + 360) % 360
+
+        if angle is None:
+            logger.error("Computed angle is None, returning None.")
+            return None
+
         return angle
 
     @classmethod

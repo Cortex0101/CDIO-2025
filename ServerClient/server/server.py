@@ -109,7 +109,7 @@ class Server:
                                                 lookahead_distance=10, 
                                                 max_speed=5, 
                                                 true_max_speed=5, 
-                                                kp=0.75, 
+                                                kp=config.SLOW_KP,
                                                 max_turn_slowdown=1)
 
         self.robot_state = RobotState.IDLE

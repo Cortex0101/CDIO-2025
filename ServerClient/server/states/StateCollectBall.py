@@ -35,8 +35,10 @@ class StateCollectBall(StateBase):
 
         if self.is_edge_ball:
             self.server.path_planner.set_object_radius(config.SMALL_OBJECT_RADIUS)
+            self.server.pure_pursuit_navigator_slow.set_true_max_speed(config.SLOW_EDGE_BALL_MAX_SPEED)
         else:
             self.server.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)
+            self.server.pure_pursuit_navigator_slow.set_true_max_speed(config.SLOW_MAX_SPEED)
 
         # open claw 
         logger.debug("Opening claw to collect the ball.")
