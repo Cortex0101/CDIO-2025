@@ -539,7 +539,7 @@ class Server:
         if key == ord('q'):
             self._quit()
 
-        if key == ord('d'):
+        if key == ord('D'):
             instruction = {"cmd": "deliver", "speed": 75}
             self.send_instruction(instruction)
 
@@ -564,8 +564,6 @@ class Server:
             if frame is None: continue
 
             self.course = self.ai_model.generate_course(frame)
-            if self.course.is_robot_valid():
-                self.last_valid_robot = self.course.get_robot()
             frame = self.course_visualizer.draw(frame, self.course)
 
             self._on_key_press() # send key press to current state

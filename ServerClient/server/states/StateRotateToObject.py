@@ -1,5 +1,7 @@
 from .StateBase import StateBase
 
+from Course import Course, CourseObject
+
 import math
 
 import logging
@@ -26,7 +28,7 @@ class StateRotateToObject(StateBase):
         
         # Compute turn command to face the target object
         instruction = self.server.pure_pursuit_navigator.compute_turn_command(
-            self.robot_direction, angle_to_target, newKp=0.9, new_max_speed=10
+            self.robot_direction, angle_to_target, newKp=0.7, new_max_speed=10
         )
         self.server.send_instruction(instruction)
 
@@ -37,9 +39,15 @@ class StateRotateToObject(StateBase):
             # Wait for a few frames to ensure it's stable
             self.angle_has_been_correct_for_x_frame += 1
             if self.angle_has_been_correct_for_x_frame > 10:
-                logger.info("Angle has been stable for 10 frames, switching to StateCollectBall with target_object: %s", self.target_object)
-                from .StateCollectBall import StateCollectBall
-                self.server.set_state(StateCollectBall(self.server, self.target_object))
+                if self.target_object.label == 'white' or self.target_object.label == 'orange':
+                    logger.info("Angle has been stable for 10 frames, switching to StateCollectBall.")
+                    from .StateCollectBall import StateCollectBall
+                    self.server.set_state(StateCollectBall(self.server, target_object=self.target_object))
+                else:
+                    logger.info("Target object is not a ball, assuming it's a goal")
+                    from .StateDeliverBall import StateDeliverBall
+                    # passing none as target_object to make it fire delivery
+                    self.server.set_state(StateDeliverBall(self.server, target_object=None))
         
         return frame
 

@@ -3,6 +3,8 @@ import config
 
 import time
 
+from Course import Course, CourseObject
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -78,8 +80,14 @@ class StateCollectBall(StateBase):
                 self.server.send_instruction(instruction)
                 time.sleep(2)  # Back off a bit for edge balls
             
-            from .StateIdle import StateIdle
-            self.server.set_state(StateIdle(self.server))
+            logger.debug("Switching to DeliverBall state after collecting the ball.")
+            GOAL = CourseObject(label='small_goal',
+                               mask=None,
+                               bbox=(0.0, 0.0, 0.0, 0.0),
+                               confidence=float(1.0))
+            GOAL.center = (350, 450)  # Assuming a fixed goal position for simplicity
+            from .StateDeliverBall import StateDeliverBall
+            self.server.set_state(StateDeliverBall(self.server, target_object=GOAL))
         return frame
 
     def on_exit(self):

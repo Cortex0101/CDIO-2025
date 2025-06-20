@@ -38,3 +38,9 @@ class StateIdle(StateBase):
                 from .StateCollectBall import StateCollectBall
                 logger.info("Switching to StateCollectBall to collect the nearest ball.")
                 self.server.set_state(StateCollectBall(self.server, target_object=nearest_ball))
+
+        elif key == ord('d'):
+            # Start StateDeliverBall
+            from .StateDeliverBall import StateDeliverBall
+            logger.info("Key 'd' pressed, switching to StateDeliverBall.")
+            self.server.set_state(StateDeliverBall(self.server))
