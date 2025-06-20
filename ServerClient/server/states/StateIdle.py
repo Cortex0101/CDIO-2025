@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 class StateIdle(StateBase):
     def update(self, frame):
-        pass
+        return frame
 
     def on_enter(self):
         logger.debug("Entered idle state")

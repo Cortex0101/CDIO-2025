@@ -89,6 +89,8 @@ class StateGoToNearestBall(StateBase):
             logger.debug(f"Switching to StateRotateToObject with target_object={self.target_ball}")
             self.server.set_state(StateRotateToObject(self.server, target_object=self.target_ball))
 
+        return frame
+
     def on_exit(self):
         logger.debug("Exiting StateGoToNearestBall. Clearing path.")
         self.server.pure_pursuit_navigator.set_path(None)

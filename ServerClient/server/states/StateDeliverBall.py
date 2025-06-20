@@ -28,6 +28,8 @@ class StateDeliverBall(StateBase):
             instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
             self.server.send_instruction(instruction)
 
+        return frame
+
     def on_enter(self):
         self.GOAL_LOCATION = (350, 450)  # HARD-CODED GOAL LOCATION, replace with self.course.get_goals find the closest
         self.robot = self.server.course.get_robot()

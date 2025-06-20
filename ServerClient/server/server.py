@@ -562,7 +562,7 @@ class Server:
 
             self._on_key_press() # send key press to current state
             try:
-                self.current_state.update(frame)  # update current state
+                frame = self.current_state.update(frame)  # update current state
             except Exception as e:
                 # log error with traceback
                 logger.error(f"Error in current state update: {e}")

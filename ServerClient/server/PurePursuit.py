@@ -15,13 +15,19 @@ class PurePursuitNavigator:
         self.max_turn_slowdown = max_turn_slowdown  # NEW: max slowdown factor for sharp turns
 
     def _distance(self, a, b):
-        return math.hypot(b[0] - a[0], b[1] - a[1])
+        res = math.hypot(b[0] - a[0], b[1] - a[1])
+        logger.debug(f"Computed distance from {a} to {b}: {res}")
+        return res
 
     def _angle_to(self, src, dst):
-        return math.degrees(math.atan2(dst[1] - src[1], dst[0] - src[0]))
+        res = math.degrees(math.atan2(dst[1] - src[1], dst[0] - src[0]))
+        logger.debug(f"Computed angle from {src} to {dst}: {res} degrees")
+        return res  # returns angle in degrees, 0 is right, 90 is up, 180 is left, 270 is down
 
     def _normalize_angle(self, angle):
-        return ((angle + 180) % 360) - 180
+        res = ((angle + 180) % 360) - 180
+        logger.debug(f"Normalized angle: {angle} to {res}")
+        return res
     
     def set_path(self, new_path):
         """
@@ -38,8 +44,11 @@ class PurePursuitNavigator:
             point = self.path[i]
             if self._distance(robot_pos, point) >= self.lookahead_distance:
                 self.current_index = i
+                logger.debug(f"Lookahead point found at index {i}: {point}")
                 return point
-        return self.path[-1]  # fallback to last point if none far enough
+        res = self.path[-1]  # fallback to last point if none far enough
+        logger.debug(f"No lookahead point found, returning last point: {res}")
+        return res
 
     def compute_drive_command(self, robot_pos, robot_heading):
         lookahead = self.find_lookahead_point(robot_pos)
@@ -76,6 +85,7 @@ class PurePursuitNavigator:
         without any forward/backward motion.
         """
         # 1) Compute the shortest angular difference to target
+        logger.debug(f"Robot Heading: {robot_heading}, Target Heading: {target_heading}")
         heading_error = self._normalize_angle(target_heading - robot_heading)
 
         # 2) P-control law for turning
@@ -83,12 +93,16 @@ class PurePursuitNavigator:
         if newKp is not None:
             turn_speed = -newKp * heading_error
 
+        logger.debug(f"Computed turn speed before clamping: {turn_speed}")
+
         # 3) Clamp to physical wheel limits
         turn_speed = max(-self.true_max_speed,
                         min(self.true_max_speed, turn_speed))
         if new_max_speed is not None:
             turn_speed = max(-new_max_speed,
                             min(new_max_speed, turn_speed))
+            
+        logger.debug(f"Turn speed after clamping: {turn_speed}")
 
         # 4) Opposite wheel speeds for in-place rotation
         left_speed  = int(-turn_speed)
