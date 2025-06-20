@@ -1,7 +1,6 @@
 from .StateBase import StateBase
 
 import logging
-
 logger = logging.getLogger(__name__)
 
 class StateGoToNearestBall(StateBase):
