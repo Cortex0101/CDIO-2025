@@ -89,6 +89,9 @@ class Course:
         Returns:
             float: angle in degrees from point1 to point2
         """
+        if point1 is None or point2 is None:
+            logger.error("Cannot compute direction, returning none due to None points.")
+            return None
         dx = point2[0] - point1[0]
         dy = point2[1] - point1[1]
         angle = (math.degrees(math.atan2(dy, dx)) + 360) % 360
