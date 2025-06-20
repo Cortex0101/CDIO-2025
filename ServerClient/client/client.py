@@ -43,7 +43,7 @@ class Robot:
         sleep(0.5)
         self.tank_drive.on_for_degrees(left_speed=speed, right_speed=speed,  degrees=90)
         sleep(0.5)
-        self.tank_drive.on_for_degrees(left_speed=-10, right_speed=-10,  degrees=90)
+        self.tank_drive.on_for_degrees(left_speed=-speed/2, right_speed=-speed/2,  degrees=180)
 
     def emergency_stop(self):
         print("[ROBOT] Emergency stop activated.")

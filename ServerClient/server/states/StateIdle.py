@@ -13,6 +13,8 @@ class StateIdle(StateBase):
         logger.debug("Entered idle state")
         instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
         self.server.send_instruction(instruction)
+        instruction = {"cmd": "claw", "action": "close"}
+        self.server.send_instruction(instruction)
 
     def on_exit(self):
         pass
