@@ -5,6 +5,8 @@ logger = logging.getLogger(__name__)
 
 class StateIdle(StateBase):
     def update(self, frame):
+        # look for robot all the time
+        super().get_last_valid_robot()
         return frame
 
     def on_enter(self):

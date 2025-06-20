@@ -37,16 +37,17 @@ class StateBase:
         robot = self.server.course.get_robot()
         if robot is None:
             logger.warning("No robot found in the course. Using self.server.last_valid_robot")
-            robot = self.server.last_valid_robot
-            if robot is None:
+            if self.server.last_valid_robot is None:
                 logger.error("No previous valid robot found. Cannot proceed, going to idle state.")
                 from .StateIdle import StateIdle
                 self.server.set_state(StateIdle(self.server))
-                return
+                return None
             else:
-                logger.info(f"Robot in current frame not available, using last valid robot: {robot}")
+                logger.info(f"Robot in current frame not available, using last valid robot: {self.server.last_valid_robot}")
+                return self.server.last_valid_robot
         else:
             logger.info(f"Returning robot from current frame: {robot}")
-            return robot
+            self.server.last_valid_robot = robot  # Update last valid robot
+            return self.server.last_valid_robot
         
         

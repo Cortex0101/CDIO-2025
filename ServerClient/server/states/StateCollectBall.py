@@ -39,6 +39,7 @@ class StateCollectBall(StateBase):
             self.server.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)
 
         # open claw 
+        logger.debug("Opening claw to collect the ball.")
         instruction = {"cmd": "claw", "action": "open"}
         self.server.send_instruction(instruction)
 
