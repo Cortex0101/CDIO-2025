@@ -230,9 +230,11 @@ class PathPlanner:
     }
 
     def __init__(self, strategy=None):
+        logger.debug("Initializing PathPlanner with strategy: AStarStrategyOptimized")
         self.strategy = strategy
 
     def _polygon_fill_points(self, pts):
+        logger.debug("Filling polygon points for %s", len(pts))
         # pts: array of shape (N,2), dtype=int
         x_min, y_min = pts.min(axis=0)
         x_max, y_max = pts.max(axis=0)
@@ -268,14 +270,22 @@ class PathPlanner:
 
     def generate_grid(self, course: Course, excluded_objects: list = None, makeFloorEntireImage: bool = False):
         # fill grid with 8's (outside course area)
+        logger.debug("Generating grid for course with dimensions (%d, %d)", course.height, course.width)
         grid = np.full((course.height, course.width), self.OBJECT_NUMS['outside_course'], dtype=np.uint8)
         
         # makeFloorEntireImage: for debugging purposes, if True, the floor will be the entire image excpet the outer most 20 pixels
-        if makeFloorEntireImage:
+        floor = course.get_floor()
+
+        if floor is None:
+            logger.debug("Making floor the entire as floor is None")
+            # fill the entire grid with walls except the outer most 20 pixels
+            grid[20:course.height-20, 20:course.width-20] = self.OBJECT_NUMS['wall']
+        elif makeFloorEntireImage:
+            logger.debug("Making floor the entire as makeFloorEntireImage is True")
             # fill the entire grid with walls except the outer most 20 pixels
             grid[20:course.height-20, 20:course.width-20] = self.OBJECT_NUMS['wall']
         else:
-            floor = course.get_floor() # returns 'walls' which is the object representing the floor area
+            logger.debug("Making floor the area defined by the floor bounds: %s", floor.bbox)
             if floor is not None:
                 #grid[obj.y:obj.y + obj.height, obj.x:obj.x + obj.width] = self.OBJECT_NUMS['wall']
                 y1 = (floor.bbox[1]).astype(int)
@@ -286,19 +296,24 @@ class PathPlanner:
 
         for obj in course.objects:
             if obj.label == 'wall' or obj.label == 'green' or obj.label == 'yellow':
+                logger.debug("Skipping object %s as it is a wall or green/yellow", obj.label)
                 continue
             
             should_skip = False
             for excluded in (excluded_objects or []):
+                logger.debug("Checking if object %s is excluded: %s", obj, excluded)
                 if obj is excluded:
+                    logger.debug("Skipping object %s as it is excluded", obj)
                     should_skip = True
                     break
             
             if should_skip:
+                logger.debug("Skipping object %s as it is excluded and should_skip = %s", obj, should_skip)
                 continue
             else:
                 pts = np.rint(obj.mask).astype(np.int32).reshape(-1, 2)
                 coords_inside = self._polygon_fill_points(pts)
+                logger.debug("Filling polygon points for object %s with %d points", obj, len(coords_inside))
                 for x, y in coords_inside:
                     if 0 <= x < course.width and 0 <= y < course.height:
                         grid[y, x] = self.OBJECT_NUMS[obj.label]
