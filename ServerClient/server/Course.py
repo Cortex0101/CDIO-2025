@@ -190,7 +190,8 @@ class Course:
         if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get robot object.")
         
-        if not self.get_by_label('robot'):
+        if not self.get_by_label('robot') or len(self.get_by_label('robot')) == 0:
+            logger.warning("No robot object found in the course, returning None.")
             return None
         return self.get_by_label('robot')[0]
     
@@ -199,7 +200,8 @@ class Course:
         if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get cross object.")
         
-        if not self.get_by_label('cross'):
+        if not self.get_by_label('cross') or len(self.get_by_label('cross')) == 0:
+            logger.warning("No cross object found in the course.")
             return None
         return self.get_by_label('cross')[0]
     
@@ -207,7 +209,10 @@ class Course:
         """ Returns the wall object, which is the floor in the course, only one if course is complete. """
         if not self.is_complete() and self.enable_errors:
             raise ValueError("Course is not complete, cannot get floor object.")
-       
+
+        if not self.get_by_label('wall') or len(self.get_by_label('wall')) == 0:
+            logger.warning("No wall object found in the course, returning None.")
+            return None
         return self.get_by_label('wall')[0]
 
     def get_white_balls(self):
@@ -220,7 +225,10 @@ class Course:
     
     def get_eggs(self):
         """ Returns all eggs in the course. Might be more than one? """
-        return self.get_by_label('egg')
+        if not self.get_by_label('egg') or len(self.get_by_label('egg')) == 0:
+            logger.warning("No egg object found in the course, returning empty list.")
+            return None
+        return self.get_by_label('egg')[0]
     
     def get_goals(self):
         """
@@ -542,6 +550,7 @@ class Course:
         """
         wall = self.get_floor()
         if not wall:
+            logger.warning("No wall object found in the course, cannot check if ball is near corner.")
             return False
 
         # Define the corners of the wall
@@ -574,6 +583,7 @@ class Course:
         """
         cross = self.get_cross()
         if not cross:
+            logger.warning("No cross object found in the course, cannot check if ball is near cross.")
             return False
 
         res = self._bbox_within_threshold_bbox(ball.bbox, cross.bbox, threshold)

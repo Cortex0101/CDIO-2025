@@ -22,6 +22,7 @@ class StateGoToNearestBall(StateBase):
         logger.debug(f"Balls sorted by distance: {[ball.center for ball in all_balls]}")
 
         for ball in all_balls:
+            logger.debug(f"Checking ball at {ball.center} is near a cross")
             near_cross = self.server.course.is_ball_near_cross(ball)
             near_corner = self.server.course.is_ball_near_corner(ball)
             logger.debug(f"Checking ball at {ball.center}: near_corner={near_corner}, near_cross={near_cross}")

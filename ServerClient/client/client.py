@@ -30,9 +30,11 @@ class Robot:
         self.tank_drive.on_for_seconds(left_speed=speed, right_speed=speed, seconds=seconds)
 
     def open_claw(self, speed=20):
+        print("[ROBOT] Opening claw.")
         self.claw_motor.on_to_position(speed=speed, position=self.CLAW_OPEN_POS)
 
     def close_claw(self, speed=20):
+        print("[ROBOT] Closing claw.")
         self.claw_motor.on_to_position(speed=speed, position=self.CLAW_CLOSED_POS)
 
     def deliver_ball(self, speed=75):
@@ -44,6 +46,7 @@ class Robot:
         self.tank_drive.on_for_degrees(left_speed=-10, right_speed=-10,  degrees=90)
 
     def emergency_stop(self):
+        print("[ROBOT] Emergency stop activated.")
         self.move_forward(0, 0)
         self.close_claw()
         
