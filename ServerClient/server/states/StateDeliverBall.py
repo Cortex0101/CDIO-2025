@@ -29,7 +29,7 @@ class StateDeliverBall(StateBase):
             self.server.send_instruction(instruction)
 
     def on_enter(self):
-        self.GOAL_LOCATION = (200, 200)  # HARD-CODED GOAL LOCATION, replace with self.course.get_goals find the closest
+        self.GOAL_LOCATION = (350, 450)  # HARD-CODED GOAL LOCATION, replace with self.course.get_goals find the closest
         self.robot = self.server.course.get_robot()
         if self.robot is None:
             logger.error("[SERVER] No robot found in the course, returning to idle state.")

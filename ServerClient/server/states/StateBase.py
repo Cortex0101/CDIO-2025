@@ -43,3 +43,10 @@ class StateBase:
                 from .StateIdle import StateIdle
                 self.server.set_state(StateIdle(self.server))
                 return
+            else:
+                logger.info(f"Robot in current frame not available, using last valid robot: {robot}")
+        else:
+            logger.info(f"Returning robot from current frame: {robot}")
+            return robot
+        
+        
