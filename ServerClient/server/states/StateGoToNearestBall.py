@@ -41,7 +41,7 @@ class StateGoToNearestBall(StateBase):
             grid = self.server.path_planner.generate_grid(self.server.course)
             logger.debug(f"Generated grid for ball {ball}.")
             path = self.server.path_planner.find_path(self.robot_center, optimal_spot, grid)
-            logger.debug(f"Path for ball {ball}: {path}")
+            logger.debug(f"Path for ball {ball}, length: {len(path) if path else 'None'}")
             if path is None or len(path) == 0:
                 logger.warning(f"No path found to ball: {ball}. Trying to find another ball...")
                 continue

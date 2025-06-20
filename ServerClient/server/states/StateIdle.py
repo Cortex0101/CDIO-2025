@@ -8,7 +8,7 @@ class StateIdle(StateBase):
         pass
 
     def on_enter(self):
-        logger.debug("Entered idle state")
+        logger.verbose("Entered idle state")
         instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
         self.server.send_instruction(instruction)
 
