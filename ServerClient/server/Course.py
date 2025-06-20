@@ -528,7 +528,7 @@ class Course:
 
         # Check if the ball's bounding box is within threshold distance from any two corners
         for corner in corners:
-            res = self._bbox_within_threshold_point(ball.bbox, corner, threshold):
+            res = self._bbox_within_threshold_point(ball.bbox, corner, threshold)
             logger.debug(f"Checking if ball {ball} is near corner {corner}: {res}")
             if res:
                 return True

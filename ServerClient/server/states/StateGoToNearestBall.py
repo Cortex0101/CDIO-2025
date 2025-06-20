@@ -6,10 +6,10 @@ logger = logging.getLogger(__name__)
 class StateGoToNearestBall(StateBase):
     def __init__(self, server):
         super().__init__(server)
-        logger.verbose("Initialized StateGoToNearestBall.")
+        logger.debug("Initialized StateGoToNearestBall.")
 
     def on_enter(self):
-        logger.verbose("Entering StateGoToNearestBall.")
+        logger.debug("Entering StateGoToNearestBall.")
         # Determine the nearest ball that is not at a corner or cross
         robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
             
@@ -61,7 +61,7 @@ class StateGoToNearestBall(StateBase):
             self.server.set_state(StateIdle(self.server))
 
     def update(self, frame):
-        logger.verbose("Updating StateGoToNearestBall.")
+        logger.debug("Updating StateGoToNearestBall.")
         if len(self.server.pure_pursuit_navigator.path) == 0:
             logger.warning("No path to follow")
             return
@@ -90,7 +90,7 @@ class StateGoToNearestBall(StateBase):
             self.server.set_state(StateRotateToObject(self.server, target_object=self.target_ball))
 
     def on_exit(self):
-        logger.verbose("Exiting StateGoToNearestBall. Clearing path.")
+        logger.debug("Exiting StateGoToNearestBall. Clearing path.")
         self.server.pure_pursuit_navigator.set_path(None)
 
     def on_click(self, event, x, y):
