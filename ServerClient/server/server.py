@@ -561,7 +561,7 @@ class Server:
         if frame is None:
             return
         curr_time = time.time()
-        fps = 1 / (curr_time - prev_time)
+        fps = (curr_time - prev_time) / 10
         prev_time = curr_time
         cv2.putText(frame, f"FPS: {fps:.2f}", (frame.shape[1] - 100, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)

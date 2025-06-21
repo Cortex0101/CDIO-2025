@@ -87,7 +87,7 @@ class StateCollectBall(StateBase):
         robot.close_claw_and_back(move_speed, claw_speed)
         return True
                 '''
-                instruction = {"cmd": "close_claw_and_back", "move_speed": 10, "claw_speed": 20}
+                instruction = {"cmd": "close_claw_and_back", "move_speed": 10, "claw_speed": 10}
                 self.server.send_instruction(instruction)
                 self.server.pure_pursuit_navigator_slow.set_path(None)
                 time.sleep(2)  # Back off a bit for edge balls
