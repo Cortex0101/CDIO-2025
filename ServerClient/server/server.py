@@ -89,7 +89,7 @@ class Server:
         cv2.setMouseCallback("view", self._on_click)
         cv2.namedWindow("grid_visualization")
 
-        self.ai_model = AIModel("ball_detect/v13/weights/best.pt")
+        self.ai_model = AIModel(config.YOLO_MODEL_PATH2)
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True, draw_direction_markers=True)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=config.LARGE_OBJECT_RADIUS))

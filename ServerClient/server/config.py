@@ -19,3 +19,6 @@ REACHED_POINT_DISTANCE = 10  # distance in pixels to consider the robot has reac
 
 FORWARD_SPEED_ON_DELIVER = 50  # speed in pixels per second when delivering the ball
 OPEN_CLAW_POS_ON_DELIVERY = 55  # position to open the claw when delivering the ball
+
+YOLO_MODEL_PATH1 = "ball_detect/v13/weights/best.pt" # avg 13 fps on 1660ti
+YOLO_MODEL_PATH2= "ball_detect/v15l/weights/best.pt" # avg 22 fps
