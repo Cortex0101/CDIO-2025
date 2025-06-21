@@ -44,6 +44,8 @@ class Robot:
         print("[ROBOT] Closing claw and backing up.")
         self.tank_drive.on(-move_speed, -move_speed) # non blocking
         self.claw_motor.on_to_position(speed=claw_speed, position=self.CLAW_CLOSED_POS)
+        sleep(0.5)
+        self.tank_drive.off()  # stop the motors after closing the claw
 
     def deliver_ball(self, speed=75):
         # opens the claw, then moves forward 1 rotation with speed and then back 1 rotation

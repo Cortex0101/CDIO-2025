@@ -26,7 +26,7 @@ class StateDeliverBall(StateBase):
             from .StateIdle import StateIdle
             self.server.set_state(StateIdle(self.server))
         
-        logger.debug("Entering StateGoToNearestBall.")
+        logger.debug("Entering StateDeliverBall with target_object: %s", self.target_object)
         self.GOAL_LOCATION = self.target_object.center
         robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
         self.robot_center = robot.center

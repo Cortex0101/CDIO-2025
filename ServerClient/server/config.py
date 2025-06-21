@@ -4,3 +4,5 @@ SMALL_OBJECT_RADIUS = 10  # radius in pixels for small objects like balls when c
 SLOW_EDGE_BALL_MAX_SPEED = 8
 SLOW_MAX_SPEED = 15
 SLOW_KP = 0.3
+
+MANUAL_GOAL_CENTER = (375, 465)

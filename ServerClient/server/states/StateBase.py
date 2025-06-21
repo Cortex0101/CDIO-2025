@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 class StateBase:
     STUCK_HISTORY_LENGTH = 30  # Number of frames to keep
-    STUCK_TIME_SEC = 10        # Time window to check for stalling
+    STUCK_TIME_SEC = 7        # Time window to check for stalling
     STUCK_DIST_THRESHOLD = 5   # Pixels
     STUCK_ANGLE_THRESHOLD = 5  # Degrees
 
