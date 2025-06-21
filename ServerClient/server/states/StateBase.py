@@ -4,15 +4,17 @@ import time
 logger = logging.getLogger(__name__)
 
 class StateBase:
-    STUCK_HISTORY_LENGTH = 30  # Number of frames to keep
+    STUCK_HISTORY_LENGTH = 100  # Number of frames to keep
     STUCK_TIME_SEC = 7        # Time window to check for stalling
     STUCK_DIST_THRESHOLD = 5   # Pixels
     STUCK_ANGLE_THRESHOLD = 5  # Degrees
+    CAPTURE_INTERVAL = 0.1  # Interval to capture frames for unstuck logic
 
     def __init__(self, server):
         self.server = server
-        self._stuck_history = deque(maxlen=self.STUCK_HISTORY_LENGTH)
+        self._stuck_history = deque(maxlen=int(self.STUCK_HISTORY_LENGTH * 1.1)) # slightly larger to make sure we have enough history to cover STUCK_TIME_SEC 
         self._last_unstuck_time = time.time()
+        self._last_stuck_history_time = time.time()
         
     def on_enter(self):
         pass
@@ -59,10 +61,12 @@ class StateBase:
         return False
 
     def step(self, frame):
-        # Call this instead of update in main loop
         robot = self.get_last_valid_robot()
         now = time.time()
-        self._stuck_history.append((robot.center, robot.direction, now))
+        # Only store if enough time has passed since last entry
+        if now - self._last_stuck_history_time > self.CAPTURE_INTERVAL:
+            self._stuck_history.append((robot.center, robot.direction, now))
+            self._last_stuck_history_time = now
         if self.is_stuck():
             logger.warning("Robot appears to be stuck. Attempting to unstuck.")
             return self.attempt_to_unstuck(frame)

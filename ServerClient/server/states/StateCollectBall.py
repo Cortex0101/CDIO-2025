@@ -108,7 +108,7 @@ class StateCollectBall(StateBase):
         if self.is_edge_ball and self._distance(self.robot_center, self.target_object.center) < 25:
             logger.info("Edge ball detected, and robot is within 25 pixels of the target object. Attempting to close claw and back off.")
             # Example: send a reverse command, or transition to a recovery state
-            instruction = {"cmd": "close_claw_and_back", "move_speed": 10, "claw_speed": 20}
+            instruction = {"cmd": "close_claw_and_back", "move_speed": 20, "claw_speed": 10}
             self.server.send_instruction(instruction)
             time.sleep(2)
             logger.debug("Attempted to close claw and back off for edge ball. Continuing to deliver the ball.")
@@ -119,6 +119,7 @@ class StateCollectBall(StateBase):
             GOAL.center = config.MANUAL_GOAL_CENTER  # Assuming a fixed goal position for simplicity
             from .StateDeliverBall import StateDeliverBall
             self.server.set_state(StateDeliverBall(self.server, target_object=GOAL))
+            return frame
         else:
             logger.info("Not an edge ball or robot is too far from the target object. Backing up for 2 seconds and retrying.")
             instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}

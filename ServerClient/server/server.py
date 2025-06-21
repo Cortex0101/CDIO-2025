@@ -558,6 +558,8 @@ class Server:
 
     def display_fps(self, frame, prev_time):
         '''Display FPS at the top right corner of the frame.'''
+        if frame is None:
+            return
         curr_time = time.time()
         fps = 1 / (curr_time - prev_time)
         prev_time = curr_time

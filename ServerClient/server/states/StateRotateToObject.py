@@ -59,7 +59,7 @@ class StateRotateToObject(StateBase):
         '''
             Needs to consider that i cant move back and fourth, as this state would not return to its position.
         '''
-        return False
+        return frame  # No specific unstuck logic implemented, just return the frame
 
     def _angle_to(self, src, dst):
         # clamped to 0-360 where 0 is right, 90 is up, 180 is left, 270 is down

@@ -1,6 +1,8 @@
 from .StateBase import StateBase
 import logging
 
+import cv2
+
 import time
 
 from Course import Course, CourseObject
@@ -36,10 +38,12 @@ class StateDeliverBall(StateBase):
         self.target_location = self.server.course.get_optimal_goal_parking_spot(self.GOAL_LOCATION)
         logger.debug(f"Target location for ball delivery: {self.target_location}")
         excluded_ball = self.server.course.get_nearest_ball(self.robot_center, color='either')
-        current_path = self.server.path_planner.find_path(self.robot_center, self.target_location, self.server.path_planner.generate_grid(self.server.course, excluded_objects=[excluded_ball] if excluded_ball is not None else []))
-        if current_path is not None and len(current_path) > 0:
-            self.server.pure_pursuit_navigator.set_path(current_path)
-            logger.info(f"[SERVER] Path found to deliver the ball: {len(current_path)} points.")
+        self.grid = self.server.path_planner.generate_grid(self.server.course, excluded_objects=[excluded_ball] if excluded_ball is not None else [])
+
+        self.current_path = self.server.path_planner.find_path(self.robot_center, self.target_location, self.grid)
+        if self.current_path is not None and len(self.current_path) > 0:
+            self.server.pure_pursuit_navigator.set_path(self.current_path)
+            logger.info(f"[SERVER] Path found to deliver the ball: {len(self.current_path)} points.")
         else:
             logger.error("[SERVER] No path found to deliver the ball.")
             # If no path is found, go back to idle state
@@ -61,7 +65,9 @@ class StateDeliverBall(StateBase):
         robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
         self.robot_center = robot.center
         self.robot_direction = robot.direction
-        
+
+        self.grid_img = self.server.path_planner_visualizer.draw_grid_objects(self.grid)
+        self.grid_img = self.server.path_planner_visualizer.draw_path(self.grid_img, self.server.pure_pursuit_navigator.path)
         frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
         instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
         self.server.send_instruction(instruction)
