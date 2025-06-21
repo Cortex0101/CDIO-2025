@@ -20,10 +20,11 @@ class StateDeliverBall(StateBase):
 
     def on_enter(self):
         if self.target_object is None:
+            time.sleep(config.BALL_SETTLE_TIME_ON_DELIVERY) # wait for ball to settle down
             # fire delivery method:
             instruction = {"cmd": "deliver", "speed": config.FORWARD_SPEED_ON_DELIVER, "to_pos": config.OPEN_CLAW_POS_ON_DELIVERY}  # Open to 55 degrees
             self.server.send_instruction(instruction)
-            time.sleep(3)  # wait for the delivery to complete
+            time.sleep(2)  # wait for the delivery to complete
             
             # go to idle
             from .StateIdle import StateIdle

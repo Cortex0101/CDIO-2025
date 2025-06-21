@@ -312,7 +312,7 @@ class Course:
                     if obj.label != 'robot' and obj.label != 'wall' and obj.label != 'green' and obj.label != 'yellow' and not obj_is_target_ball:
                         obj_bbox = obj.bbox
                         # Check if the robot's bounding box at the circle point intersects with the object's bounding box'
-                        logger.debug(f"Checking overlap between robot bbox {robot_bbox_at_circle_point} and object bbox {obj_bbox}")
+                        logger.debug(f"Checking overlap between robot bbox {robot_bbox_at_circle_point} and object: {obj.label} with bbox {obj_bbox}")
                         if self._bbox_overlaps_bbox(robot_bbox_at_circle_point, obj_bbox):
                             overlaps_obstacle = True
                             break
@@ -516,7 +516,7 @@ class Course:
         logger.debug(f"Ball {ball} is not near any corner of the wall {wall}.")
         return False
 
-    def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.SMALL_OBJECT_RADIUS):
+    def is_ball_near_cross(self, ball: CourseObject, threshold: int = config.NEAR_CROSS_THRESHOLD):
         """
         Check if a ball is near the cross object.
 
@@ -532,7 +532,7 @@ class Course:
             return False
 
         logger.debug(f"Checking if ball {ball} is near cross {cross}")
-        res = self._bbox_within_threshold_bbox(ball.bbox, cross.bbox, threshold)
+        res = self._bbox_euclidean_distance_bbox_within_threshold(ball.bbox, cross.bbox, threshold)
         logger.debug(f"Ball {ball} near cross {cross}: {res}")
         return res
 
@@ -568,7 +568,7 @@ class Course:
         logger.debug(f"Checking overlap between bbox {bbox1} and bbox {bbox2}: {res}")
         return res
 
-    def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int = 0) -> bool:
+    def _bbox_within_threshold_bbox(self, bbox1: tuple, bbox2: tuple, threshold: int = 0) -> bool: # this one is used for wall, not sure about the logic, but it seems to work
         """
         Check if the bounding box bbox1 is within a certain threshold distance from bbox2.
 
@@ -586,6 +586,28 @@ class Course:
         logger.debug(f"Checking if bbox {bbox1} is within threshold {threshold} of bbox {bbox2}: {res}")
         return res
     
+    def _bbox_euclidean_distance_bbox_within_threshold(self, bbox1: tuple, bbox2: tuple, threshold: int = 0) -> float:
+        """
+        Calculate the Euclidean distance between the centers of two bounding boxes.
+
+        Args:
+            bbox1: (x1, y1, x2, y2) bounding box coordinates of the first object
+            bbox2: (x1, y1, x2, y2) bounding box coordinates of the second object
+        Returns:
+            float: Euclidean distance between the centers of the two bounding boxes
+        """
+        x11, y11, x12, y12 = bbox1
+        x21, y21, x22, y22 = bbox2
+
+        # Calculate horizontal and vertical distance between boxes
+        dx = max(x21 - x12, x11 - x22, 0)
+        dy = max(y21 - y12, y11 - y22, 0)
+
+        # Minimum Euclidean distance between the two boxes
+        distance = (dx**2 + dy**2) ** 0.5
+
+        return distance <= threshold
+
     def _bbox_within_threshold_point(self, bbox: tuple, point: tuple, threshold: int = 0) -> bool:
         """
         Check if the bounding box is within a certain threshold distance from a point.
