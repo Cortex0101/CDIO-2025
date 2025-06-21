@@ -90,7 +90,6 @@ class StateCollectBall(StateBase):
                 instruction = {"cmd": "close_claw_and_back", "move_speed": 10, "claw_speed": 10}
                 self.server.send_instruction(instruction)
                 self.server.pure_pursuit_navigator_slow.set_path(None)
-                time.sleep(2)  # Back off a bit for edge balls
             
             logger.debug("Switching to DeliverBall state after collecting the ball.")
             GOAL = CourseObject(label='small_goal',
