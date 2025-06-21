@@ -129,7 +129,7 @@ class AStarStrategyOptimized:
         dy = abs(a[1] - b[1])
         return (dx + dy) + (np.sqrt(2) - 2) * min(dx, dy)
 
-    def find_path(self, start, end, grid, exlude_obstacle_types=[0, 5]): #wall, robot, yellow, green
+    def find_path(self, start, end, grid, exlude_obstacle_types=[]): #wall, robot, yellow, green
         '''
         Find path from start to end using A*.
 
@@ -139,6 +139,8 @@ class AStarStrategyOptimized:
         start = (int(start[0]), int(start[1]))
         end = (int(end[0]), int(end[1]))
         h, w = grid.shape
+        logger.debug(f"Trying to find a path from {start} to {end} with object radius {self.OBJ_RADIUS}.")
+
 
         # 1) Pre-inflate obstacles by OBJ_RADIUS
         obstacles = np.isin(grid, exlude_obstacle_types, invert=True).astype(np.uint8)
@@ -344,7 +346,7 @@ class PathPlanner:
                 grid[y1:y2, x1:x2] = self.OBJECT_NUMS['wall']
 
         for obj in course.objects:
-            if obj.label == 'wall' or obj.label == 'green' or obj.label == 'yellow':
+            if obj.label == 'wall' or obj.label == 'green' or obj.label == 'yellow' or obj.label == 'robot':
                 logger.debug("Skipping object %s as it is a wall or green/yellow", obj.label)
                 continue
             
