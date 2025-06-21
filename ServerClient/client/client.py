@@ -16,6 +16,7 @@ class Robot:
 
     CLAW_OPEN_POS = 80
     CLAW_CLOSED_POS = 0
+    CLAW_DELIVER_POS = 50  # position to deliver the ball
     
     def __init__(self):
         self.left_motor = LargeMotor(OUTPUT_C)
@@ -36,6 +37,10 @@ class Robot:
     def close_claw(self, speed=20):
         print("[ROBOT] Closing claw.")
         self.claw_motor.on_to_position(speed=speed, position=self.CLAW_CLOSED_POS)
+
+    def open_claw_to(self, to_pos, speed=20):
+        print("[ROBOT] Opening claw to deliver position.")
+        self.claw_motor.on_to_position(speed=speed, position=to_pos)
     
     def close_claw_and_back(self, move_speed=10, claw_speed=20):
         '''
@@ -47,9 +52,9 @@ class Robot:
         sleep(0.5)
         self.tank_drive.off()  # stop the motors after closing the claw
 
-    def deliver_ball(self, speed=75):
+    def deliver_ball(self, speed=75, to_pos=CLAW_DELIVER_POS):
         # opens the claw, then moves forward 1 rotation with speed and then back 1 rotation
-        self.open_claw(5)
+        self.open_claw_deliver(to_pos)
         sleep(0.5)
         self.tank_drive.on_for_degrees(left_speed=speed, right_speed=speed,  degrees=90)
         sleep(0.5)
@@ -115,8 +120,9 @@ def execute_instruction(instr):
         robot.perform_jiggle(number_of_jiggles, jiggle_degrees)
     elif cmd == "deliver":
         speed = instr.get("speed", 75)
+        to_pos = instr.get("to_pos", robot.CLAW_DELIVER_POS)
         if speed is not None:
-            robot.deliver_ball(speed)
+            robot.deliver_ball(speed, to_pos)
         else:
             print("[CLIENT] Invalid deliver command: " + str(instr))
             return False

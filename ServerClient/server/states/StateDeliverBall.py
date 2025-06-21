@@ -20,7 +20,7 @@ class StateDeliverBall(StateBase):
     def on_enter(self):
         if self.target_object is None:
             # fire delivery method:
-            instruction = {"cmd": "deliver", "speed": 75}
+            instruction = {"cmd": "deliver", "speed": 75, "to_pos": 55}  # Open to 55 degrees
             self.server.send_instruction(instruction)
             time.sleep(3)  # wait for the delivery to complete
             
