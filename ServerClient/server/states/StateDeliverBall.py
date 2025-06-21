@@ -13,30 +13,6 @@ class StateDeliverBall(StateBase):
         self.server = server  # Reference to the main Server object
         self.target_object = target_object  # This can be used to specify a specific ball to deliver
 
-    def update(self, frame):
-        """
-        Update the state with the current frame.
-        This method is called periodically to update the state.
-        """
-        robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
-        self.robot_center = robot.center
-        self.robot_direction = robot.direction
-        
-        frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
-        instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
-        self.server.send_instruction(instruction)
-        
-        if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < 10:
-            logger.info("[SERVER] Reached the end of the path.")
-            self.server.pure_pursuit_navigator.set_path(None)
-            instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-            self.server.send_instruction(instruction)
-            from .StateRotateToObject import StateRotateToObject
-            logger.debug("Switching to RotateToObject state to face the goal")
-            self.server.set_state(StateRotateToObject(self.server, target_object=self.target_object))
-
-        return frame
-
     def on_enter(self):
         if self.target_object is None:
             # fire delivery method:
@@ -75,8 +51,43 @@ class StateDeliverBall(StateBase):
             #from .StateIdle import StateIdle
             #self.server.set_state(StateIdle(self.server))
 
+    def update(self, frame):
+        """
+        Update the state with the current frame.
+        This method is called periodically to update the state.
+        """
+        robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
+        self.robot_center = robot.center
+        self.robot_direction = robot.direction
+        
+        frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
+        instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
+        self.server.send_instruction(instruction)
+        
+        if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < 10:
+            logger.info("[SERVER] Reached the end of the path.")
+            self.server.pure_pursuit_navigator.set_path(None)
+            instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+            self.server.send_instruction(instruction)
+            from .StateRotateToObject import StateRotateToObject
+            logger.debug("Switching to RotateToObject state to face the goal")
+            self.server.set_state(StateRotateToObject(self.server, target_object=self.target_object))
+
+        return frame
+
+
     def on_exit(self):
         pass
+
+    def attempt_to_unstuck(self, frame):
+        logger.info("Trying to unstuck: backing up and retrying.")
+        # Example: send a reverse command, or transition to a recovery state
+        instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
+        self.server.send_instruction(instruction)
+        time.sleep(2)
+        # Optionally clear path, reset stuck history, etc.
+        self._stuck_history.clear()
+        return frame
 
     def on_click(self, event, x, y):
         """

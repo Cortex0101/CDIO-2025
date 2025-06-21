@@ -1,5 +1,7 @@
 from .StateBase import StateBase
 
+import time
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -94,6 +96,16 @@ class StateGoToNearestBall(StateBase):
     def on_exit(self):
         logger.debug("Exiting StateGoToNearestBall. Clearing path.")
         self.server.pure_pursuit_navigator.set_path(None)
+
+    def attempt_to_unstuck(self, frame):
+        logger.info("Trying to unstuck: backing up and retrying.")
+        # Example: send a reverse command, or transition to a recovery state
+        instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
+        self.server.send_instruction(instruction)
+        time.sleep(2)
+        # Optionally clear path, reset stuck history, etc.
+        self._stuck_history.clear()
+        return frame
 
     def on_click(self, event, x, y):
         logger.debug(f"on_click at ({x}, {y})")

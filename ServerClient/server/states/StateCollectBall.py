@@ -92,6 +92,15 @@ class StateCollectBall(StateBase):
     def on_exit(self):
         self.server.path_planner.set_object_radius(config.LARGE_OBJECT_RADIUS)  # Reset to
 
+    def attempt_to_unstuck(self, frame):
+        logger.info("Trying to unstuck: backing up and retrying.")
+        # Example: send a reverse command, or transition to a recovery state
+        instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
+        self.server.send_instruction(instruction)
+        time.sleep(2)
+        # Optionally clear path, reset stuck history, etc.
+        self._stuck_history.clear()
+        return frame
 
     def on_click(self, event, x, y):
         """

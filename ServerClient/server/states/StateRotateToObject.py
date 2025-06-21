@@ -51,6 +51,15 @@ class StateRotateToObject(StateBase):
         
         return frame
 
+    def on_exit(self):
+        self.angle_has_been_correct_for_x_frame = 0
+
+    def attempt_to_unstuck(self, frame): #TODO: implement unstuck logic
+        '''
+            Needs to consider that i cant move back and fourth, as this state would not return to its position.
+        '''
+        return False
+
     def _angle_to(self, src, dst):
         # clamped to 0-360 where 0 is right, 90 is up, 180 is left, 270 is down
         angle = math.degrees(math.atan2(dst[1] - src[1], dst[0] - src[0]))
@@ -59,9 +68,6 @@ class StateRotateToObject(StateBase):
 
         logger.debug(f"Computed angle from {src} to {dst}: {angle} degrees")
         return angle  # returns angle in degrees, 0 is right, 90 is up, 180 is left, 270 is down
-
-    def on_exit(self):
-        self.angle_has_been_correct_for_x_frame = 0
 
     def on_click(self, event, x, y):
         """

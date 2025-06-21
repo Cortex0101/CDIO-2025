@@ -1,13 +1,14 @@
 from .StateBase import StateBase
 
+import cv2
+
 import logging
 logger = logging.getLogger(__name__)
 
 class StateIdle(StateBase):
-    def update(self, frame):
-        # look for robot all the time
-        super().get_last_valid_robot()
-        return frame
+    def __init__(self, server):
+        super().__init__(server)
+        logger.debug("Initialized StateIdle.")
 
     def on_enter(self):
         logger.debug("Entered idle state")
@@ -16,15 +17,25 @@ class StateIdle(StateBase):
         instruction = {"cmd": "claw", "action": "close"}
         self.server.send_instruction(instruction)
 
+    def update(self, frame):
+        # look for robot all the time
+        super().get_last_valid_robot()
+        return frame
+
     def on_exit(self):
         pass
+
+    def attempt_to_unstuck(self, frame):
+        return False  # No unstuck logic in idle state
 
     def on_click(self, event, x, y):
         """
         Handle click events. Default implementation does nothing.
         Override in subclasses if needed.
         """
-        logger.info(f"Clicked at ({x}, {y}) in idle state")
+        # if left click
+        if event == cv2.EVENT_LBUTTONDOWN:
+            logger.info(f"Clicked at ({x}, {y}) in idle state")
 
     def on_key_press(self, key):
         if key == ord('g'):
