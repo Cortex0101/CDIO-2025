@@ -16,7 +16,16 @@ class AIModel:
         self.min_confidence = min_confidence
         self.model = YOLO(model_path)
 
-
     def generate_course(self, source):
-        results = self.model.predict(source=source, verbose=False, conf=self.min_confidence, device=0)
+        results = self.model.predict(source=source, verbose=False, conf=self.min_confidence, device=0, imgsz=640)
         return Course.from_yolo_results(results[0])
+    
+    def predict_stream(self):
+        return self.model.predict(
+            source=0,              # webcam
+            stream=True,          # enables generator
+            conf=self.min_confidence,
+            imgsz=640,            # faster
+            device=0,         # since no CUDA
+            verbose=False
+        )
