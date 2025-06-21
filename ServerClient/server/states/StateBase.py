@@ -60,10 +60,9 @@ class StateBase:
 
     def step(self, frame):
         # Call this instead of update in main loop
-        robot = self.server.course.get_robot()
-        if robot:
-            now = time.time()
-            self._stuck_history.append((robot.center, robot.direction, now))
+        robot = self.get_last_valid_robot()
+        now = time.time()
+        self._stuck_history.append((robot.center, robot.direction, now))
         if self.is_stuck():
             logger.warning("Robot appears to be stuck. Attempting to unstuck.")
             return self.attempt_to_unstuck(frame)

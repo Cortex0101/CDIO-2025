@@ -65,18 +65,28 @@ class StateCollectBall(StateBase):
         instruction = self.server.pure_pursuit_navigator_slow.compute_drive_command(self.robot_center, self.robot_direction)
         self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator_slow.path)
         self.server.send_instruction(instruction)
+        logger.debug(f"Sending drive command: {instruction}")
         stop_dist = 10 if self.is_edge_ball else 20
 
         if self._distance(self.robot_center, self.server.pure_pursuit_navigator_slow.path[-1]) < stop_dist:
-            print("[SERVER] Reached the end of the path.")
-            instruction = {"cmd": "claw", "action": "close"}
-            self.server.send_instruction(instruction)
-            self.server.pure_pursuit_navigator_slow.set_path(None)
-            instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-            self.server.send_instruction(instruction)
-            if self.is_edge_ball:
-                instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
+            logger.info("Reached the end of the path to collect the ball.")
+            if not self.is_edge_ball:
+                instruction = {"cmd": "claw", "action": "close"}
                 self.server.send_instruction(instruction)
+                self.server.pure_pursuit_navigator_slow.set_path(None)
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.server.send_instruction(instruction)
+            if self.is_edge_ball:
+                '''
+                    if cmd == "close_claw_and_back":
+        move_speed = instr.get("move_speed", 10)
+        claw_speed = instr.get("claw_speed", 20)
+        robot.close_claw_and_back(move_speed, claw_speed)
+        return True
+                '''
+                instruction = {"cmd": "close_claw_and_back", "move_speed": 10, "claw_speed": 20}
+                self.server.send_instruction(instruction)
+                self.server.pure_pursuit_navigator_slow.set_path(None)
                 time.sleep(2)  # Back off a bit for edge balls
             
             logger.debug("Switching to DeliverBall state after collecting the ball.")
