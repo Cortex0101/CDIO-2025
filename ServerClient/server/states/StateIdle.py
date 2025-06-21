@@ -26,7 +26,8 @@ class StateIdle(StateBase):
         pass
 
     def attempt_to_unstuck(self, frame):
-        return frame  # No specific unstuck logic implemented, just return the frame
+        return self.update(frame)  # No specific unstuck logic implemented, just update the state
+        
 
     def on_click(self, event, x, y):
         """

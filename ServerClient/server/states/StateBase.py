@@ -68,7 +68,6 @@ class StateBase:
             self._stuck_history.append((robot.center, robot.direction, now))
             self._last_stuck_history_time = now
         if self.is_stuck():
-            logger.warning("Robot appears to be stuck. Attempting to unstuck.")
             return self.attempt_to_unstuck(frame)
         else:
             return self.update(frame)
