@@ -98,8 +98,6 @@ class StateCollectBall(StateBase):
         instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
         self.server.send_instruction(instruction)
         time.sleep(2)
-        # Optionally clear path, reset stuck history, etc.
-        self._stuck_history.clear()
         return frame
 
     def on_click(self, event, x, y):

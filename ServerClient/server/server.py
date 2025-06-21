@@ -556,8 +556,18 @@ class Server:
     def _on_click(self, event, x, y, flags, param):
         self.current_state.on_click(event, x, y)
 
+    def display_fps(self, frame, prev_time):
+        '''Display FPS at the top right corner of the frame.'''
+        curr_time = time.time()
+        fps = 1 / (curr_time - prev_time)
+        prev_time = curr_time
+        cv2.putText(frame, f"FPS: {fps:.2f}", (frame.shape[1] - 100, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
     def main_loop(self):
         self.set_state(StateIdle(self))  # Initialize the state
+
+        prev_time = time.time()
 
         while True:
             frame = self._capture_frame()
@@ -573,6 +583,8 @@ class Server:
                 # log error with traceback
                 logger.error(f"Error in current state update: {e}")
                 logger.error(traceback.format_exc())
+
+            self.display_fps(frame, prev_time)
 
             cv2.imshow("view", frame)
 

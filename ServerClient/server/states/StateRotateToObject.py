@@ -10,8 +10,9 @@ logger = logging.getLogger(__name__)
 class StateRotateToObject(StateBase):
     def __init__(self, server, target_object=None):
         super().__init__(server)
-        logger.debug("Initialized StateRotateToObject with target_object: %s", target_object)
         self.target_object = target_object
+        logger.debug("Initialized StateRotateToObject with target_object: %s", target_object)
+
 
     def on_enter(self):
         robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found

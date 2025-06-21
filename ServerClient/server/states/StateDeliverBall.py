@@ -10,8 +10,10 @@ logger = logging.getLogger(__name__)
 
 class StateDeliverBall(StateBase):
     def __init__(self, server, target_object=None): # might not need target_object as its just the closest ball to the robot that should be ignored
+        super().__init__(server)
         self.server = server  # Reference to the main Server object
         self.target_object = target_object  # This can be used to specify a specific ball to deliver
+        logger.debug("Initialized StateDeliverBall with target_object: %s", target_object)
 
     def on_enter(self):
         if self.target_object is None:
@@ -85,8 +87,6 @@ class StateDeliverBall(StateBase):
         instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
         self.server.send_instruction(instruction)
         time.sleep(2)
-        # Optionally clear path, reset stuck history, etc.
-        self._stuck_history.clear()
         return frame
 
     def on_click(self, event, x, y):
