@@ -66,9 +66,12 @@ class StateCollectBall(StateBase):
         self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator_slow.path)
         self.server.send_instruction(instruction)
         logger.debug(f"Sending drive command: {instruction}")
-        stop_dist = 10 if self.is_edge_ball else 20
+        #stop_dist = 20 if self.is_edge_ball else 20
+        stop_dist = config.BALL_STOP_DISTANCE_EDGE_BALL if self.is_edge_ball else config.BALL_STOP_DISTANCE
 
-        if self._distance(self.robot_center, self.server.pure_pursuit_navigator_slow.path[-1]) < stop_dist:
+        distance = self._distance(self.robot_center, self.server.pure_pursuit_navigator_slow.path[-1])
+        logger.debug(f"Distance to target object: {distance}, stop distance: {stop_dist}, is_edge_ball: {self.is_edge_ball}")
+        if distance < stop_dist:
             logger.info("Reached the end of the path to collect the ball.")
             if not self.is_edge_ball:
                 instruction = {"cmd": "claw", "action": "close"}
