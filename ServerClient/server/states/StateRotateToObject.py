@@ -28,14 +28,15 @@ class StateRotateToObject(StateBase):
         angle_to_target = self._angle_to(self.robot_center, self.target_object.center)
         
         # Compute turn command to face the target object
+        # prev newKp = 0.7, new_max_speed = 10
         instruction = self.server.pure_pursuit_navigator.compute_turn_command(
-            self.robot_direction, angle_to_target, newKp=0.7, new_max_speed=10
+            self.robot_direction, angle_to_target, newKp=0.3, new_max_speed=15
         )
         self.server.send_instruction(instruction)
 
         # Check if the robot is facing the target object
         logger.debug(f"Robot direction: {self.robot_direction}, angle to target: {angle_to_target}, angle difference: {abs(angle_to_target - self.robot_direction)}")
-        if abs(angle_to_target - self.robot_direction) < 3:
+        if abs(angle_to_target - self.robot_direction) < 1: # prev 3
             logger.info("[SERVER] Robot is now facing the target object with angle difference < 3 degrees.")
             # Wait for a few frames to ensure it's stable
             self.angle_has_been_correct_for_x_frame += 1

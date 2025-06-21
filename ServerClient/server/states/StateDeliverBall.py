@@ -27,6 +27,7 @@ class StateDeliverBall(StateBase):
             # go to idle
             from .StateIdle import StateIdle
             self.server.set_state(StateIdle(self.server))
+            return
         
         logger.debug("Entering StateDeliverBall with target_object: %s", self.target_object)
         self.GOAL_LOCATION = self.target_object.center

@@ -42,7 +42,7 @@ class Robot:
         print("[ROBOT] Opening claw to deliver position.")
         self.claw_motor.on_to_position(speed=speed, position=to_pos)
     
-    def close_claw_and_back(self, move_speed=10, claw_speed=20):
+    def close_claw_and_back(self, move_speed=10, claw_speed=10):
         '''
             Note that this method takes a positive move_speed, and converts to negative itself
         '''
@@ -54,7 +54,7 @@ class Robot:
 
     def deliver_ball(self, speed=75, to_pos=CLAW_DELIVER_POS):
         # opens the claw, then moves forward 1 rotation with speed and then back 1 rotation
-        self.open_claw_deliver(to_pos)
+        self.open_claw_to(to_pos, speed=speed)
         sleep(0.5)
         self.tank_drive.on_for_degrees(left_speed=speed, right_speed=speed,  degrees=90)
         sleep(0.5)
@@ -96,7 +96,7 @@ def execute_instruction(instr):
             return False
     if cmd == "close_claw_and_back":
         move_speed = instr.get("move_speed", 10)
-        claw_speed = instr.get("claw_speed", 20)
+        claw_speed = instr.get("claw_speed", 10)
         robot.close_claw_and_back(move_speed, claw_speed)
         return True
     if cmd == "drive_seconds":
