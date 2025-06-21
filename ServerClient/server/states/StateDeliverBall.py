@@ -12,39 +12,30 @@ class StateDeliverBall(StateBase):
     def __init__(self, server, target_object=None): # might not need target_object as its just the closest ball to the robot that should be ignored
         self.server = server  # Reference to the main Server object
         self.target_object = target_object  # This can be used to specify a specific ball to deliver
-        self.should_rerun_on_enter_in_x_frames = -1
 
     def update(self, frame):
         """
         Update the state with the current frame.
         This method is called periodically to update the state.
         """
-        if self.should_rerun_on_enter_in_x_frames > 0:
-            logger.debug("Rerunning on_enter method in {self.should_rerun_on_enter} frames.")
-            self.should_rerun_on_enter_in_x_frames -= 1
-            if self.should_rerun_on_enter_in_x_frames == 0:
-                self.should_rerun_on_enter_in_x_frames = -1
-                self.on_enter()
-            return frame
-        else:
-            robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
-            self.robot_center = robot.center
-            self.robot_direction = robot.direction
-            
-            frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
-            instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
+        robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
+        self.robot_center = robot.center
+        self.robot_direction = robot.direction
+        
+        frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
+        instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
+        self.server.send_instruction(instruction)
+        
+        if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < 10:
+            logger.info("[SERVER] Reached the end of the path.")
+            self.server.pure_pursuit_navigator.set_path(None)
+            instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
             self.server.send_instruction(instruction)
-            
-            if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < 10:
-                logger.info("[SERVER] Reached the end of the path.")
-                self.server.pure_pursuit_navigator.set_path(None)
-                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-                self.server.send_instruction(instruction)
-                from .StateRotateToObject import StateRotateToObject
-                logger.debug("Switching to RotateToObject state to face the goal")
-                self.server.set_state(StateRotateToObject(self.server, target_object=self.target_object))
+            from .StateRotateToObject import StateRotateToObject
+            logger.debug("Switching to RotateToObject state to face the goal")
+            self.server.set_state(StateRotateToObject(self.server, target_object=self.target_object))
 
-            return frame
+        return frame
 
     def on_enter(self):
         if self.target_object is None:
@@ -72,11 +63,13 @@ class StateDeliverBall(StateBase):
             self.server.pure_pursuit_navigator.set_path(current_path)
             logger.info(f"[SERVER] Path found to deliver the ball: {len(current_path)} points.")
         else:
-            logger.error("No path found to deliver the ball. Robot is likely stuck inside a wall. Attempting to move backward and retrying.")
-            instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
+            logger.error("[SERVER] No path found to deliver the ball.")
+            # If no path is found, go back to idle state
+            instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
             self.server.send_instruction(instruction)
-            time.sleep(2)
-            self.should_rerun_on_enter_in_x_frames = 5
+            self.server.pure_pursuit_navigator.set_path(None)
+            from .StateIdle import StateIdle
+            self.server.set_state(StateIdle(self.server))
 
             #logger.error("[SERVER] No path found to deliver the ball.")
             #from .StateIdle import StateIdle
