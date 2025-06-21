@@ -66,8 +66,6 @@ class StateDeliverBall(StateBase):
         self.robot_center = robot.center
         self.robot_direction = robot.direction
 
-        self.grid_img = self.server.path_planner_visualizer.draw_grid_objects(self.grid)
-        self.grid_img = self.server.path_planner_visualizer.draw_path(self.grid_img, self.server.pure_pursuit_navigator.path)
         frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
         instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
         self.server.send_instruction(instruction)
