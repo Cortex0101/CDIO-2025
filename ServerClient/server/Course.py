@@ -367,7 +367,7 @@ class Course:
                 'bottom': abs(goal_center[1] - floor.bbox[3])  # bottom wall
         }
         closest_wall = min(wall_distances, key=wall_distances.get)
-        distance = 50  # Distance to park the goal away from the wall
+        distance = config.GOAL_DELIVERY_SPOT_DISTANCE
         optimal_spot = None
         if closest_wall == 'left':
             # Calculate the optimal spot to the left of the goal

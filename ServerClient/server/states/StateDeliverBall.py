@@ -67,6 +67,7 @@ class StateDeliverBall(StateBase):
         self.robot_direction = robot.direction
 
         frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
+        self.server.course_visualizer.highlight_point(frame, self.target_location, color=(255, 255, 0))
         instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
         self.server.send_instruction(instruction)
         

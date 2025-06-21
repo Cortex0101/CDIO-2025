@@ -9,3 +9,5 @@ MANUAL_GOAL_CENTER = (375, 465)
 
 BALL_STOP_DISTANCE = 20  # distance in pixels to stop before the target object
 BALL_STOP_DISTANCE_EDGE_BALL = 20  # distance in pixels to stop before the target edge ball
+
+GOAL_DELIVERY_SPOT_DISTANCE = 65
