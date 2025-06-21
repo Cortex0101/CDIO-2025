@@ -77,25 +77,35 @@ class StateBase:
     def get_last_valid_robot(self):
         """
         Returns the last valid robot position.
-        This can be overridden in subclasses if needed.
+        If the robot is detected but its direction is None, use the new robot's center
+        but copy the direction from the previous valid robot.
         """
         robot = self.server.course.get_robot()
-        robot_direction = robot.direction if robot else None
-        robot_center = robot.center if robot else None
+        last_valid = self.server.last_valid_robot
 
-        if robot is not None and robot_direction is not None and robot_center is not None:
-            self.server.last_valid_robot = robot
-            return robot
+        if robot is not None:
+            if robot.direction is not None and robot.center is not None:
+                self.server.last_valid_robot = robot
+                return robot
+            elif last_valid is not None and robot.center is not None:
+                # Copy direction from last valid robot
+                logger.warning("Robot direction is None, copying direction from last valid robot.")
+                robot.direction = last_valid.direction
+                self.server.last_valid_robot = robot
+                return robot
+            else:
+                logger.warning("Robot detected but missing direction and no last valid robot to copy from.")
         else:
             logger.warning("No valid robot found in the course. Using last valid robot.")
-            if self.server.last_valid_robot is None:
-                logger.error("No previous valid robot found. Cannot proceed, going to idle state.")
-                from .StateIdle import StateIdle
-                self.server.set_state(StateIdle(self.server))
-                return None
-            else:
-                logger.warning(f"Using last valid robot: {self.server.last_valid_robot}")
-                return self.server.last_valid_robot
+
+        if last_valid is None:
+            logger.error("No previous valid robot found. Cannot proceed, going to idle state.")
+            from .StateIdle import StateIdle
+            self.server.set_state(StateIdle(self.server))
+            return None
+        else:
+            logger.warning(f"Using last valid robot: {last_valid}")
+            return last_valid
 
         '''
         if robot is None:
