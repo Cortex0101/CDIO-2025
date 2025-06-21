@@ -84,7 +84,7 @@ class StateCollectBall(StateBase):
                                mask=None,
                                bbox=(0.0, 0.0, 0.0, 0.0),
                                confidence=float(1.0))
-            GOAL.center = (350, 450)  # Assuming a fixed goal position for simplicity
+            GOAL.center = (375, 465)  # Assuming a fixed goal position for simplicity
             from .StateDeliverBall import StateDeliverBall
             self.server.set_state(StateDeliverBall(self.server, target_object=GOAL))
         return frame

@@ -147,6 +147,8 @@ class AStarStrategyOptimized:
         inflated = cv2.dilate(obstacles, kernel)
         passable = (inflated == 0)
 
+        OBJECT_NUMS_INV = {v: k for k, v in PathPlanner.OBJECT_NUMS.items()}
+
         # Log passable stats
         logger.debug(f"Passable cells after inflation: {np.sum(passable)} / {passable.size}")
         if not (0 <= start[0] < w and 0 <= start[1] < h):
@@ -156,7 +158,8 @@ class AStarStrategyOptimized:
             logger.warning(f"End {end} is out of bounds.")
             return []
         if not passable[end[1], end[0]]:
-            logger.warning(f"End {end} is not passable after inflation. Attempting minimal deflation...")
+            objtype = grid[end[1], end[0]]
+            logger.warning(f"End {end} is not passable after inflation. Blocked by object type '{OBJECT_NUMS_INV.get(objtype, objtype)}' Attempting minimal deflation...")
             # Try smaller radii until end is passable
             for r in range(self.OBJ_RADIUS-1, -1, -1):
                 kernel_size = 2 * r + 1
@@ -171,7 +174,8 @@ class AStarStrategyOptimized:
                 logger.error(f"End {end} is not passable even with zero inflation.")
                 return []
         if not passable[start[1], start[0]]:
-            logger.warning(f"Start {start} is not passable after inflation. Attempting minimal deflation...")
+            objtype = grid[start[1], start[0]]
+            logger.warning(f"Start {start} is not passable after inflation. Blocked by object type '{OBJECT_NUMS_INV.get(objtype, objtype)}'. Attempting minimal deflation...")
             # Try smaller radii until start is passable
             for r in range(self.OBJ_RADIUS-1, -1, -1):
                 kernel_size = 2 * r + 1
