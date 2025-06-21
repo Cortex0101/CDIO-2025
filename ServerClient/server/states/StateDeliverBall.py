@@ -1,4 +1,5 @@
 from .StateBase import StateBase
+import config
 import logging
 
 import cv2
@@ -72,7 +73,7 @@ class StateDeliverBall(StateBase):
         instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
         self.server.send_instruction(instruction)
         
-        if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < 10:
+        if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < config.REACHED_POINT_DISTANCE:
             logger.info("[SERVER] Reached the end of the path.")
             self.server.pure_pursuit_navigator.set_path(None)
             instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}

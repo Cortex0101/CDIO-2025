@@ -1,4 +1,5 @@
 from .StateBase import StateBase
+import config
 
 import time
 
@@ -83,7 +84,7 @@ class StateGoToNearestBall(StateBase):
         self.server.send_instruction(instruction)
         logger.debug("Instruction sent to robot.")
         
-        if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < 10:
+        if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < config.REACHED_POINT_DISTANCE:
             logger.info("Reached the end of the path.")            
             # Go to idle state after reaching the ball
             from .StateIdle import StateIdle
