@@ -5,9 +5,12 @@ SLOW_EDGE_BALL_MAX_SPEED = 8
 SLOW_MAX_SPEED = 15
 SLOW_KP = 0.3
 
-MANUAL_GOAL_CENTER = (375, 465)
+MANUAL_GOAL_CENTER = (370, 465)
 
 BALL_STOP_DISTANCE = 20  # distance in pixels to stop before the target object
 BALL_STOP_DISTANCE_EDGE_BALL = 20  # distance in pixels to stop before the target edge ball
 
 GOAL_DELIVERY_SPOT_DISTANCE = 65
+
+ROBOT_FACE_OBJECT_ANGLE_THRESHOLD = 3  # degrees, how close the robot needs to be facing the object to consider it "facing"
+ROBOT_FACE_OBJECT_ANGLE_THRESHOLD_FRAMES = 5  # how many frames the robot needs to be facing the object to consider it "facing"

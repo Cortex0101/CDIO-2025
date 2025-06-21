@@ -1,6 +1,7 @@
 from .StateBase import StateBase
 
 from Course import Course, CourseObject
+import config
 
 import math
 
@@ -36,7 +37,7 @@ class StateRotateToObject(StateBase):
 
         # Check if the robot is facing the target object
         logger.debug(f"Robot direction: {self.robot_direction}, angle to target: {angle_to_target}, angle difference: {abs(angle_to_target - self.robot_direction)}")
-        if abs(angle_to_target - self.robot_direction) < 1: # prev 3
+        if abs(angle_to_target - self.robot_direction) < config.ROBOT_FACE_OBJECT_ANGLE_THRESHOLD: # prev 3
             logger.info("[SERVER] Robot is now facing the target object with angle difference < 3 degrees.")
             # Wait for a few frames to ensure it's stable
             self.angle_has_been_correct_for_x_frame += 1
