@@ -12,17 +12,19 @@ class StateDeliverBall(StateBase):
     def __init__(self, server, target_object=None): # might not need target_object as its just the closest ball to the robot that should be ignored
         self.server = server  # Reference to the main Server object
         self.target_object = target_object  # This can be used to specify a specific ball to deliver
-        self.should_rerun_on_enter = False  # Flag to indicate if on_enter should be rerun
+        self.should_rerun_on_enter_in_x_frames = -1
 
     def update(self, frame):
         """
         Update the state with the current frame.
         This method is called periodically to update the state.
         """
-        if self.should_rerun_on_enter:
-            logger.debug("Re-running on_enter due to should_rerun_on_enter flag.")
-            self.should_rerun_on_enter = False
-            self.on_enter()
+        if self.should_rerun_on_enter_in_x_frames > 0:
+            logger.debug("Rerunning on_enter method in {self.should_rerun_on_enter} frames.")
+            self.should_rerun_on_enter_in_x_frames -= 1
+            if self.should_rerun_on_enter_in_x_frames == 0:
+                self.should_rerun_on_enter_in_x_frames = -1
+                self.on_enter()
             return frame
         else:
             robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
@@ -74,7 +76,7 @@ class StateDeliverBall(StateBase):
             instruction = {"cmd": "drive_seconds", "seconds": 2, "speed": -10}
             self.server.send_instruction(instruction)
             time.sleep(2)
-            self.should_rerun_on_enter = True  # Flag to indicate we should re-run on_enter doing it on the next update
+            self.should_rerun_on_enter_in_x_frames = 5
 
             #logger.error("[SERVER] No path found to deliver the ball.")
             #from .StateIdle import StateIdle

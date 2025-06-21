@@ -156,8 +156,20 @@ class AStarStrategyOptimized:
             logger.warning(f"End {end} is out of bounds.")
             return []
         if not passable[end[1], end[0]]:
-            logger.warning(f"End {end} is not passable after inflation.")
-            return []
+            logger.warning(f"End {end} is not passable after inflation. Attempting minimal deflation...")
+            # Try smaller radii until end is passable
+            for r in range(self.OBJ_RADIUS-1, -1, -1):
+                kernel_size = 2 * r + 1
+                kernel = np.ones((kernel_size, kernel_size), dtype=np.uint8)
+                inflated = cv2.dilate(obstacles, kernel)
+                passable_try = (inflated == 0)
+                if passable_try[end[1], end[0]]:
+                    logger.info(f"End {end} became passable with inflation radius {r}. Retrying pathfinding.")
+                    passable = passable_try
+                    break
+            else:
+                logger.error(f"End {end} is not passable even with zero inflation.")
+                return []
         if not passable[start[1], start[0]]:
             logger.warning(f"Start {start} is not passable after inflation. Attempting minimal deflation...")
             # Try smaller radii until start is passable
@@ -221,7 +233,7 @@ class AStarStrategyOptimized:
                     logger.debug(f"Neighbor {(nx, ny)} not passable.")
                     continue
                 if visited[ny, nx]:
-                    logger.debug(f"Neighbor {(nx, ny)} already visited.")
+                    #logger.debug(f"Neighbor {(nx, ny)} already visited.")
                     continue
 
                 tentative_g = g_score[cy, cx] + cost
