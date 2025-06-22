@@ -244,6 +244,28 @@ class Course:
         If there are no goals, returns an empty list.
         """
         return self.get_by_label('small_goal') + self.get_by_label('big_goal')
+    
+    def get_large_goal(self):
+        """
+        Returns the large goal object in the course.
+        If there are no large goals, returns None.
+        """
+        large_goals = self.get_by_label('big_goal')
+        if not large_goals or len(large_goals) == 0:
+            logger.warning("No large goal object found in the course, returning None.")
+            return None
+        return large_goals[0]
+    
+    def get_small_goal(self):
+        """
+        Returns the small goal object in the course.
+        If there are no small goals, returns None.
+        """
+        small_goals = self.get_by_label('small_goal')
+        if not small_goals or len(small_goals) == 0:
+            logger.warning("No small goal object found in the course, returning None.")
+            return None
+        return small_goals[0]
 
     # TODO: functions for goals? Weird when they might be mixed up, or both small or both large
 

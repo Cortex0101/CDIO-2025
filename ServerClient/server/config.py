@@ -16,6 +16,7 @@ FAST_MAX_SPEED = 40  # max speed in pixels per second when driving fast
 FAST_LOOKAHEAD_DISTANCE = 30  # distance in pixels to look ahead when driving fasts
 
 MANUAL_GOAL_CENTER = (380, 450)
+USE_MANUAL_GOAL_CENTER = True  # if True, use the manual goal center instead of the one from the course
 
 BALL_STOP_DISTANCE = 30  # distance in pixels to stop before the target object
 BALL_STOP_DISTANCE_EDGE_BALL = 25  # distance in pixels to stop before the target edge ball

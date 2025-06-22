@@ -92,11 +92,18 @@ class StateCollectBall(StateBase):
                 self.server.pure_pursuit_navigator_slow.set_path(None)
             
             logger.debug("Switching to DeliverBall state after collecting the ball.")
-            GOAL = CourseObject(label='small_goal',
+            GOAL = None
+            if config.USE_MANUAL_GOAL_CENTER:
+                GOAL = CourseObject(label='small_goal',
                                mask=None,
                                bbox=(0.0, 0.0, 0.0, 0.0),
                                confidence=float(1.0))
-            GOAL.center = config.MANUAL_GOAL_CENTER  # Assuming a fixed goal position for simplicity
+                GOAL.center = config.MANUAL_GOAL_CENTER  # Assuming a fixed goal position for simplicity
+            else:
+                GOAL = self.server.course.get_large_goal(self.robot_center, color='either')
+                if GOAL is None:
+                    return frame  # If no goal is found, try again
+
             from .StateDeliverBall import StateDeliverBall
             self.server.set_state(StateDeliverBall(self.server, target_object=GOAL))
         return frame
