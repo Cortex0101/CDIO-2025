@@ -7591,3 +7591,46 @@
 2025-06-22 15:19:45 | INFO     | states.StateIdle:on_click():38 - Clicked at (382, 461) in idle state
 2025-06-22 15:20:14 | INFO     | __main__:_quit():536 - Quitting server.
 2025-06-22 15:20:14 | INFO     | __main__:accept_connections_loop():177 - Connection closed, waiting for new EV3 connection.
+2025-06-22 15:21:49 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 15:21:49 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 15:21:49 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 15:21:50 | DEBUG    | PathPlanner:__init__():284 - Initializing PathPlanner with strategy: AStarStrategyOptimized
+2025-06-22 15:21:50 | INFO     | __main__:accept_connections_loop():152 - Server started on 0.0.0.0:12346, waiting for EV3 connection.
+2025-06-22 15:22:33 | INFO     | __main__:accept_connections_loop():156 - Connected to EV3 at ('192.168.0.228', 56822)
+2025-06-22 15:22:33 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 15:22:33 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 15:23:12 | INFO     | __main__:_quit():536 - Quitting server.
+2025-06-22 15:23:12 | INFO     | __main__:accept_connections_loop():177 - Connection closed, waiting for new EV3 connection.
+2025-06-22 15:23:30 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 15:23:30 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 15:23:30 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 15:23:42 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 15:23:42 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 15:23:42 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 15:23:42 | DEBUG    | PathPlanner:__init__():284 - Initializing PathPlanner with strategy: AStarStrategyOptimized
+2025-06-22 15:23:42 | INFO     | __main__:accept_connections_loop():152 - Server started on 0.0.0.0:12346, waiting for EV3 connection.
+2025-06-22 15:23:47 | INFO     | __main__:accept_connections_loop():156 - Connected to EV3 at ('192.168.0.228', 56824)
+2025-06-22 15:23:47 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 15:23:47 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 15:24:27 | INFO     | __main__:_quit():536 - Quitting server.
+2025-06-22 15:24:27 | INFO     | __main__:accept_connections_loop():177 - Connection closed, waiting for new EV3 connection.
+2025-06-22 15:24:59 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 15:24:59 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 15:24:59 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 15:25:00 | DEBUG    | PathPlanner:__init__():284 - Initializing PathPlanner with strategy: AStarStrategyOptimized
+2025-06-22 15:25:00 | INFO     | __main__:accept_connections_loop():152 - Server started on 0.0.0.0:12346, waiting for EV3 connection.
+2025-06-22 15:25:02 | INFO     | __main__:accept_connections_loop():156 - Connected to EV3 at ('192.168.0.228', 56826)
+2025-06-22 15:25:02 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 15:25:02 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 15:25:44 | INFO     | __main__:_quit():536 - Quitting server.
+2025-06-22 15:25:44 | INFO     | __main__:accept_connections_loop():177 - Connection closed, waiting for new EV3 connection.
+2025-06-22 15:28:05 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 15:28:05 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 15:28:05 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 15:28:05 | DEBUG    | PathPlanner:__init__():284 - Initializing PathPlanner with strategy: AStarStrategyOptimized
+2025-06-22 15:28:05 | INFO     | __main__:accept_connections_loop():152 - Server started on 0.0.0.0:12346, waiting for EV3 connection.
+2025-06-22 15:28:07 | INFO     | __main__:accept_connections_loop():156 - Connected to EV3 at ('192.168.0.228', 56830)
+2025-06-22 15:28:07 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 15:28:07 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 15:29:09 | INFO     | __main__:_quit():536 - Quitting server.
+2025-06-22 15:29:09 | INFO     | __main__:accept_connections_loop():177 - Connection closed, waiting for new EV3 connection.
