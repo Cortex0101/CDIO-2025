@@ -431,9 +431,9 @@ class Course:
                 for obj in self.objects:
                     obj_is_target_ball = obj == ball
                     if obj.label != 'robot' and obj.label != 'wall' and obj.label != 'green' and obj.label != 'yellow' and not obj_is_target_ball:
-                        threshold = 10
+                        threshold = config.OPTIMAL_SPOT_DISTANCE_TO_NON_CROSS
                         if obj.label == 'cross':
-                            threshold = 30
+                            threshold = config.OPTIMAL_SPOT_DISTANCE_TO_CROSS
                         
                         rbt_dist_to_obj = self._boxes_distance(robot_bbox_at_circle_point, obj.bbox)
                         if rbt_dist_to_obj < threshold:

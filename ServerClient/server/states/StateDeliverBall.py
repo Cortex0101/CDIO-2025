@@ -24,7 +24,6 @@ class StateDeliverBall(StateBase):
             # fire delivery method:
             instruction = {"cmd": "deliver", "speed": config.FORWARD_SPEED_ON_DELIVER, "to_pos": config.OPEN_CLAW_POS_ON_DELIVERY}  # Open to 55 degrees
             self.server.send_instruction(instruction)
-            time.sleep(2)  # wait for the delivery to complete
             
             # go to idle
             from .StateIdle import StateIdle

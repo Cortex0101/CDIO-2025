@@ -99,16 +99,16 @@ class Server:
 
         # extra 
         self.pure_pursuit_navigator = PurePursuitNavigator(None, 
-                                                lookahead_distance=25, 
-                                                max_speed=25, 
-                                                true_max_speed=25, 
-                                                kp=0.75, 
+                                                lookahead_distance=config.FAST_LOOKAHEAD_DISTANCE,
+                                                max_speed=config.FAST_MAX_SPEED,
+                                                true_max_speed=config.FAST_MAX_SPEED,
+                                                kp=config.FAST_KP, 
                                                 max_turn_slowdown=1)
         
         self.pure_pursuit_navigator_slow = PurePursuitNavigator(None,
-                                                lookahead_distance=10, 
-                                                max_speed=5, 
-                                                true_max_speed=5, 
+                                                lookahead_distance=config.SLOW_LOOKAHEAD_DISTANCE,
+                                                max_speed=config.SLOW_MAX_SPEED,
+                                                true_max_speed=config.SLOW_MAX_SPEED, 
                                                 kp=config.SLOW_KP,
                                                 max_turn_slowdown=1)
 
@@ -557,7 +557,7 @@ class Server:
             instruction = {"cmd": "claw", "action": "close", "speed": 5}
             self.send_instruction(instruction)
 
-        if key == ord('.'): # log avg fps
+        if key == ord('ø'): # log avg fps
             logger.info(f"Average FPS: {self.avg_fps:.2f} over {self.frame_count} frames")
 
         self.current_state.on_key_press(key)

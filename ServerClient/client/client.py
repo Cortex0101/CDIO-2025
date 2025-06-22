@@ -55,7 +55,7 @@ class Robot:
     def deliver_ball(self, speed=75, to_pos=CLAW_DELIVER_POS):
         # opens the claw, then moves forward 1 rotation with speed and then back 1 rotation
         self.open_claw_to(to_pos=to_pos, speed=speed)
-        sleep(1)
+        sleep(2)
         self.tank_drive.on_for_degrees(left_speed=speed, right_speed=speed,  degrees=90)
         sleep(0.5)
         self.tank_drive.on_for_degrees(left_speed=-speed/2, right_speed=-speed/2,  degrees=180)

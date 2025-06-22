@@ -178,6 +178,8 @@ class AStarStrategyOptimized:
         if not passable[start[1], start[0]]:
             objtype = grid[start[1], start[0]]
             logger.warning(f"Start {start} is not passable after inflation. Blocked by object type '{OBJECT_NUMS_INV.get(objtype, objtype)}'. Attempting minimal deflation...")
+            # print the grid the grid around start for debugging
+            logger.debug(f"Grid around start {start}:\n{grid[max(0, start[1]-2):min(h, start[1]+3), max(0, start[0]-2):min(w, start[0]+3)]}")
             # Try smaller radii until start is passable
             for r in range(self.OBJ_RADIUS-1, -1, -1):
                 kernel_size = 2 * r + 1
