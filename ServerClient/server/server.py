@@ -22,6 +22,7 @@ from states.StateIdle import StateIdle
 from states.StateGoToNearestBall import StateGoToNearestBall
 from states.StateCollectBall import StateCollectBall
 from states.StateRotateToObject import StateRotateToObject
+from states.StateCalibration import StateCalibration
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -542,22 +543,22 @@ class Server:
     def _on_key_press(self):
         key = cv2.waitKey(1) & 0xFF
 
-        if key == ord('q'):
+        if key == ord('Q'):
             self._quit()
 
         if key == ord('D'):
             instruction = {"cmd": "deliver", "speed": 75}
             self.send_instruction(instruction)
 
-        if key == ord('o'):
+        if key == ord('O'):
             instruction = {"cmd": "claw", "action": "open", "speed": 5}
             self.send_instruction(instruction)
 
-        if key == ord('p'):
+        if key == ord('P'):
             instruction = {"cmd": "claw", "action": "close", "speed": 5}
             self.send_instruction(instruction)
 
-        if key == ord('ø'): # log avg fps
+        if key == ord('Ø'): # log avg fps
             logger.info(f"Average FPS: {self.avg_fps:.2f} over {self.frame_count} frames")
 
         self.current_state.on_key_press(key)
@@ -580,6 +581,7 @@ class Server:
 
     def main_loop(self):
         self.set_state(StateIdle(self))  # Initialize the state
+        #self.set_state(StateCalibration(self))
 
         self.prev_time = time.time()
 

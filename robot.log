@@ -9239,3 +9239,1942 @@
 2025-06-22 19:06:47 | DEBUG    | states.StateCollectBall:update():73 - Distance to target object: 74.96914672851562, stop distance: 30, is_edge_ball: False
 2025-06-22 19:06:48 | INFO     | __main__:_quit():538 - Quitting server.
 2025-06-22 19:06:48 | INFO     | __main__:accept_connections_loop():177 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:18 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 19:31:18 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 19:31:18 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 19:31:19 | DEBUG    | PathPlanner:__init__():286 - Initializing PathPlanner with strategy: AStarStrategyOptimized
+2025-06-22 19:31:19 | INFO     | __main__:accept_connections_loop():153 - Server started on 0.0.0.0:12346, waiting for EV3 connection.
+2025-06-22 19:31:25 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56980)
+2025-06-22 19:31:25 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:25 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:25 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:25 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:25 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:25 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:25 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:25 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:25 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:25 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:25 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:25 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:25 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:28 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56982)
+2025-06-22 19:31:28 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:28 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:28 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:28 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:28 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:28 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:28 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:28 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:28 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:28 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:28 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:28 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:28 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:31 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56984)
+2025-06-22 19:31:31 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:31 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:31 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:31 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:31 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:31 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:31 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:31 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:31 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:31 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:31 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:31 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:31 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:35 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56986)
+2025-06-22 19:31:35 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:35 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:35 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:35 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:35 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:35 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:35 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:35 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:35 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:35 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:35 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:35 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:35 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:38 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56988)
+2025-06-22 19:31:38 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:38 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:38 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:38 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:38 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:38 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:38 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:38 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:38 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:38 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:38 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:38 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:38 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:41 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56990)
+2025-06-22 19:31:41 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:41 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:41 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:41 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:41 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:41 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:41 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:41 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:41 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:41 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:41 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:41 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:41 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:44 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56992)
+2025-06-22 19:31:44 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:44 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:44 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:44 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:44 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:44 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:44 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:44 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:44 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:44 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:44 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:44 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:44 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:48 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56994)
+2025-06-22 19:31:48 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:48 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:48 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:48 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:48 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:48 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:48 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:48 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:48 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:48 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:48 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:48 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:48 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:51 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56996)
+2025-06-22 19:31:51 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:51 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:51 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:51 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:51 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:51 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:51 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:51 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:51 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:51 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:51 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:51 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:51 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:54 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 56998)
+2025-06-22 19:31:54 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:54 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:54 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:54 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:54 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:54 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:54 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:54 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:54 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:54 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:54 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:54 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:54 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:31:58 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57000)
+2025-06-22 19:31:58 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:31:58 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:31:58 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:31:58 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:31:58 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:31:58 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:31:58 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:31:58 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:31:58 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:58 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:31:58 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:31:58 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:31:58 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:32:01 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57002)
+2025-06-22 19:32:01 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:32:01 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:32:01 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:32:01 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:32:01 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:32:01 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:32:01 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:32:01 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:32:01 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:32:01 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:32:01 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:32:01 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:32:01 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:32:04 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57004)
+2025-06-22 19:32:04 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:32:04 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:32:04 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:32:04 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:32:04 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:32:04 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:32:04 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:32:04 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:32:04 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:32:04 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:32:04 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:32:04 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:32:04 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:32:07 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57006)
+2025-06-22 19:32:07 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:32:15 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:32:16 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:32:16 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:32:16 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:32:16 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:32:16 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:32:16 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:32:22 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:32:22 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:32:22 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:32:22 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:32:22 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:32:26 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57008)
+2025-06-22 19:32:26 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:32:27 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:32:29 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:26 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:26 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:26 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:26 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:26 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:26 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:26 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:26 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:26 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:26 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:30 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57010)
+2025-06-22 19:33:30 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:30 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:30 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:30 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:30 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:30 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:30 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:30 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:30 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:30 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:30 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:30 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:30 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:33 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57012)
+2025-06-22 19:33:33 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:33 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:33 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:33 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:33 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:33 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:33 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:33 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:33 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:33 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:33 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:33 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:33 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:36 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57014)
+2025-06-22 19:33:36 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:36 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:36 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:36 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:36 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:36 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:36 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:36 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:36 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:36 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:36 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:36 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:36 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:40 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57016)
+2025-06-22 19:33:40 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:40 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:40 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:40 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:40 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:40 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:40 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:40 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:40 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:40 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:40 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:40 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:40 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:43 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57018)
+2025-06-22 19:33:43 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:43 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:43 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:43 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:43 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:43 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:43 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:43 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:43 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:43 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:43 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:43 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:43 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:46 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57020)
+2025-06-22 19:33:46 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:46 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:46 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:46 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:46 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:46 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:46 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:46 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:46 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:46 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:46 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:46 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:46 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:49 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57022)
+2025-06-22 19:33:49 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:49 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:49 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:49 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:49 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:49 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:49 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:49 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:49 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:49 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:49 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:49 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:49 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:53 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57024)
+2025-06-22 19:33:53 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:53 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:53 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:53 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:53 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:53 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:53 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:53 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:53 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:53 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:53 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:53 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:53 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:56 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57026)
+2025-06-22 19:33:56 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:56 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:56 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:56 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:56 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:56 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:56 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:56 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:56 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:56 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:56 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:56 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:56 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:33:59 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57028)
+2025-06-22 19:33:59 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:33:59 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:33:59 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:33:59 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:33:59 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:33:59 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:33:59 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:33:59 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:33:59 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:59 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:33:59 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:33:59 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:33:59 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:34:02 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57030)
+2025-06-22 19:34:02 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:34:02 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:34:02 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:34:02 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:34:02 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:34:02 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:34:02 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:34:02 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:34:02 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:02 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:34:02 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:02 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:34:03 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:34:06 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57032)
+2025-06-22 19:34:06 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:34:06 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:34:06 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:34:06 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:34:06 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:34:06 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:34:06 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:34:06 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:34:06 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:06 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:34:06 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:06 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:34:06 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:34:09 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57034)
+2025-06-22 19:34:09 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:34:09 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:34:09 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:34:09 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:34:09 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:34:09 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:34:09 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:34:09 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:34:09 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:09 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:34:09 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:09 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:34:09 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:34:12 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57036)
+2025-06-22 19:34:12 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:34:12 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:34:12 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:34:12 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:34:12 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:34:12 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:34:12 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:34:12 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:34:12 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:12 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:34:12 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:12 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:34:12 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:34:16 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57038)
+2025-06-22 19:34:16 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:34:16 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:34:16 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:34:16 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:34:16 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:34:16 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:34:16 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:34:16 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:34:16 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:16 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:34:16 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:16 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:34:16 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:34:19 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57040)
+2025-06-22 19:34:19 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:34:19 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:34:19 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:34:19 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:34:19 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:34:19 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:34:19 | INFO     | states.StateCalibration:on_exit():64 - Exiting StateCalibration.
+2025-06-22 19:34:19 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:34:19 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:19 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'AttributeError'>
+2025-06-22 19:34:19 | ERROR    | __main__:accept_connections_loop():170 - Exception value: 'NoneType' object has no attribute 'center'
+2025-06-22 19:34:19 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:34:19 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:34:27 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 19:34:27 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 19:34:27 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 19:34:28 | DEBUG    | PathPlanner:__init__():286 - Initializing PathPlanner with strategy: AStarStrategyOptimized
+2025-06-22 19:34:28 | INFO     | __main__:accept_connections_loop():153 - Server started on 0.0.0.0:12346, waiting for EV3 connection.
+2025-06-22 19:34:29 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57042)
+2025-06-22 19:34:29 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:34:29 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:34:29 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:34:29 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:34:29 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:34:29 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:34:29 | INFO     | states.StateCalibration:on_exit():70 - Exiting StateCalibration.
+2025-06-22 19:34:29 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:34:45 | INFO     | states.StateIdle:on_click():38 - Clicked at (312, 265) in idle state
+2025-06-22 19:34:53 | INFO     | states.StateIdle:on_click():38 - Clicked at (528, 136) in idle state
+2025-06-22 19:34:55 | INFO     | __main__:_quit():539 - Quitting server.
+2025-06-22 19:34:55 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:35:33 | INFO     | AImodel:__init__():15 - Loading AI model from ball_detect/v15l/weights/best.pt with min confidence 0.6
+2025-06-22 19:35:33 | INFO     | AImodel:__init__():16 - torch.cuda.is_available(): True
+2025-06-22 19:35:33 | INFO     | AImodel:__init__():20 - Using CUDA: False
+2025-06-22 19:35:34 | DEBUG    | PathPlanner:__init__():286 - Initializing PathPlanner with strategy: AStarStrategyOptimized
+2025-06-22 19:35:34 | INFO     | __main__:accept_connections_loop():153 - Server started on 0.0.0.0:12346, waiting for EV3 connection.
+2025-06-22 19:36:03 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57044)
+2025-06-22 19:36:03 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:36:03 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:36:03 | WARNING  | Course:get_robot():202 - No robot object found in the course, returning None.
+2025-06-22 19:36:03 | WARNING  | states.StateBase:get_last_valid_robot():99 - No valid robot found in the course. Using last valid robot.
+2025-06-22 19:36:03 | ERROR    | states.StateBase:get_last_valid_robot():102 - No previous valid robot found. Cannot proceed, going to idle state.
+2025-06-22 19:36:03 | DEBUG    | states.StateIdle:__init__():11 - Initialized StateIdle.
+2025-06-22 19:36:03 | INFO     | states.StateCalibration:on_exit():70 - Exiting StateCalibration.
+2025-06-22 19:36:03 | DEBUG    | states.StateIdle:on_enter():14 - Entered idle state
+2025-06-22 19:36:10 | INFO     | states.StateIdle:on_key_press():64 - Key 'c' pressed, switching to StateCalibration.
+2025-06-22 19:36:10 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:36:10 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:10 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:11 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:12 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:13 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:14 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():600 - Error in current state update: object of type 'NoneType' has no len()
+2025-06-22 19:36:15 | ERROR    | __main__:main_loop():601 - Traceback (most recent call last):
+  File "ServerClient/server/server.py", line 597, in main_loop
+    frame = self.current_state.step(frame)  # update current state
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateBase.py", line 73, in step
+    return self.update(frame)
+           ~~~~~~~~~~~^^^^^^^
+  File "D:\CDIO25\CDIO-2025\ServerClient/server\states\StateCalibration.py", line 46, in update
+    if len(self.server.pure_pursuit_navigator.path) == 0:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+2025-06-22 19:36:15 | INFO     | states.StateCalibration:on_click():79 - Clicked at (387, 304) in calibration state
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():326 - Generating grid for course with dimensions (480, 640)
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():341 - Making floor the area defined by the floor bounds: (np.float32(198.51813), np.float32(1.0315247), np.float32(605.573), np.float32(455.3341))
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():352 - Skipping object wall as it is a wall or green/yellow
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:_polygon_fill_points():290 - Filling polygon points for 86
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():372 - Filling polygon points for object <CourseObject label='cross' conf=0.93 center=(np.float32(448.5423), np.float32(209.5701))> with 1586 points
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():352 - Skipping object robot as it is a wall or green/yellow
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():352 - Skipping object yellow as it is a wall or green/yellow
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():352 - Skipping object green as it is a wall or green/yellow
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:_polygon_fill_points():290 - Filling polygon points for 10
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():372 - Filling polygon points for object <CourseObject label='white' conf=0.83 center=(np.float32(270.3591), np.float32(53.280922))> with 148 points
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:_polygon_fill_points():290 - Filling polygon points for 7
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():372 - Filling polygon points for object <CourseObject label='orange' conf=0.81 center=(np.float32(244.30164), np.float32(93.55451))> with 130 points
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:_polygon_fill_points():290 - Filling polygon points for 9
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:generate_grid():372 - Filling polygon points for object <CourseObject label='orange' conf=0.80 center=(np.float32(246.00812), np.float32(104.05186))> with 175 points
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:find_path():142 - Trying to find a path from (379, 291) to (387, 304) with object radius 40.
+2025-06-22 19:36:15 | DEBUG    | PathPlanner:find_path():155 - Passable cells after inflation: 95524 / 307200
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (379, 291): 1.0645578402887168
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (380, 292): 0.3578189093419702
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (381, 293): 1.7671404438938
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (382, 294): 3.1808074957481596
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (383, 295): 4.594810910317221
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (384, 296): 6.00891323602968
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (385, 297): 7.423057944991079
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (386, 298): 8.837224690549498
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (386, 299): 9.575338970664834
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (386, 300): 10.357494512429522
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (386, 301): 11.174447133835422
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (386, 302): 12.019103332560116
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (386, 303): 12.886016494271326
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.7979), np.float32(291.7047)) to (387, 304): 14.249356900126937
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:find_lookahead_point():57 - No lookahead point found, returning last point: (387, 304)
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_angle_to():24 - Computed angle from (np.float32(379.7979), np.float32(291.7047)) to (387.0, 304.0): 59.63993627927375 degrees
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:compute_drive_command():66 - Angle to target: 59.63993627927375
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:compute_drive_command():67 - Robot Position: (np.float32(379.7979), np.float32(291.7047)), Lookahead: (387.0, 304.0), Robot Heading: 248.10835635046823
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:_normalize_angle():29 - Normalized angle: -188.4684200711945 to 171.5315799288055
+2025-06-22 19:36:15 | DEBUG    | PurePursuit:compute_drive_command():82 - Robot Position: (np.float32(379.7979), np.float32(291.7047)), Lookahead: (387.0, 304.0), Robot Heading: 248.10835635046823, Angle to Target: 59.63993627927375, Heading Error: 171.5315799288055, Left Speed: 40, Right Speed: -40
+2025-06-22 19:36:15 | DEBUG    | states.StateCalibration:_distance():131 - Calculated distance between (np.float32(379.7979), np.float32(291.7047)) and (387, 304): 14.249356269836426
+2025-06-22 19:36:16 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: OpenCV(4.11.0) D:\a\opencv-python\opencv-python\opencv\modules\highgui\src\window.cpp:973: error: (-215:Assertion failed) size.width>0 && size.height>0 in function 'cv::imshow'
+
+2025-06-22 19:36:16 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'cv2.error'>
+2025-06-22 19:36:16 | ERROR    | __main__:accept_connections_loop():170 - Exception value: OpenCV(4.11.0) D:\a\opencv-python\opencv-python\opencv\modules\highgui\src\window.cpp:973: error: (-215:Assertion failed) size.width>0 && size.height>0 in function 'cv::imshow'
+
+2025-06-22 19:36:16 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:36:16 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:36:19 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57046)
+2025-06-22 19:36:19 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:36:19 | INFO     | states.StateCalibration:on_exit():70 - Exiting StateCalibration.
+2025-06-22 19:36:19 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (379, 291): 1.0738178202896833
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (380, 292): 0.5484987005025049
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (381, 293): 1.8570452169331222
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (382, 294): 3.2552086033026266
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (383, 295): 4.6630622089241625
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (384, 296): 6.073871522972636
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (385, 297): 7.485965628485024
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (386, 298): 8.898732915653802
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (386, 299): 9.65832343961915
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (386, 300): 10.458440410713871
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (386, 301): 11.290471202948494
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (386, 302): 12.147860064421447
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (386, 303): 13.025600496903078
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(379.974), np.float32(291.45212)) to (387, 304): 14.38103036705656
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:find_lookahead_point():57 - No lookahead point found, returning last point: (387, 304)
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_angle_to():24 - Computed angle from (np.float32(379.974), np.float32(291.45212)) to (387.0, 304.0): 60.753999749266015 degrees
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:compute_drive_command():66 - Angle to target: 60.753999749266015
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:compute_drive_command():67 - Robot Position: (np.float32(379.974), np.float32(291.45212)), Lookahead: (387.0, 304.0), Robot Heading: 247.46829417514707
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:_normalize_angle():29 - Normalized angle: -186.71429442588106 to 173.28570557411894
+2025-06-22 19:36:20 | DEBUG    | PurePursuit:compute_drive_command():82 - Robot Position: (np.float32(379.974), np.float32(291.45212)), Lookahead: (387.0, 304.0), Robot Heading: 247.46829417514707, Angle to Target: 60.753999749266015, Heading Error: 173.28570557411894, Left Speed: 40, Right Speed: -40
+2025-06-22 19:36:20 | DEBUG    | states.StateCalibration:_distance():131 - Calculated distance between (np.float32(379.974), np.float32(291.45212)) and (387, 304): 14.381030082702637
+2025-06-22 19:36:20 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: OpenCV(4.11.0) D:\a\opencv-python\opencv-python\opencv\modules\highgui\src\window.cpp:973: error: (-215:Assertion failed) size.width>0 && size.height>0 in function 'cv::imshow'
+
+2025-06-22 19:36:20 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'cv2.error'>
+2025-06-22 19:36:20 | ERROR    | __main__:accept_connections_loop():170 - Exception value: OpenCV(4.11.0) D:\a\opencv-python\opencv-python\opencv\modules\highgui\src\window.cpp:973: error: (-215:Assertion failed) size.width>0 && size.height>0 in function 'cv::imshow'
+
+2025-06-22 19:36:20 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:36:20 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.
+2025-06-22 19:36:23 | INFO     | __main__:accept_connections_loop():157 - Connected to EV3 at ('192.168.0.228', 57048)
+2025-06-22 19:36:23 | DEBUG    | states.StateCalibration:__init__():12 - Initialized StateCalibration.
+2025-06-22 19:36:23 | INFO     | states.StateCalibration:on_exit():70 - Exiting StateCalibration.
+2025-06-22 19:36:23 | INFO     | states.StateCalibration:on_enter():30 - Entering StateCalibration.
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (379, 291): 24.79602881477643
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (380, 292): 24.058274346146963
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (381, 293): 23.382858765465848
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (382, 294): 22.77532883575939
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (383, 295): 22.241248236288875
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (384, 296): 21.786019430806377
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (385, 297): 21.41467165685066
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (386, 298): 21.131627521371207
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (386, 299): 20.32399231537856
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (386, 300): 19.534166108876022
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (386, 301): 18.764397872107548
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (386, 302): 18.01725865486612
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (386, 303): 17.295681292448176
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_distance():19 - Computed distance from (np.float32(373.78073), np.float32(315.2405)) to (387, 304): 17.352178851694443
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:find_lookahead_point():57 - No lookahead point found, returning last point: (387, 304)
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_angle_to():24 - Computed angle from (np.float32(373.78073), np.float32(315.2405)) to (387.0, 304.0): -40.37492852981588 degrees
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:compute_drive_command():66 - Angle to target: -40.37492852981588
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:compute_drive_command():67 - Robot Position: (np.float32(373.78073), np.float32(315.2405)), Lookahead: (387.0, 304.0), Robot Heading: 55.66449219625093
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:_normalize_angle():29 - Normalized angle: -96.03942072606682 to -96.03942072606682
+2025-06-22 19:36:23 | DEBUG    | PurePursuit:compute_drive_command():82 - Robot Position: (np.float32(373.78073), np.float32(315.2405)), Lookahead: (387.0, 304.0), Robot Heading: 55.66449219625093, Angle to Target: -40.37492852981588, Heading Error: -96.03942072606682, Left Speed: -27, Right Speed: 40
+2025-06-22 19:36:23 | DEBUG    | states.StateCalibration:_distance():131 - Calculated distance between (np.float32(373.78073), np.float32(315.2405)) and (387, 304): 17.3521785736084
+2025-06-22 19:36:23 | ERROR    | __main__:accept_connections_loop():166 - Error in main loop: OpenCV(4.11.0) D:\a\opencv-python\opencv-python\opencv\modules\highgui\src\window.cpp:973: error: (-215:Assertion failed) size.width>0 && size.height>0 in function 'cv::imshow'
+
+2025-06-22 19:36:23 | ERROR    | __main__:accept_connections_loop():169 - Exception type: <class 'cv2.error'>
+2025-06-22 19:36:23 | ERROR    | __main__:accept_connections_loop():170 - Exception value: OpenCV(4.11.0) D:\a\opencv-python\opencv-python\opencv\modules\highgui\src\window.cpp:973: error: (-215:Assertion failed) size.width>0 && size.height>0 in function 'cv::imshow'
+
+2025-06-22 19:36:23 | ERROR    | __main__:accept_connections_loop():171 - Traceback:
+2025-06-22 19:36:23 | INFO     | __main__:accept_connections_loop():178 - Connection closed, waiting for new EV3 connection.

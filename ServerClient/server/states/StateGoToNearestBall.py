@@ -72,7 +72,7 @@ class StateGoToNearestBall(StateBase):
         logger.debug("Updating StateGoToNearestBall.")
         if len(self.server.pure_pursuit_navigator.path) == 0:
             logger.warning("No path to follow")
-            return
+            return frame
         
         if self.server.course.get_robot() is not None:
             robot = self.server.course.get_robot()

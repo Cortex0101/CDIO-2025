@@ -57,3 +57,9 @@ class StateIdle(StateBase):
             from .StateDeliverBall import StateDeliverBall
             logger.info("Key 'd' pressed, switching to StateDeliverBall.")
             self.server.set_state(StateDeliverBall(self.server))
+
+        elif key == ord('c'):
+            # Start StateCalibration
+            from .StateCalibration import StateCalibration
+            logger.info("Key 'c' pressed, switching to StateCalibration.")
+            self.server.set_state(StateCalibration(self.server))

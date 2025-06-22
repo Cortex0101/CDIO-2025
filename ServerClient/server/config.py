@@ -43,3 +43,7 @@ NEAR_CORNER_THRESHOLD = 40  # distance in pixels to consider the robot is near a
 
 OPTIMAL_SPOT_DISTANCE_TO_NON_CROSS = 10
 OPTIMAL_SPOT_DISTANCE_TO_CROSS = 40
+
+ROBOT_CLOSED_CLAW_POS = 0  # position to close the claw when collecting the ball
+ROBOT_OPEN_CLAW_POS = 90  # position to open the claw when collecting the ball
+ROBOT_MIDDLE_CLAW_POS = 45  # position to open the claw when collecting the ball
