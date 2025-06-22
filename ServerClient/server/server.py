@@ -89,7 +89,7 @@ class Server:
         cv2.setMouseCallback("view", self._on_click)
         cv2.namedWindow("grid_visualization")
 
-        self.ai_model = AIModel(model_path=config.YOLO_MODEL_15_X, min_confidence=config.YOLO_MODEL_MINIMUM_CONFIDENCE)
+        self.ai_model = AIModel(model_path=config.YOLO_MODEL_15_L, min_confidence=config.YOLO_MODEL_MINIMUM_CONFIDENCE)
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True, draw_direction_markers=True)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=config.LARGE_OBJECT_RADIUS))
@@ -133,6 +133,10 @@ class Server:
                 keyboard.on_release_key(k, lambda e, k=k: self._deactivate(k))
 
         #####################
+        # fps variables calculations
+        self.prev_time = time.time()
+        self.avg_fps = 0.0
+        self.frame_count = 0
 
         # if send_custom_instructions is true, we will be able to simply send instruction by entering
         # them in the console, otherwise we will have to use we will run the main_loop() method
@@ -551,6 +555,9 @@ class Server:
             instruction = {"cmd": "claw", "action": "close", "speed": 5}
             self.send_instruction(instruction)
 
+        if key == ord('.'): # log avg fps
+            logger.info(f"Average FPS: {self.avg_fps:.2f} over {self.frame_count} frames")
+
         self.current_state.on_key_press(key)
 
     def _on_click(self, event, x, y, flags, param):
@@ -565,6 +572,9 @@ class Server:
         self.prev_time = curr_time
         cv2.putText(frame, f"FPS: {fps:.2f}", (frame.shape[1] - 150, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        
+        self.frame_count += 1
+        self.avg_fps = (self.avg_fps * (self.frame_count - 1) + fps) / self.frame_count
 
     def main_loop(self):
         self.set_state(StateIdle(self))  # Initialize the state
