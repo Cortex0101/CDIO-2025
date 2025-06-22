@@ -247,6 +247,121 @@ class Course:
 
     # TODO: functions for goals? Weird when they might be mixed up, or both small or both large
 
+    def _get_all_ball_parking_spots_not_near_any(self, ball: CourseObject):
+        """
+        Find all parking spots for a ball that are not near any wall, corner or cross.
+        This is a helper function for get_all_ball_parking_spot.
+
+        Args:
+            ball: CourseObject representing the ball to park
+
+        Returns:
+            list: List of tuples (x, y) representing the parking spots
+        """
+        all_spots = []
+        for angle in range(0, 360, 10):
+            #distance = max(robot_size) # using max in case the claw is closed or some weird situation, to ensure it can freely spin on the optimal spot
+            distance = config.OPTIMAL_BALL_LOCATION_DISTANCE
+            # Calculate the new position based on the angle and distance
+            circle_point = (ball.center[0] + distance * math.cos(math.radians(angle)),
+                            ball.center[1] + distance * math.sin(math.radians(angle)))
+            all_spots.append(circle_point)
+
+        # sort the spots by distance to the robot
+        all_spots.sort(key=lambda spot: np.linalg.norm(np.array(spot) - np.array(self.get_robot().center)))
+
+        for spot in all_spots:
+            # Get robot's bounding box at the circle point
+            robot_bbox_at_circle_point = ( 
+                spot[0] - distance / 2, # using distance to avoid considering the robots rotation
+                spot[1] - distance / 2,
+                spot[0] + distance / 2,
+                spot[1] + distance / 2
+            )
+            # check if the robot's bounding box at the circle point lies within the course's floor bounding box
+            logger.debug(f"Checking if robot bbox at circle point {robot_bbox_at_circle_point} lies within floor bbox {self.get_floor().bbox}")
+            if not self._bbox_lies_within_bbox(robot_bbox_at_circle_point, self.get_floor().bbox):
+                # if not, this point is not valid, continue to the next angle
+                continue
+            # Check if the new spots bbox does not intersect with any other object
+            overlaps_obstacle = False
+            for obj in self.objects:
+                obj_is_target_ball = obj == ball
+                if obj.label != 'robot' and obj.label != 'wall' and obj.label != 'green' and obj.label != 'yellow' and not obj_is_target_ball:
+                    obj_bbox = obj.bbox
+                    # Check if the robot's bounding box at the circle point intersects with the object's bounding box'
+                    logger.debug(f"Checking overlap between robot bbox {robot_bbox_at_circle_point} and object: {obj.label} with bbox {obj_bbox}")
+                    if self._bbox_overlaps_bbox(robot_bbox_at_circle_point, obj_bbox):
+                        overlaps_obstacle = True
+                        break
+
+            if not overlaps_obstacle:
+                logger.debug(f"Found valid parking spot at {spot} for ball {ball.label} with bbox {robot_bbox_at_circle_point}")
+                # If the spot is valid, return it
+                return (int(spot[0]), int(spot[1]))
+
+    def get_all_ball_parking_spot(self, ball: CourseObject):
+        """
+            Unlike get_optimal_ball_parking_spot, this function returns all parking spots it checked, and includes for a spot
+            a string, which describes the reason why it was chosen or not chosen.
+
+        Args:
+            ball: CourseObject representing the ball to park
+
+        Returns:
+            {
+                "valid": [(x, y)], # sorted with the best spot at index 0
+                "invalid": [(x, y, reason)], # where reason is a string -1, -2, -3 describing the reason why the spot is invalid
+            }
+            -1: Lies inside cross
+            -2: Lies outside wall bounds
+            -3: Overlaps with another object
+        """
+        # determine if the balls is near a wall, corner or cross
+        logger.debug(f"Checking if ball {ball} is near wall, corner or cross.")
+        is_near_wall = self.is_ball_near_wall(ball)
+        is_near_corner = self.is_ball_near_corner(ball)
+        is_near_cross = self.is_ball_near_cross(ball)
+
+        # if none are true, create a list of all points around the ball with a radius of max(robot_size)
+        if not (is_near_wall or is_near_corner or is_near_cross):
+            return self._get_all_ball_parking_spots_not_near_any(ball)
+
+        # if robot is near a wall, but not near a corner or cross, find a a spot that is directly perpendicular to the wall the ball is near
+        if is_near_wall and not (is_near_corner or is_near_cross):
+            # ball: (np.float32(575.7888), np.float32(185.29161), np.float32(590.77075), np.float32(198.9276))
+            # wall: (np.float32(69.766785), np.float32(39.335754), np.float32(589.8566), np.float32(417.1231))
+            wall = self.get_floor()
+            optimal_spot = None
+            # Find which wall the ball is near
+            wall_distances = {
+                'left': abs(ball.bbox[0] - wall.bbox[0]),  # left wall
+                'right': abs(ball.bbox[2] - wall.bbox[2]),  # right wall
+                'top': abs(ball.bbox[1] - wall.bbox[1]),  # top wall
+                'bottom': abs(ball.bbox[3] - wall.bbox[3])  # bottom wall
+            }
+            # Determine the closest wall
+            closest_wall = min(wall_distances, key=wall_distances.get)
+            distance = max(robot_size)  # Use the maximum dimension of the robot's bounding box
+            if closest_wall == 'left':
+                # Calculate the optimal spot to the left of the ball
+                optimal_spot = (ball.center[0] + distance, ball.center[1])
+            elif closest_wall == 'right':
+                # Calculate the optimal spot to the right of the ball
+                optimal_spot = (ball.center[0] - distance, ball.center[1])
+            elif closest_wall == 'top':
+                # Calculate the optimal spot above the ball
+                optimal_spot = (ball.center[0], ball.center[1] + distance)
+            elif closest_wall == 'bottom':
+                # Calculate the optimal spot below the ball
+                optimal_spot = (ball.center[0], ball.center[1] - distance)
+
+            if optimal_spot:
+                return (int(optimal_spot[0]), int(optimal_spot[1]))
+
+        return (-1, -1) # If no valid spot is found, return (0, 0) or None
+
+
     def get_optimal_ball_parking_spot(self, ball: CourseObject):
         """
         Find the optimal parking spot for a ball based on its position and the robot's position.
@@ -283,7 +398,8 @@ class Course:
         if not (is_near_wall or is_near_corner or is_near_cross):
             all_spots = []
             for angle in range(0, 360, 10):
-                distance = max(robot_size) # using max in case the claw is closed or some weird situation, to ensure it can freely spin on the optimal spot
+                #distance = max(robot_size) # using max in case the claw is closed or some weird situation, to ensure it can freely spin on the optimal spot
+                distance = config.ROBOT_WIDTH
                 # Calculate the new position based on the angle and distance
                 circle_point = (ball.center[0] + distance * math.cos(math.radians(angle)),
                                 ball.center[1] + distance * math.sin(math.radians(angle)))
@@ -586,6 +702,28 @@ class Course:
         logger.debug(f"Checking if bbox {bbox1} is within threshold {threshold} of bbox {bbox2}: {res}")
         return res
     
+    def _bbox_euclidean_distance_bbox(self, bbox1: tuple, bbox2: tuple) -> float:
+        """
+        Calculate the Euclidean distance between the centers of two bounding boxes.
+
+        Args:
+            bbox1: (x1, y1, x2, y2) bounding box coordinates of the first object
+            bbox2: (x1, y1, x2, y2) bounding box coordinates of the second object
+        Returns:
+            float: Euclidean distance between the centers of the two bounding boxes
+        """
+        x11, y11, x12, y12 = bbox1
+        x21, y21, x22, y22 = bbox2
+
+        # Calculate center points of both bounding boxes
+        center1 = ((x11 + x12) / 2, (y11 + y12) / 2)
+        center2 = ((x21 + x22) / 2, (y21 + y22) / 2)
+
+        # Calculate Euclidean distance between the two centers
+        distance = ((center1[0] - center2[0]) ** 2 + (center1[1] - center2[1]) ** 2) ** 0.5
+
+        return distance
+
     def _bbox_euclidean_distance_bbox_within_threshold(self, bbox1: tuple, bbox2: tuple, threshold: int = 0) -> float:
         """
         Calculate the Euclidean distance between the centers of two bounding boxes.
