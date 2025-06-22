@@ -1,3 +1,0 @@
-Canny_threshold1: 79
-Canny_threshold2: 0
-Gaussian_blur_sigma: 0
