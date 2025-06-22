@@ -36,6 +36,11 @@ class StateGoToNearestBall(StateBase):
 
             # check if a path can be generated to this ball
             optimal_spot = self.server.course.get_optimal_ball_parking_spot(ball)
+            discarded_points = optimal_spot[2]
+            for discarded_point in discarded_points:
+                logger.debug(f"Discarded {discarded_point}")
+            optimal_spot = (optimal_spot[0], optimal_spot[1])
+            
             if optimal_spot == (-1, -1):
                 logger.warning(f"No optimal parking spot found for ball: {ball}. Trying next ball...")
                 continue

@@ -370,6 +370,8 @@ class Course:
         Returns:
             tuple: (x, y) coordinates of the optimal parking spot
         """
+        logger.debug(f"Finding optimal parking spot for ball {ball.label} at {ball.center}")
+
         def _get_robot_size():
             """
             Get the size of the robot based on its bounding box.
@@ -393,6 +395,8 @@ class Course:
         is_near_wall = self.is_ball_near_wall(ball)
         is_near_corner = self.is_ball_near_corner(ball)
         is_near_cross = self.is_ball_near_cross(ball)
+
+        discarded_spots = []  # List to keep track of discarded spots with reasons
 
         # if none are true, create a list of all points around the ball with a radius of max(robot_size)
         if not (is_near_wall or is_near_corner or is_near_cross):
@@ -419,6 +423,7 @@ class Course:
                 # check if the robot's bounding box at the circle point lies within the course's floor bounding box
                 logger.debug(f"Checking if robot bbox at circle point {robot_bbox_at_circle_point} lies within floor bbox {self.get_floor().bbox}")
                 if not self._bbox_lies_within_bbox(robot_bbox_at_circle_point, self.get_floor().bbox):
+                    discarded_spots.append((robot_bbox_at_circle_point, -2))  # -2: Lies outside wall bounds
                     # if not, this point is not valid, continue to the next angle
                     continue
                 # Check if the new spots bbox does not intersect with any other object
@@ -426,17 +431,27 @@ class Course:
                 for obj in self.objects:
                     obj_is_target_ball = obj == ball
                     if obj.label != 'robot' and obj.label != 'wall' and obj.label != 'green' and obj.label != 'yellow' and not obj_is_target_ball:
-                        obj_bbox = obj.bbox
-                        # Check if the robot's bounding box at the circle point intersects with the object's bounding box'
-                        logger.debug(f"Checking overlap between robot bbox {robot_bbox_at_circle_point} and object: {obj.label} with bbox {obj_bbox}")
-                        if self._bbox_overlaps_bbox(robot_bbox_at_circle_point, obj_bbox):
+                        threshold = 10
+                        if obj.label == 'cross':
+                            threshold = 30
+                        
+                        rbt_dist_to_obj = self._boxes_distance(robot_bbox_at_circle_point, obj.bbox)
+                        if rbt_dist_to_obj < threshold:
                             overlaps_obstacle = True
+                            discarded_spots.append((robot_bbox_at_circle_point, -3))  # -3: Overlaps with another object
+                            logger.debug(f"Skipping spot {spot} as it is too close to object {obj.label}")
                             break
+
+                        # Check if the robot's bounding box at the circle point intersects with the object's bounding box'
+                        #logger.debug(f"Checking that the robot, standing at {robot_bbox_at_circle_point} is atleast 130 pixels away from the object: {obj.label} with bbox {obj_bbox}")
+                        #if not self._bbox_euclidean_distance_bbox_within_threshold(robot_bbox_at_circle_point, obj_bbox, 130): ## should only do 130 if the obstacle is a cross, if a ball, it can be smaller
+                            #overlaps_obstacle = True
+                            #break
 
                 if not overlaps_obstacle:
                     logger.debug(f"Found valid parking spot at {spot} for ball {ball.label} with bbox {robot_bbox_at_circle_point}")
                     # If the spot is valid, return it
-                    return (int(spot[0]), int(spot[1]))
+                    return (int(spot[0]), int(spot[1]), discarded_spots)
 
         # if robot is near a wall, but not near a corner or cross, find a a spot that is directly perpendicular to the wall the ball is near
         if is_near_wall and not (is_near_corner or is_near_cross):
@@ -468,9 +483,9 @@ class Course:
                 optimal_spot = (ball.center[0], ball.center[1] - distance)
 
             if optimal_spot:
-                return (int(optimal_spot[0]), int(optimal_spot[1]))
+                return (int(optimal_spot[0]), int(optimal_spot[1]), discarded_spots)
 
-        return (-1, -1) # If no valid spot is found, return (0, 0) or None
+        return (-1, -1, discarded_spots)  # If no valid spot is found, return (-1, -1)
 
     def get_optimal_goal_parking_spot(self, goal_center: tuple): # should be a CourseObject but for debugging
         # for now just returns a spot that is 50 pixels to the side of the goal
@@ -594,7 +609,6 @@ class Course:
             logger.warning("No wall object found in the course, assuming ball is not near wall.")
             return False
 
-        logger.debug(f"Checking if ball {ball} is near wall {wall}")
         res = self._bbox_within_threshold_bbox(ball.bbox, wall.bbox, threshold)
         logger.debug(f"Ball {ball} near wall {wall}: {res}")
         return res
@@ -662,10 +676,10 @@ class Course:
         Returns:
             bool: True if the object's bbox lies within the given bbox, False otherwise
         """
-        res = (outer_bbox[0] <= inner_bbox[1] <= outer_bbox[2] and
-                outer_bbox[1] <= inner_bbox[1] <= outer_bbox[3] and
-                outer_bbox[0] <= inner_bbox[1] <= outer_bbox[2] and
-                outer_bbox[1] <= inner_bbox[1] <= outer_bbox[3])
+        res = (outer_bbox[0] <= inner_bbox[0] and
+           outer_bbox[1] <= inner_bbox[1] and
+           inner_bbox[2] <= outer_bbox[2] and
+           inner_bbox[3] <= outer_bbox[3])
         logger.debug(f"Checking if bbox {inner_bbox} lies within bbox {outer_bbox}: {res}")
         return res
 
@@ -702,6 +716,17 @@ class Course:
         logger.debug(f"Checking if bbox {bbox1} is within threshold {threshold} of bbox {bbox2}: {res}")
         return res
     
+    def _boxes_distance(self, bbox1, bbox2) -> float:
+        '''
+        Minimum edge-to-edge distance (0 if overlapping)
+        '''
+        dx = max(bbox1[0] - bbox2[2], bbox2[0] - bbox1[2], 0)
+        dy = max(bbox1[1] - bbox2[3], bbox2[1] - bbox1[3], 0)
+        res = (dx ** 2 + dy ** 2) ** 0.5
+
+        logger.debug(f"Distance between bboxes {bbox1} and {bbox2} is {res}")
+        return res
+
     def _bbox_euclidean_distance_bbox(self, bbox1: tuple, bbox2: tuple) -> float:
         """
         Calculate the Euclidean distance between the centers of two bounding boxes.
@@ -743,6 +768,8 @@ class Course:
 
         # Minimum Euclidean distance between the two boxes
         distance = (dx**2 + dy**2) ** 0.5
+
+        logger.debug(f"Euclidean distance between bboxes is {distance} <= {threshold}: {distance <= threshold}")
 
         return distance <= threshold
 
@@ -904,4 +931,21 @@ class CourseVisualizer:
         """
         canvas = image.copy()
         cv2.circle(canvas, (int(point[0]), int(point[1])), radius, color, -1)
+        return canvas
+    
+    def highlight_bbox(self, image: np.ndarray, bbox: tuple, color: tuple = (255, 255, 0), thickness: int = 2) -> np.ndarray:
+        """
+        Highlight a specific bounding box in the image.
+
+        Args:
+            image: The original image to draw on.
+            bbox: (x1, y1, x2, y2) coordinates of the bounding box to highlight.
+            color: Color of the bounding box.
+            thickness: Thickness of the bounding box lines.
+        Returns:
+            np.ndarray: The modified image with the highlighted bounding box.
+        """
+        canvas = image.copy()
+        x1, y1, x2, y2 = map(int, bbox)
+        cv2.rectangle(canvas, (x1, y1), (x2, y2), color, thickness)
         return canvas

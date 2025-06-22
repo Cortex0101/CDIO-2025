@@ -391,6 +391,8 @@ class Server:
                     if clicked_ball is not None:
                         # Calculate the optimal position to drive to
                         optimal_position = self.course.get_optimal_ball_parking_spot(clicked_ball)
+                        discarded_points = optimal_position[2]
+                        optimal_position = (optimal_position[0], optimal_position[1])  # Get the position without discarded points
                         if optimal_position is not None:
                             print(f"[SERVER] Optimal position to drive to: {optimal_position}")
                             spot = optimal_position
