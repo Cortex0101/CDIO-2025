@@ -26,8 +26,8 @@ class StateDeliverBall(StateBase):
             self.server.send_instruction(instruction)
             
             # go to idle
-            from .StateIdle import StateIdle
-            self.server.set_state(StateIdle(self.server))
+            from .StateGoToNearestBall import StateGoToNearestBall
+            self.server.set_state(StateGoToNearestBall(self.server))
             return
         
         logger.debug("Entering StateDeliverBall with target_object: %s", self.target_object)

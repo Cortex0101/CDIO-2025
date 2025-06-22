@@ -1,0 +1,9 @@
+100 point pr bold der forlader banen gennem mål B
+150 point pr. bold der forlader banen gennem mål A
+200 points for at aflevere den orange bold først
+3 point pr. resterende sekund når boldene er afleveret. 
+-50 point hvis robotten berører banen/forhindringerne.
+-100 hvis robotten flytter forhindringen/banen over 1 cm.
+-300 for at flytte ægget mere end 1 cm.
+
+I alt har man 8 minutter til at indsamle boldene. Der vil være 11 bolde på banen, heraf én orange VIP bold
