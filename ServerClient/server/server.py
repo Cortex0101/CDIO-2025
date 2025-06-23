@@ -12,6 +12,9 @@ from enum import Enum
 import cv2
 import keyboard
 
+import cProfile
+import pstats
+
 from AImodel import *
 from Course import *
 from PathPlanner import *
@@ -90,7 +93,7 @@ class Server:
         cv2.setMouseCallback("view", self._on_click)
         cv2.namedWindow("grid_visualization")
 
-        self.ai_model = AIModel(model_path=config.YOLO_MODEL_15_L, min_confidence=config.YOLO_MODEL_MINIMUM_CONFIDENCE)
+        self.ai_model = AIModel(model_path=config.YOLO_MODEL_15_M, min_confidence=config.YOLO_MODEL_MINIMUM_CONFIDENCE)
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True, draw_direction_markers=True)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=config.LARGE_OBJECT_RADIUS))
@@ -604,6 +607,9 @@ class Server:
 
             cv2.imshow("view", frame)
 
-if __name__ == "__main__":
+def main():
     configure_logging()
     server = Server()  # Set to True for fake EV3 connection
+
+if __name__ == "__main__":
+    main()
