@@ -62,6 +62,8 @@ class StateBase:
 
     def step(self, frame):
         robot = self.get_last_valid_robot()
+        self.server.last_valid_robot = robot  # Update last valid robot
+        self.server.last_valid_large_goal = self.get_last_valid_large_goal()  # Update last valid large goal
         now = time.time()
         # Only store if enough time has passed since last entry
         if now - self._last_stuck_history_time > self.CAPTURE_INTERVAL:
@@ -72,6 +74,38 @@ class StateBase:
         else:
             return self.update(frame)
 
+    def get_last_valid_large_goal(self):
+        """
+        Returns the last valid large goal position.
+        If the goal is detected but its center is None, use the new goal's center
+        but copy the position from the previous valid goal.
+        """
+        goal = self.server.course.get_large_goal()
+        last_valid = self.server.last_valid_large_goal
+
+        if goal is not None:
+            if goal.center is not None:
+                self.server.last_valid_large_goal = goal
+                return goal
+            elif last_valid is not None:
+                # Copy position from last valid goal
+                logger.warning("Goal center is None, copying position from last valid goal.")
+                goal.center = last_valid.center
+                self.server.last_valid_large_goal = goal
+                return goal
+            else:
+                logger.warning("Goal detected but missing center and no last valid goal to copy from.")
+        else:
+            logger.warning("No valid large goal found in the course. Using last valid large goal.")
+
+        if last_valid is None:
+            logger.error("No previous valid large goal found. Cannot proceed, going to idle state.")
+            from .StateIdle import StateIdle
+            self.server.set_state(StateIdle(self.server))
+            return None
+        else:
+            logger.warning(f"Using last valid large goal: {last_valid}")
+            return last_valid
 
     # dont allow override
     def get_last_valid_robot(self):

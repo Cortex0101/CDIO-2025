@@ -16,7 +16,7 @@ FAST_MAX_SPEED = 40  # max speed in pixels per second when driving fast
 FAST_LOOKAHEAD_DISTANCE = 30  # distance in pixels to look ahead when driving fasts
 
 MANUAL_GOAL_CENTER = (380, 450)
-USE_MANUAL_GOAL_CENTER = True  # if True, use the manual goal center instead of the one from the course
+USE_MANUAL_GOAL_CENTER = False  # if True, use the manual goal center instead of the one from the course
 
 BALL_STOP_DISTANCE = 30  # distance in pixels to stop before the target object
 BALL_STOP_DISTANCE_EDGE_BALL = 25  # distance in pixels to stop before the target edge ball
@@ -33,7 +33,7 @@ OPEN_CLAW_POS_ON_DELIVERY = 30  # position to open the claw when delivering the 
 BALL_SETTLE_TIME_ON_DELIVERY = 1
 
 YOLO_MODEL_15_S = "ball_detect/v15s/weights/best.pt" # Average FPS: 32.40 over 661 frames
-YOLO_MODEL_15_M = "ball_detect/v15m/weights/best.pt" # Average FPS: 21.34 over 464 frames # THIS MODEL IS ACCIDENTALLY THE LARGE MODEL, MESSED UP IN TRAINING
+YOLO_MODEL_15_M = "ball_detect/v15m/weights/best.pt" # Average FPS: 26.34 over 464 frames 
 YOLO_MODEL_15_L = "ball_detect/v15l/weights/best.pt" # Average FPS: 21.44 over 428 frames
 YOLO_MODEL_15_X = "ball_detect/v15x/weights/best.pt" # Average FPS: 13.28 over 228 frames (this model was trained for 200 epochs, vs 300 for the others)
 YOLO_MODEL_MINIMUM_CONFIDENCE = 0.6  # minimum confidence for object detection to consider it valid

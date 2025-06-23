@@ -93,13 +93,14 @@ class Server:
         cv2.setMouseCallback("view", self._on_click)
         cv2.namedWindow("grid_visualization")
 
-        self.ai_model = AIModel(model_path=config.YOLO_MODEL_15_M, min_confidence=config.YOLO_MODEL_MINIMUM_CONFIDENCE)
+        self.ai_model = AIModel(model_path=config.YOLO_MODEL_15_L, min_confidence=config.YOLO_MODEL_MINIMUM_CONFIDENCE)
         self.course = Course()
         self.course_visualizer = CourseVisualizer(draw_boxes=True, draw_labels=True, draw_confidence=True, draw_masks=False, draw_walls=True, draw_direction_markers=True)
         self.path_planner = PathPlanner(strategy=AStarStrategyOptimized(obj_radius=config.LARGE_OBJECT_RADIUS))
         self.path_planner_visualizer = PathPlannerVisualizer()
 
         self.last_valid_robot = None  # For storing the last valid robot position
+        self.last_valid_large_goal = None
 
         # extra 
         self.pure_pursuit_navigator = PurePursuitNavigator(None, 
