@@ -175,6 +175,10 @@ class StateCalibration(StateBase):
         elif key == ord('r'):
             self.parameters = self.ORIGINAL_PARAMETERS.copy()
             self.current_parameter = ("fast_pure_pursuit_navigator", "Kp")
+        elif key == ord('q'):
+            from .StateIdle import StateIdle
+            logger.info("Key 'q' pressed, switching to StateIdle.")
+            self.server.set_state(StateIdle(self.server))
         elif key == ord('l'):
             self.server.pure_pursuit_navigator.kp = self.parameters["fast_pure_pursuit_navigator"]["Kp"]
             self.server.pure_pursuit_navigator.max_speed = self.parameters["fast_pure_pursuit_navigator"]["max_speed"]

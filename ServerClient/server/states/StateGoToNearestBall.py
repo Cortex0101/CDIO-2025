@@ -14,8 +14,7 @@ class StateGoToNearestBall(StateBase):
     def on_enter(self):
         logger.debug("Entering StateGoToNearestBall.")
         # Determine the nearest ball that is not at a corner or cross
-        robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
-            
+        robot = self.server.last_valid_robot  # Get the last valid robot state            
         self.robot_center = robot.center
         self.robot_direction = robot.direction
 

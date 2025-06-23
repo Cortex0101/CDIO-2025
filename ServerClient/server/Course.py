@@ -199,7 +199,7 @@ class Course:
             raise ValueError("Course is not complete, cannot get robot object.")
         
         if not self.get_by_label('robot') or len(self.get_by_label('robot')) == 0:
-            logger.warning("No robot object found in the course, returning None.")
+            #logger.warning("No robot object found in the course, returning None.")
             return None
         return self.get_by_label('robot')[0]
     
@@ -252,7 +252,7 @@ class Course:
         """
         large_goals = self.get_by_label('big_goal')
         if not large_goals or len(large_goals) == 0:
-            logger.warning("No large goal object found in the course, returning None.")
+            #logger.warning("No large goal object found in the course, returning None.")
             return None
         return large_goals[0]
     

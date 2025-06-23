@@ -71,7 +71,7 @@ class PurePursuitNavigator:
         steering = -self.kp * heading_error  # NEGATE if needed for correct direction
 
         # Speed adjustment (slow down on sharp turns)
-        slowdown_factor = 1 - min(abs(steering) / 180, self.max_turn_slowdown)
+        slowdown_factor = 1 - min(abs(steering) / 100, self.max_turn_slowdown)
         forward_speed = self.max_speed * slowdown_factor
 
         left_speed = int(forward_speed - steering)
@@ -80,18 +80,8 @@ class PurePursuitNavigator:
         # Clamp motor speeds to true physical max
         left_speed = max(-self.true_max_speed, min(self.true_max_speed, left_speed))
         right_speed = max(-self.true_max_speed, min(self.true_max_speed, right_speed))
-        '''
-        logger.warning(f"Robot Position: {robot_pos}, "
-                     f"Heading Error: {heading_error}, "
-                     f"forward_speed: {forward_speed}, "
-                     f"Steering: {steering}, "
-                     f"slowdown_factor: {slowdown_factor}, "
-                     f"Left Speed: {left_speed}, Right Speed: {right_speed}"
-                     f"Lookahead: {lookahead}, "
-                     f"Robot Heading: {robot_heading}, "
-                     f"Angle to Target: {angle_to_target}, ")
-        '''
-        logger.warning(f"slowdown_factor = 1 - min({abs(steering) / 180}, {self.max_turn_slowdown}) = {slowdown_factor}, "
+
+        logger.debug(f"slowdown_factor = 1 - min({abs(steering) / 100}, {self.max_turn_slowdown}) = {slowdown_factor}, "
                     f"Heading Error: {heading_error}, "
                      f"forward_speed: min({forward_speed}, "
                      f"Steering: {steering}, "

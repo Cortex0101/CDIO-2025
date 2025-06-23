@@ -15,7 +15,7 @@ class StateCollectBall(StateBase):
         self.target_object = target_object
 
     def on_enter(self):
-        robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
+        robot = self.server.last_valid_robot  # Get the last valid robot state
         self.robot_center = robot.center
         self.robot_direction = robot.direction
         logger.debug(f"Check if target_object is near a wall: {self.target_object}")

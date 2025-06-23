@@ -15,6 +15,9 @@ class StateBase:
         self._stuck_history = deque(maxlen=int(self.STUCK_HISTORY_LENGTH * 1.1)) # slightly larger to make sure we have enough history to cover STUCK_TIME_SEC 
         self._last_unstuck_time = time.time()
         self._last_stuck_history_time = time.time()
+
+        self.HAS_FOUND_GOAL = False # Only find goal ONCE
+
         
     def on_enter(self):
         pass
@@ -62,6 +65,12 @@ class StateBase:
 
     def step(self, frame):
         robot = self.get_last_valid_robot()
+        if not robot:
+            return frame  # If no valid robot, return the frame without further processing
+        large_goal = self.get_last_valid_large_goal()
+        if not large_goal:
+            return frame
+        
         self.server.last_valid_robot = robot  # Update last valid robot
         self.server.last_valid_large_goal = self.get_last_valid_large_goal()  # Update last valid large goal
         now = time.time()
@@ -80,12 +89,16 @@ class StateBase:
         If the goal is detected but its center is None, use the new goal's center
         but copy the position from the previous valid goal.
         """
+        if self.HAS_FOUND_GOAL:
+            return self.server.last_valid_large_goal
+
         goal = self.server.course.get_large_goal()
         last_valid = self.server.last_valid_large_goal
 
         if goal is not None:
             if goal.center is not None:
                 self.server.last_valid_large_goal = goal
+                self.HAS_FOUND_GOAL = True
                 return goal
             elif last_valid is not None:
                 # Copy position from last valid goal

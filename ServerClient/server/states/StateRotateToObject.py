@@ -23,15 +23,14 @@ class StateRotateToObject(StateBase):
         self.angle_has_been_correct_for_x_frame = 0
 
     def update(self, frame):
-        robot = super().get_last_valid_robot() # will return a valid robot, or go to idle state if not found
-        self.robot_center = robot.center
+        robot = self.server.last_valid_robot  # Get the last valid robot state        self.robot_center = robot.center
         self.robot_direction = robot.direction
         angle_to_target = self._angle_to(self.robot_center, self.target_object.center)
         
         # Compute turn command to face the target object
         # prev newKp = 0.7, new_max_speed = 10
         instruction = self.server.pure_pursuit_navigator.compute_turn_command(
-            self.robot_direction, angle_to_target, newKp=0.5, new_max_speed=15
+            self.robot_direction, angle_to_target, newKp=config.TURN_TO_OBJECT_KP, new_max_speed=config.TURN_TO_OBJECT_MAX_SPEED
         )
         self.server.send_instruction(instruction)
 
@@ -42,6 +41,8 @@ class StateRotateToObject(StateBase):
             # Wait for a few frames to ensure it's stable
             self.angle_has_been_correct_for_x_frame += 1
             if self.angle_has_been_correct_for_x_frame > config.ROBOT_FACE_OBJECT_ANGLE_THRESHOLD_FRAMES:
+                instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+                self.server.send_instruction(instruction)
                 if self.target_object.label == 'white' or self.target_object.label == 'orange':
                     logger.info("Angle has been stable for 10 frames, switching to StateCollectBall.")
                     from .StateCollectBall import StateCollectBall
