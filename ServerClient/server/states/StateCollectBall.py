@@ -100,7 +100,7 @@ class StateCollectBall(StateBase):
                                confidence=float(1.0))
                 GOAL.center = config.MANUAL_GOAL_CENTER  # Assuming a fixed goal position for simplicity
             else:
-                GOAL = self.server.course.get_large_goal(self.robot_center, color='either')
+                GOAL = self.server.last_valid_large_goal
                 if GOAL is None:
                     return frame  # If no goal is found, try again
 

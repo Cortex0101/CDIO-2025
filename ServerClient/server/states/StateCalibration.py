@@ -6,6 +6,12 @@ logger = logging.getLogger(__name__)
 
 import cv2
 
+'''
+ CLAW_OPEN_POS = 80
+    CLAW_CLOSED_POS = 0
+    CLAW_DELIVER_POS = 50  # position to deliver the ball
+'''
+
 class StateCalibration(StateBase):
     def __init__(self, server):
         super().__init__(server)
@@ -21,6 +27,11 @@ class StateCalibration(StateBase):
                 "Kp": config.SLOW_KP,
                 "max_speed": config.SLOW_MAX_SPEED,
                 "lookahead_distance": config.SLOW_LOOKAHEAD_DISTANCE
+            },
+            "robot": {
+                "claw_closed_position": 0,  # position to close the claw
+                "claw_open_position": 80,     # position to open the claw
+                "claw_deliver_position": 50   # position to open the claw when collecting the ball
             }
         }
 
@@ -43,6 +54,8 @@ class StateCalibration(StateBase):
         cv2.putText(frame, f"Current Parameter: {self.current_parameter[0]} - {self.current_parameter[1]}: {self.parameters[self.current_parameter[0]][self.current_parameter[1]]}",
                     (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
+        if self.server.pure_pursuit_navigator.path is None:
+            return frame
         if len(self.server.pure_pursuit_navigator.path) == 0:
             return frame
         
@@ -62,6 +75,8 @@ class StateCalibration(StateBase):
             self.server.pure_pursuit_navigator.set_path(None)
             instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
             self.server.send_instruction(instruction)
+
+        return frame
     
     def attempt_to_unstuck(self, frame):
         return self.update(frame)  # No specific unstuck logic implemented, just update the state
@@ -84,44 +99,118 @@ class StateCalibration(StateBase):
         Handle key press events. Default implementation does nothing.
         Override in subclasses if needed.
         """
+        if key == 0:
+            return
+
         # User can navigate through parameters using 'n' and 'p' keys
         if key == ord('n'):
-            # Move to the next parameter
-            keys = list(self.parameters.keys())
-            current_index = keys.index(self.current_parameter[0])
-            next_index = (current_index + 1) % len(keys)
-            self.current_parameter = (keys[next_index], self.current_parameter[1])
-            logger.info(f"Switched to next parameter: {self.current_parameter}")
+            self._next_parameter()
+            
         elif key == ord('p'):
-            # Move to the previous parameter
-            keys = list(self.parameters.keys())
-            current_index = keys.index(self.current_parameter[0])
-            prev_index = (current_index - 1) % len(keys)
-            self.current_parameter = (keys[prev_index], self.current_parameter[1])
-            logger.info(f"Switched to previous parameter: {self.current_parameter}")
+            self._previous_parameter()
+            
         # Change the value of the current parameter with 'up' and 'down' keys
         elif key == ord('u'):
             # Increase the value of the current parameter
-            if self.current_parameter[1] in self.parameters[self.current_parameter[0]]:
-                self.parameters[self.current_parameter[0]][self.current_parameter[1]] += 0.1
-                logger.info(f"Updated {self.current_parameter[0]} - {self.current_parameter[1]} to {self.parameters[self.current_parameter[0]][self.current_parameter[1]]}")
+            param_name = self.current_parameter[1]
+            if param_name in self.parameters[self.current_parameter[0]]:
+                self.parameters[self.current_parameter[0]][param_name] += 0.1
+            
         elif key == ord('d'):
             # Decrease the value of the current parameter
-            if self.current_parameter[1] in self.parameters[self.current_parameter[0]]:
-                self.parameters[self.current_parameter[0]][self.current_parameter[1]] -= 0.1
-                logger.info(f"Updated {self.current_parameter[0]} - {self.current_parameter[1]} to {self.parameters[self.current_parameter[0]][self.current_parameter[1]]}")
+            param_name = self.current_parameter[1]
+            if param_name in self.parameters[self.current_parameter[0]]:
+                self.parameters[self.current_parameter[0]][param_name] -= 0.1
+        elif key == ord('l'):
+            self.server.pure_pursuit_navigator.kp = self.parameters["fast_pure_pursuit_navigator"]["Kp"]
+            self.server.pure_pursuit_navigator.max_speed = self.parameters["fast_pure_pursuit_navigator"]["max_speed"]
+            self.server.pure_pursuit_navigator.true_max_speed = self.parameters["fast_pure_pursuit_navigator"]["max_speed"]
+            self.server.pure_pursuit_navigator.lookahead_distance = self.parameters["fast_pure_pursuit_navigator"]["lookahead_distance"]
+
+            self.server.pure_pursuit_navigator_slow.kp = self.parameters["slow_pure_pursuit_navigator"]["Kp"]
+            self.server.pure_pursuit_navigator_slow.max_speed = self.parameters["slow_pure_pursuit_navigator"]["max_speed"]
+            self.server.pure_pursuit_navigator_slow.true_max_speed = self.parameters["slow_pure_pursuit_navigator"]["max_speed"]
+            self.server.pure_pursuit_navigator_slow.lookahead_distance = self.parameters["slow_pure_pursuit_navigator"]["lookahead_distance"]
+
+            instruction = {"cmd": "set_open_pos", "pos": self.parameters["robot"]["claw_open_position"]}
+            self.server.send_instruction(instruction)
+            instruction = {"cmd": "set_closed_pos", "pos": self.parameters["robot"]["claw_closed_position"]}
+            self.server.send_instruction(instruction)
+            instruction = {"cmd": "set_deliver_pos", "pos": self.parameters["robot"]["claw_deliver_position"]}
+            self.server.send_instruction(instruction)
+        else:
+            logger.debug(f"Key pressed: {key}, no action defined for this key.")
+
+    def _next_parameter(self):
+        """
+        Move to the next parameter in the calibration.
+        If at the end, of parameters for one navigator, switch to the other navigator.
+
+        Flow would be:
+        fast_pure_pursuit_navigator, Kp
+        fast_pure_pursuit_navigator, max_speed
+        fast_pure_pursuit_navigator, lookahead_distance
+        pure_pursuit_navigator_slow, Kp
+        slow_pure_pursuit_navigator, max_speed
+        slow_pure_pursuit_navigator, lookahead_distance 
+        fast_pure_pursuit_navigator, Kp # wraps around
+        """
+        keys = list(self.parameters.keys())
+        current_navigator = self.current_parameter[0]
+        current_param = self.current_parameter[1]
+
+        current_index = keys.index(current_navigator)
+        next_index = (current_index + 1) % len(keys)
+        next_navigator = keys[next_index]
+
+        if next_navigator == current_navigator:
+            # If we are still in the same navigator, move to the next parameter
+            params = list(self.parameters[next_navigator].keys())
+            param_index = params.index(current_param)
+            next_param = params[(param_index + 1) % len(params)]
+            self.current_parameter = (next_navigator, next_param)
+        else:
+            # Switch to the next navigator and reset to its first parameter
+            self.current_parameter = (next_navigator, list(self.parameters[next_navigator].keys())[0])
         
-        '''
-        PurePursuitNavigator(None, 
-                                                lookahead_distance=config.FAST_LOOKAHEAD_DISTANCE,
-                                                max_speed=config.FAST_MAX_SPEED,
-                                                true_max_speed=config.FAST_MAX_SPEED,
-                                                kp=config.FAST_KP, 
-                                                max_turn_slowdown=1)
-        '''
-        self.server.pure_pursuit_navigator.kp = self.parameters["fast_pure_pursuit_navigator"]["Kp"]
-        self.server.pure_pursuit_navigator.max_speed = self.parameters["fast_pure_pursuit_navigator"]["max_speed"]
-        self.server.pure_pursuit_navigator.lookahead_distance = self.parameters["fast_pure_pursuit_navigator"]["lookahead_distance"]
+        logger.debug(f"Switched to parameter: {self.current_parameter}")
+
+    def _previous_parameter(self):
+        """
+        Move to the previous parameter in the calibration.
+        If at the beginning of parameters for one navigator, switch to the other navigator.
+
+        Flow would be:
+        fast_pure_pursuit_navigator, Kp
+        fast_pure_pursuit_navigator, max_speed
+        fast_pure_pursuit_navigator, lookahead_distance
+        pure_pursuit_navigator_slow, Kp
+        slow_pure_pursuit_navigator, max_speed
+        slow_pure_pursuit_navigator, lookahead_distance 
+        fast_pure_pursuit_navigator, Kp # wraps around
+        """
+        keys = list(self.parameters.keys())
+        current_navigator = self.current_parameter[0]
+        current_param = self.current_parameter[1]
+
+        current_index = keys.index(current_navigator)
+        next_index = (current_index - 1) % len(keys)
+        next_navigator = keys[next_index]
+
+        if next_navigator == current_navigator:
+            # If we are still in the same navigator, move to the previous parameter
+            params = list(self.parameters[next_navigator].keys())
+            param_index = params.index(current_param)
+            next_param = params[(param_index - 1) % len(params)]
+            self.current_parameter = (next_navigator, next_param)
+        else:
+            # Switch to the previous navigator and reset to its last parameter
+            self.current_parameter = (next_navigator, list(self.parameters[next_navigator].keys())[-1])
+        
+        logger.debug(f"Switched to parameter: {self.current_parameter}")
+
+
+        
 
     def _distance(self, a, b):
         """

@@ -126,6 +126,30 @@ def execute_instruction(instr):
         else:
             print("[CLIENT] Invalid deliver command: " + str(instr))
             return False
+    elif cmd == "set_open_pos":
+        pos = instr.get("pos")
+        if pos is not None:
+            robot.CLAW_OPEN_POS = pos
+            print("[CLIENT] Set claw open position to " + str(pos))
+        else:
+            print("[CLIENT] Invalid set_open_pos command: " + str(instr))
+            return False
+    elif cmd == "set_closed_pos":
+        pos = instr.get("pos")
+        if pos is not None:
+            robot.CLAW_CLOSED_POS = pos
+            print("[CLIENT] Set claw closed position to " + str(pos))
+        else:
+            print("[CLIENT] Invalid set_closed_pos command: " + str(instr))
+            return False
+    elif cmd == "set_deliver_pos":
+        pos = instr.get("pos")
+        if pos is not None:
+            robot.CLAW_DELIVER_POS = pos
+            print("[CLIENT] Set claw deliver position to " + str(pos))
+        else:
+            print("[CLIENT] Invalid set_deliver_pos command: " + str(instr))
+            return False
     else:
         print("[CLIENT] Unknown command: " + cmd)
         return False
