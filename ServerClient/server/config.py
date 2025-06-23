@@ -10,10 +10,12 @@ SLOW_EDGE_BALL_MAX_SPEED = 8
 SLOW_MAX_SPEED = 10
 SLOW_KP = 0.3
 SLOW_LOOKAHEAD_DISTANCE = 7  # distance in pixels to look ahead when driving slow
+SLOW_MAX_TURN_SLOW = 1
 
 FAST_KP = 0.5
 FAST_MAX_SPEED = 40  # max speed in pixels per second when driving fast
 FAST_LOOKAHEAD_DISTANCE = 30  # distance in pixels to look ahead when driving fasts
+FAST_MAX_TURN_SLOW = 1
 
 MANUAL_GOAL_CENTER = (380, 450)
 USE_MANUAL_GOAL_CENTER = False  # if True, use the manual goal center instead of the one from the course

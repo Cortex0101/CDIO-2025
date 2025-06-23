@@ -108,14 +108,14 @@ class Server:
                                                 max_speed=config.FAST_MAX_SPEED,
                                                 true_max_speed=config.FAST_MAX_SPEED,
                                                 kp=config.FAST_KP, 
-                                                max_turn_slowdown=1)
+                                                max_turn_slowdown=config.FAST_MAX_TURN_SLOW)
         
         self.pure_pursuit_navigator_slow = PurePursuitNavigator(None,
                                                 lookahead_distance=config.SLOW_LOOKAHEAD_DISTANCE,
                                                 max_speed=config.SLOW_MAX_SPEED,
                                                 true_max_speed=config.SLOW_MAX_SPEED, 
                                                 kp=config.SLOW_KP,
-                                                max_turn_slowdown=1)
+                                                max_turn_slowdown=config.SLOW_MAX_TURN_SLOW)
 
         self.robot_state = RobotState.IDLE
         self.robot = None           # For storing previous robot if needed

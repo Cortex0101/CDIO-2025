@@ -39,12 +39,14 @@ class StateCalibration(StateBase):
             "fast_pure_pursuit_navigator": {
                 "Kp": config.FAST_KP,
                 "max_speed": config.FAST_MAX_SPEED,
-                "lookahead_distance": config.FAST_LOOKAHEAD_DISTANCE
+                "lookahead_distance": config.FAST_LOOKAHEAD_DISTANCE,
+                "max_turn_slow": config.FAST_MAX_TURN_SLOW
             },
             "slow_pure_pursuit_navigator": {
                 "Kp": config.SLOW_KP,
                 "max_speed": config.SLOW_MAX_SPEED,
-                "lookahead_distance": config.SLOW_LOOKAHEAD_DISTANCE
+                "lookahead_distance": config.SLOW_LOOKAHEAD_DISTANCE,
+                "max_turn_slow": config.SLOW_MAX_TURN_SLOW
             },
             "robot": {
                 "claw_closed_position": 0,  # position to close the claw
@@ -62,7 +64,8 @@ class StateCalibration(StateBase):
         ]
 
         self.increment_by_0point1 = [
-            "Kp"
+            "Kp",
+            "max_turn_slow"
         ]
 
         self.use_slow_navigator = False  # Flag to switch between fast and slow navigator

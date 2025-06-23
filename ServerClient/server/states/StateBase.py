@@ -123,22 +123,24 @@ class StateBase:
                 return robot
             elif last_valid is not None and robot.center is not None:
                 # Copy direction from last valid robot
-                logger.warning("Robot direction is None, copying direction from last valid robot.")
+                #logger.warning("Robot direction is None, copying direction from last valid robot.")
                 robot.direction = last_valid.direction
                 self.server.last_valid_robot = robot
                 return robot
             else:
-                logger.warning("Robot detected but missing direction and no last valid robot to copy from.")
+                pass
+                #logger.warning("Robot detected but missing direction and no last valid robot to copy from.")
         else:
-            logger.warning("No valid robot found in the course. Using last valid robot.")
+            pass
+            #logger.warning("No valid robot found in the course. Using last valid robot.")
 
         if last_valid is None:
-            logger.error("No previous valid robot found. Cannot proceed, going to idle state.")
+            #logger.error("No previous valid robot found. Cannot proceed, going to idle state.")
             from .StateIdle import StateIdle
             self.server.set_state(StateIdle(self.server))
             return None
         else:
-            logger.warning(f"Using last valid robot: {last_valid}")
+            #logger.warning(f"Using last valid robot: {last_valid}")
             return last_valid
 
         '''
