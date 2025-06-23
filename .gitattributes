@@ -1,3 +1,0 @@
-ball_detect/v7dtu4 filter=lfs diff=lfs merge=lfs -text
-.pt filter=lfs diff=lfs merge=lfs -text
-*.pt filter=lfs diff=lfs merge=lfs -text
