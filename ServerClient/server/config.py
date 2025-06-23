@@ -17,7 +17,7 @@ FAST_MAX_SPEED = 30  # max speed in pixels per second when driving fast
 FAST_LOOKAHEAD_DISTANCE = 25  # distance in pixels to look ahead when driving fasts
 FAST_MAX_TURN_SLOW = 1
 
-TURN_TO_OBJECT_KP = 0.4  # proportional gain for turning to an object
+TURN_TO_OBJECT_KP = 0.6  # proportional gain for turning to an object
 TURN_TO_OBJECT_MAX_SPEED = 30  # max speed in pixels per second when turning to an object
 
 MANUAL_GOAL_CENTER = (549, 211)
@@ -29,7 +29,7 @@ BALL_STOP_DISTANCE_EDGE_BALL = 20  # distance in pixels to stop before the targe
 GOAL_DELIVERY_SPOT_DISTANCE = 75 # prev 75
 
 ROBOT_FACE_OBJECT_ANGLE_THRESHOLD = 3  # degrees, how close the robot needs to be facing the object to consider it "facing" (3 seems to be minimum, otherwise stuck forever)
-ROBOT_FACE_OBJECT_ANGLE_THRESHOLD_FRAMES = 3  # how many frames the robot needs to be facing the object to consider it "facing"
+ROBOT_FACE_OBJECT_ANGLE_THRESHOLD_FRAMES = 10  # how many frames the robot needs to be facing the object to consider it "facing"
 
 REACHED_POINT_DISTANCE = 10  # distance in pixels to consider the robot has reached the point
 

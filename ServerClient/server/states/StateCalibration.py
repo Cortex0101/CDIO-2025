@@ -135,6 +135,11 @@ class StateCalibration(StateBase):
             # scale back down
             x = int(x / self.scale)
             y = int(y / self.scale)
+
+            if self.server.course.get_object_at_point((x, y)) is not None:
+                logger.info(f"Clicked on an object at ({x}, {y}), ignoring click.")
+                return
+
             self._setup_go_to_point((x, y))
 
     def on_key_press(self, key):

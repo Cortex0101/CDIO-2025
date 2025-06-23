@@ -688,6 +688,20 @@ class Course:
         logger.debug(f"Ball {ball} near cross {cross}: {res}")
         return res
 
+    def get_object_at_point(self, point: tuple):
+        """
+        Get the CourseObject at a specific point.
+
+        Args:
+            point: (x, y) coordinates to check
+        Returns:
+            CourseObject: the object at the point, or None if no object found
+        """
+        for obj in self.objects:
+            if self._bbox_within_threshold_point(obj.bbox, point, 0):
+                return obj
+        return None
+
     def _bbox_lies_within_bbox(self, inner_bbox: tuple, outer_bbox: tuple) -> bool:
         """
         Check if the CourseObject's bounding box lies within a given bounding box.
