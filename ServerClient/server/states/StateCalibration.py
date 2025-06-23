@@ -13,6 +13,24 @@ import cv2
 '''
 
 class StateCalibration(StateBase):
+    ORIGINAL_PARAMETERS = {
+        "fast_pure_pursuit_navigator": {
+            "Kp": config.FAST_KP,
+            "max_speed": config.FAST_MAX_SPEED,
+            "lookahead_distance": config.FAST_LOOKAHEAD_DISTANCE
+        },
+        "slow_pure_pursuit_navigator": {
+            "Kp": config.SLOW_KP,
+            "max_speed": config.SLOW_MAX_SPEED,
+            "lookahead_distance": config.SLOW_LOOKAHEAD_DISTANCE
+        },
+        "robot": {
+            "claw_closed_position": 0,  # position to close the claw
+            "claw_open_position": 80,     # position to open the claw
+            "claw_deliver_position": 50   # position to open the claw when collecting the ball
+        }
+    }
+
     def __init__(self, server):
         super().__init__(server)
         logger.debug("Initialized StateCalibration.")
@@ -35,6 +53,20 @@ class StateCalibration(StateBase):
             }
         }
 
+        self.increment_by_1 = [
+            "max_speed",
+            "lookahead_distance",
+            "claw_closed_position",
+            "claw_open_position",
+            "claw_deliver_position"
+        ]
+
+        self.increment_by_0point1 = [
+            "Kp"
+        ]
+
+        self.use_slow_navigator = False  # Flag to switch between fast and slow navigator
+
         self.current_parameter = ("fast_pure_pursuit_navigator", "Kp")
 
     def on_enter(self):
@@ -55,9 +87,9 @@ class StateCalibration(StateBase):
                     (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
         if self.server.pure_pursuit_navigator.path is None:
-            return frame
+            return self._scale_frame(frame)
         if len(self.server.pure_pursuit_navigator.path) == 0:
-            return frame
+            return self._scale_frame(frame)
         
         if self.server.course.get_robot() is not None:
             robot = self.server.course.get_robot()
@@ -67,16 +99,21 @@ class StateCalibration(StateBase):
             logger.warning("No robot found in the course, using previous position.")
 
         frame = self.server.path_planner_visualizer.draw_path(frame, self.server.pure_pursuit_navigator.path)
-        instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
+        instruction = None
+        if self.use_slow_navigator:
+            instruction = self.server.pure_pursuit_navigator_slow.compute_drive_command(self.robot_center, self.robot_direction)
+        else:
+            instruction = self.server.pure_pursuit_navigator.compute_drive_command(self.robot_center, self.robot_direction)
         self.server.send_instruction(instruction)
 
         if self._distance(self.robot_center, self.server.pure_pursuit_navigator.path[-1]) < config.REACHED_POINT_DISTANCE:
             logger.info("[SERVER] Reached the end of the path in calibration state.")
             self.server.pure_pursuit_navigator.set_path(None)
+            self.server.pure_pursuit_navigator_slow.set_path(None)
             instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
             self.server.send_instruction(instruction)
 
-        return frame
+        return self._scale_frame(frame)
     
     def attempt_to_unstuck(self, frame):
         return self.update(frame)  # No specific unstuck logic implemented, just update the state
@@ -92,6 +129,9 @@ class StateCalibration(StateBase):
         # if left click
         if event == cv2.EVENT_LBUTTONDOWN:
             logger.info(f"Clicked at ({x}, {y}) in calibration state")
+            # scale back down
+            x = int(x / self.scale)
+            y = int(y / self.scale)
             self._setup_go_to_point((x, y))
 
     def on_key_press(self, key):
@@ -103,24 +143,35 @@ class StateCalibration(StateBase):
             return
 
         # User can navigate through parameters using 'n' and 'p' keys
-        if key == ord('n'):
+        if key == ord('k'):
             self._next_parameter()
             
-        elif key == ord('p'):
+        elif key == ord('j'):
             self._previous_parameter()
             
         # Change the value of the current parameter with 'up' and 'down' keys
-        elif key == ord('u'):
+        elif key == ord('m'):
             # Increase the value of the current parameter
             param_name = self.current_parameter[1]
             if param_name in self.parameters[self.current_parameter[0]]:
-                self.parameters[self.current_parameter[0]][param_name] += 0.1
+                if param_name in self.increment_by_1:
+                    self.parameters[self.current_parameter[0]][param_name] += 1
+                elif param_name in self.increment_by_0point1:
+                    self.parameters[self.current_parameter[0]][param_name] += 0.1
             
-        elif key == ord('d'):
+        elif key == ord('n'):
             # Decrease the value of the current parameter
             param_name = self.current_parameter[1]
             if param_name in self.parameters[self.current_parameter[0]]:
-                self.parameters[self.current_parameter[0]][param_name] -= 0.1
+                if param_name in self.increment_by_1:
+                    self.parameters[self.current_parameter[0]][param_name] -= 1
+                elif param_name in self.increment_by_0point1:
+                    self.parameters[self.current_parameter[0]][param_name] -= 0.1
+        elif key == ord('s'):
+            self.use_slow_navigator = not self.use_slow_navigator
+        elif key == ord('r'):
+            self.parameters = self.ORIGINAL_PARAMETERS.copy()
+            self.current_parameter = ("fast_pure_pursuit_navigator", "Kp")
         elif key == ord('l'):
             self.server.pure_pursuit_navigator.kp = self.parameters["fast_pure_pursuit_navigator"]["Kp"]
             self.server.pure_pursuit_navigator.max_speed = self.parameters["fast_pure_pursuit_navigator"]["max_speed"]
@@ -155,25 +206,24 @@ class StateCalibration(StateBase):
         slow_pure_pursuit_navigator, lookahead_distance 
         fast_pure_pursuit_navigator, Kp # wraps around
         """
-        keys = list(self.parameters.keys())
-        current_navigator = self.current_parameter[0]
-        current_param = self.current_parameter[1]
+        outer_keys = list(self.parameters.keys())
+        current_outer_index = outer_keys.index(self.current_parameter[0])
+        inner_keys = list(self.parameters[self.current_parameter[0]].keys())
+        current_inner_index = inner_keys.index(self.current_parameter[1])
 
-        current_index = keys.index(current_navigator)
-        next_index = (current_index + 1) % len(keys)
-        next_navigator = keys[next_index]
-
-        if next_navigator == current_navigator:
-            # If we are still in the same navigator, move to the next parameter
-            params = list(self.parameters[next_navigator].keys())
-            param_index = params.index(current_param)
-            next_param = params[(param_index + 1) % len(params)]
-            self.current_parameter = (next_navigator, next_param)
+        # Move to the next parameter
+        if current_inner_index < len(inner_keys) - 1:
+            # Move to the next parameter in the same navigator
+            next_inner_key = inner_keys[current_inner_index + 1]
+            self.current_parameter = (self.current_parameter[0], next_inner_key)
         else:
-            # Switch to the next navigator and reset to its first parameter
-            self.current_parameter = (next_navigator, list(self.parameters[next_navigator].keys())[0])
-        
-        logger.debug(f"Switched to parameter: {self.current_parameter}")
+            # Move to the first parameter of the next navigator
+            if current_outer_index < len(outer_keys) - 1:
+                next_outer_key = outer_keys[current_outer_index + 1]
+                self.current_parameter = (next_outer_key, list(self.parameters[next_outer_key].keys())[0])
+            else:
+                # Wrap around to the first navigator
+                self.current_parameter = (outer_keys[0], inner_keys[0])
 
     def _previous_parameter(self):
         """
@@ -189,27 +239,34 @@ class StateCalibration(StateBase):
         slow_pure_pursuit_navigator, lookahead_distance 
         fast_pure_pursuit_navigator, Kp # wraps around
         """
-        keys = list(self.parameters.keys())
-        current_navigator = self.current_parameter[0]
-        current_param = self.current_parameter[1]
+        outer_keys = list(self.parameters.keys())
+        current_outer_index = outer_keys.index(self.current_parameter[0])
+        inner_keys = list(self.parameters[self.current_parameter[0]].keys())
+        current_inner_index = inner_keys.index(self.current_parameter[1])
 
-        current_index = keys.index(current_navigator)
-        next_index = (current_index - 1) % len(keys)
-        next_navigator = keys[next_index]
-
-        if next_navigator == current_navigator:
-            # If we are still in the same navigator, move to the previous parameter
-            params = list(self.parameters[next_navigator].keys())
-            param_index = params.index(current_param)
-            next_param = params[(param_index - 1) % len(params)]
-            self.current_parameter = (next_navigator, next_param)
+        # Move to the previous parameter
+        if current_inner_index > 0:
+            # Move to the previous parameter in the same navigator
+            next_inner_key = inner_keys[current_inner_index - 1]
+            self.current_parameter = (self.current_parameter[0], next_inner_key)
         else:
-            # Switch to the previous navigator and reset to its last parameter
-            self.current_parameter = (next_navigator, list(self.parameters[next_navigator].keys())[-1])
-        
-        logger.debug(f"Switched to parameter: {self.current_parameter}")
+            # Move to the last parameter of the previous navigator
+            if current_outer_index > 0:
+                next_outer_key = outer_keys[current_outer_index - 1]
+                self.current_parameter = (next_outer_key, list(self.parameters[next_outer_key].keys())[-1])
+            else:
+                # Wrap around to the last navigator
+                self.current_parameter = (outer_keys[-1], inner_keys[-1])
 
-
+    def _scale_frame(self, frame):
+        """
+        Scale the frame to fit the window size.
+        """
+        height, width = frame.shape[:2]
+        self.scale = min(1920 / width, 1080 / height)
+        new_size = (int(width * self.scale), int(height * self.scale))
+        scaled_frame = cv2.resize(frame, new_size, interpolation=cv2.INTER_LINEAR)
+        return scaled_frame
         
 
     def _distance(self, a, b):
@@ -227,6 +284,7 @@ class StateCalibration(StateBase):
             logger.warning(f"No path found to ball point: {point}. Try clicking again to set a new point.")
             return False
         self.server.pure_pursuit_navigator.set_path(path)
+        self.server.pure_pursuit_navigator_slow.set_path(path)
         return True
 
     

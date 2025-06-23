@@ -849,6 +849,7 @@ class CourseVisualizer:
                  draw_boxes:   bool = True,
                  draw_confidence: bool = False,
                  draw_labels: bool = True,
+                 use_native: bool = False,
                  mask_alpha:   float = 0.1):
         self.draw_centers = draw_centers
         self.draw_center_points = draw_center_points
@@ -858,10 +859,14 @@ class CourseVisualizer:
         self.draw_boxes   = draw_boxes
         self.draw_confidence = draw_confidence
         self.draw_labels  = draw_labels
+        self.use_native   = use_native  # Use native OpenCV drawing functions
         self.mask_alpha   = mask_alpha
 
     def draw(self, image: np.ndarray, course: Course) -> np.ndarray:
         """Return a new image with all the CourseObjects rendered on it."""
+        if self.use_native:
+            return image
+
         canvas = image.copy()
         for obj in course:
             # 1) Optionally skip walls

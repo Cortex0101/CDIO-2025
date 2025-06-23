@@ -594,7 +594,8 @@ class Server:
             if frame is None: continue
 
             self.course = self.ai_model.generate_course(frame)
-            frame = self.course_visualizer.draw(frame, self.course)
+            #frame = self.course_visualizer.draw(frame, self.course)
+            frame = self.ai_model.results[0].plot()
 
             self._on_key_press() # send key press to current state
             try:
