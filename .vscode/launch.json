@@ -1,0 +1,21 @@
+{
+    // run the current file, but activate .\venv\Scripts\Activate.ps1 before running python in debugger
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ServerClient/server/server.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "envFile": "${workspaceFolder}/.env",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}./venv/Scripts/python.exe",
+        }
+    ]
+}

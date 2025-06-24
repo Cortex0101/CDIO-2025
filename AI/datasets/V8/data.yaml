@@ -1,0 +1,4 @@
+train: train/images
+val: val/images
+nc: 10
+names: ['orange', 'white', 'egg', 'cross', 'robot', 'small_goal', 'big_goal', 'wall', "yellow", 'green']
