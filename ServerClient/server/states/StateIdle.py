@@ -12,10 +12,10 @@ class StateIdle(StateBase):
 
     def on_enter(self):
         logger.debug("Entered idle state")
-        #instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
-        #self.server.send_instruction(instruction)
-        #instruction = {"cmd": "claw", "action": "close"}
-        #self.server.send_instruction(instruction)
+        instruction = {"cmd": "drive", "left_speed": 0, "right_speed": 0}
+        self.server.send_instruction(instruction)
+        instruction = {"cmd": "claw", "action": "close"}
+        self.server.send_instruction(instruction)
 
     def update(self, frame):
         # look for robot all the time
