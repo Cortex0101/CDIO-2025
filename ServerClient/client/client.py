@@ -55,10 +55,10 @@ class Robot:
     def deliver_ball(self, speed=75, to_pos=CLAW_DELIVER_POS):
         # opens the claw, then moves forward 1 rotation with speed and then back 1 rotation
         self.open_claw_to(to_pos=to_pos, speed=speed)
-        sleep(2)
+        sleep(0.6)
         self.tank_drive.on_for_degrees(left_speed=speed, right_speed=speed,  degrees=90)
         sleep(0.5)
-        self.tank_drive.on_for_degrees(left_speed=-speed/2, right_speed=-speed/2,  degrees=180)
+        self.tank_drive.on_for_degrees(left_speed=-speed/2, right_speed=-speed/2,  degrees=300)
 
     def emergency_stop(self):
         print("[ROBOT] Emergency stop activated.")
@@ -79,7 +79,7 @@ Wireless LAN adapter Wi-Fi:
    Default Gateway . . . . . . . . . : 192.168.0.1
 
 '''
-HOST = '192.168.0.197'
+HOST = '192.168.208.72'
 PORT = 12346
 
 robot = Robot()
@@ -91,6 +91,7 @@ def execute_instruction(instr):
         right = instr.get("right_speed")
         if left is not None and right is not None:
             robot.move_forward(left, right)
+            return True
         else:
             print("[CLIENT] Invalid drive command: " + str(instr))
             return False
@@ -103,14 +104,17 @@ def execute_instruction(instr):
         seconds = instr.get("seconds", 1)
         speed = instr.get("speed", 15)
         robot.move_seconds(seconds, speed)
+        return True
     elif cmd == "claw":
         action = instr.get("action")
         speed = instr.get("speed", 20)
         if action == "open":
             print("[CLIENT] Opening claw")
             robot.open_claw(speed)
+            return True
         elif action == "close":
             robot.close_claw(speed)
+            return True
         else:
             print("[CLIENT] Unknown claw action: " + str(action))
             return False
@@ -118,11 +122,13 @@ def execute_instruction(instr):
         number_of_jiggles = instr.get("number_of_jiggles", 2)
         jiggle_degrees = instr.get("jiggle_degrees", 46)
         robot.perform_jiggle(number_of_jiggles, jiggle_degrees)
+        return True
     elif cmd == "deliver":
         speed = instr.get("speed", 75)
         to_pos = instr.get("to_pos", robot.CLAW_DELIVER_POS)
         if speed is not None:
             robot.deliver_ball(speed, to_pos)
+            return True
         else:
             print("[CLIENT] Invalid deliver command: " + str(instr))
             return False
@@ -131,6 +137,7 @@ def execute_instruction(instr):
         if pos is not None:
             robot.CLAW_OPEN_POS = pos
             print("[CLIENT] Set claw open position to " + str(pos))
+            return True
         else:
             print("[CLIENT] Invalid set_open_pos command: " + str(instr))
             return False
@@ -138,6 +145,7 @@ def execute_instruction(instr):
         pos = instr.get("pos")
         if pos is not None:
             robot.CLAW_CLOSED_POS = pos
+            return True
             print("[CLIENT] Set claw closed position to " + str(pos))
         else:
             print("[CLIENT] Invalid set_closed_pos command: " + str(instr))
@@ -146,6 +154,7 @@ def execute_instruction(instr):
         pos = instr.get("pos")
         if pos is not None:
             robot.CLAW_DELIVER_POS = pos
+            return True
             print("[CLIENT] Set claw deliver position to " + str(pos))
         else:
             print("[CLIENT] Invalid set_deliver_pos command: " + str(instr))
