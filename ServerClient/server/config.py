@@ -7,7 +7,7 @@ ROBOT_THICKNESS = 60 # Guess - with claw
 OPTIMAL_BALL_LOCATION_DISTANCE = 35
 
 SLOW_EDGE_BALL_MAX_SPEED = 8
-SLOW_MAX_SPEED = 15
+SLOW_MAX_SPEED = 20
 SLOW_KP = 0.4
 SLOW_LOOKAHEAD_DISTANCE = 15  # distance in pixels to look ahead when driving slow
 SLOW_MAX_TURN_SLOW = 1
@@ -24,6 +24,7 @@ MANUAL_GOAL_CENTER = (549, 211)
 USE_MANUAL_GOAL_CENTER = False  # if True, use the manual goal center instead of the one from the course
 
 BALL_STOP_DISTANCE = 30  # distance in pixels to stop before the target object
+BALL_STOP_DISTANCE_CROSS = 45  # distance in pixels to stop before the target cross
 BALL_STOP_DISTANCE_EDGE_BALL = 20  # distance in pixels to stop before the target edge ball
 
 GOAL_DELIVERY_SPOT_DISTANCE = 75 # prev 75
@@ -44,7 +45,8 @@ YOLO_MODEL_15_X = "ball_detect/v15x/weights/best.pt" # Average FPS: 13.28 over 2
 YOLO_MODEL_MINIMUM_CONFIDENCE = 0.6  # minimum confidence for object detection to consider it valid
 
 NEAR_WALL_THRESHOLD = 40  # distance in pixels to consider the robot is near a wall
-NEAR_CROSS_THRESHOLD = 5  # distance in pixels to consider the robot is near a cross
+NEAR_CROSS_THRESHOLD = 5  # distance in pixels to consider the robot is near a cross'
+SOMEWHAT_NEAR_CROSS_THRESHOLD = 25  # distance in pixels to consider the robot is somewhat near a cross
 NEAR_CORNER_THRESHOLD = 40  # distance in pixels to consider the robot is near a corner
 
 OPTIMAL_SPOT_DISTANCE_TO_NON_CROSS = 10

@@ -10,7 +10,7 @@ import traceback
 from enum import Enum
 
 import cv2
-import keyboard
+#import keyboard
 
 import cProfile
 import pstats
@@ -110,9 +110,10 @@ class Server:
         # hook events
         if self.CONTROL_CUSTOM:
             for k in self._key_map:
-                keyboard.on_press_key(k,   lambda e, k=k: self._activate(k))
-                keyboard.on_release_key(k, lambda e, k=k: self._deactivate(k))
-
+                #keyboard.on_press_key(k,   lambda e, k=k: self._activate(k))
+                #keyboard.on_release_key(k, lambda e, k=k: self._deactivate(k))
+                pass
+        
         #####################
         # fps variables calculations
         self.prev_time = time.time()
@@ -170,8 +171,8 @@ class Server:
             self.course = self.ai_model.generate_course(frame)
             vis = self.course_visualizer.draw(frame, self.course)
 
-            if keyboard.is_pressed('q'):
-                break
+            #if keyboard.is_pressed('q'):
+             #   break
 
             if self._active_key:
                 if self._active_key == 'o':

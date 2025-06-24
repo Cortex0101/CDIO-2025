@@ -20,6 +20,7 @@ class StateCollectBall(StateBase):
         self.robot_direction = robot.direction
         logger.debug(f"Check if target_object is near a wall: {self.target_object}")
         self.is_edge_ball = self.server.course.is_ball_near_wall(self.target_object)
+        self.is_somewhat_near_cross = self.server.course.is_ball_near_cross(self.target_object, threshold=config.SOMEWHAT_NEAR_CROSS_THRESHOLD)
 
         ### quick fix, as it does not recognize the target object, passed from earlier ###
         if self.target_object is None:
@@ -67,7 +68,13 @@ class StateCollectBall(StateBase):
         self.server.send_instruction(instruction)
         logger.debug(f"Sending drive command: {instruction}")
         #stop_dist = 20 if self.is_edge_ball else 20
-        stop_dist = config.BALL_STOP_DISTANCE_EDGE_BALL if self.is_edge_ball else config.BALL_STOP_DISTANCE
+        stop_dist = config.BALL_STOP_DISTANCE
+        if self.is_somewhat_near_cross:
+            logger.debug(f"Robot is somewhat near a cross, adjusting stop distance to {config.BALL_STOP_DISTANCE_CROSS}")
+            stop_dist = config.BALL_STOP_DISTANCE_CROSS
+        if self.is_edge_ball:
+            logger.debug(f"Robot is near an edge ball, adjusting stop distance to {config.BALL_STOP_DISTANCE_EDGE_BALL}")
+            stop_dist = config.BALL_STOP_DISTANCE_EDGE_BALL
 
         distance = self._distance(self.robot_center, self.server.pure_pursuit_navigator_slow.path[-1])
         logger.debug(f"Distance to target object: {distance}, stop distance: {stop_dist}, is_edge_ball: {self.is_edge_ball}")
