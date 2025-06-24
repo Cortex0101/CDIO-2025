@@ -1,6 +1,8 @@
 import logging
 from collections import deque
 import time
+
+import config
 logger = logging.getLogger(__name__)
 
 class StateBase:
@@ -92,8 +94,16 @@ class StateBase:
         if self.HAS_FOUND_GOAL:
             return self.server.last_valid_large_goal
 
-        goal = self.server.course.get_large_goal()
-        last_valid = self.server.last_valid_large_goal
+        goal = None
+        last_valid = None
+
+        if config.USE_SMALL_GOAL:
+            # Use small goal if configured
+            goal = self.server.course.get_small_goal()
+            last_valid = self.server.last_valid_large_goal
+        else:
+            goal = self.server.course.get_large_goal()
+            last_valid = self.server.last_valid_large_goal
 
         if goal is not None:
             if goal.center is not None:

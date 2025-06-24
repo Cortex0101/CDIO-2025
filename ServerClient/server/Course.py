@@ -263,8 +263,15 @@ class Course:
         """
         small_goals = self.get_by_label('small_goal')
         if not small_goals or len(small_goals) == 0:
-            logger.warning("No small goal object found in the course, returning None.")
-            return None
+            logger.warning("No small goal object found in the course, returning the big goal with smallest x value for center")
+            large_goals = self.get_by_label('big_goal')
+            if not large_goals or len(large_goals) == 0:
+                logger.warning("No large goal object found in the course, returning None.")
+                return None
+            
+            # return the large goal with the smallest x value for center
+            large_goals.sort(key=lambda goal: goal.center[0])
+            return large_goals[0]
         return small_goals[0]
 
     # TODO: functions for goals? Weird when they might be mixed up, or both small or both large

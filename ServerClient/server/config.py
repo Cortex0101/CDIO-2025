@@ -22,6 +22,7 @@ TURN_TO_OBJECT_MAX_SPEED = 30  # max speed in pixels per second when turning to 
 
 MANUAL_GOAL_CENTER = (549, 211)
 USE_MANUAL_GOAL_CENTER = False  # if True, use the manual goal center instead of the one from the course
+USE_SMALL_GOAL = True  # if True, use the small goal instead of the large goal
 
 BALL_STOP_DISTANCE = 30  # distance in pixels to stop before the target object
 BALL_STOP_DISTANCE_CROSS = 45  # distance in pixels to stop before the target cross
